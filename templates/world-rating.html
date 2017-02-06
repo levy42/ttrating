@@ -1,0 +1,110 @@
+{% extends "index.html" %}
+{% block title %}{{ _('World rating') }}{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    {{ super() }}
+    <div class="ui text container">
+        <form>
+            <div class="four inline fields">
+                <strong class="header field">{{ _('World rating' ) }}</strong>
+                <div class="ui field dropdown">
+                    <input type="hidden" name="year" value="{{ year }}">
+                    <i class="dropdown icon"></i>
+                    <strong class="header text">{{ year }}</strong>
+                    <div class="menu">
+                        {% for y in years %}
+                            <div class="item"
+                                 data-value="{{ y }}">{{ y }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="ui field dropdown">
+                    <input type="hidden" name="month" value="{{ month }}">
+                    <i class="dropdown icon"></i>
+                    <strong class="header text">{{ _(month|month_abbr) }}</strong>
+                    <div class="menu">
+                        {% for m in range(1, 13) %}
+                            <div class="item"
+                                 data-value="{{ m }}">{{ _(m|month_abbr) }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button style="border: none;background: none" type="submit">
+                    <i class="search icon"></i>
+                </button>
+            </div>
+            <br>
+            <div class="ui two column grid">
+                <div class="column">
+                    <div class="ui basic buttons">
+                        <a class="ui button {% if category=='MEN' %}active{% endif %}"
+                           href="{{ url_for('.world_rating', year=year, month=month, category='MEN') }}">
+                            {{ _('MEN') }}</a>
+                        <a class="ui button {% if category=='WOMEN' %}active{% endif %}"
+                           href="{{ url_for('.world_rating', year=year, month=month, category='WOMEN') }}">
+                            {{ _('WOMEN') }}</a>
+                    </div>
+                </div>
+                <div align="right" class="ui column search">
+                    <div class="ui icon input">
+                        <input class="prompt" type="text" name="player"
+                               placeholder="{{ _('Player name') }}">
+                        <i class="search icon"></i>
+                    </div>
+                    <div align="left" class="results"></div>
+                </div>
+            </div>
+            <table class="ui celled compact striped table" cellspacing="0"
+                   width="100%">
+                <thead>
+                <tr>
+                    <th>{{ _('#') }}</th>
+                    <th>{{ _('Player name') }}</th>
+                    <th class="popup" data-content="{{ _('Rating') }}">P
+                    </th>
+                    <th>{{ _('Country') }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for p in rating.items %}
+                    <tr>
+                        <td>{{ p.position }}</td>
+                        <td>
+                            <a href="{{ url_for('.world_player', id=p.player.id) }}">{{ name(p.player.name) }}</a>
+                        </td>
+                        <td>{{ p.rating }}</td>
+                        <td>
+                            <i class="{{ p.player.country.code_2.lower() }} flag"></i>
+                            {{ name(p.player.country.name) }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <div align=right> {% from '_utils.html' import render_pagination with context %}
+                {{ render_pagination(rating) }}</div>
+        </form>
+    </div>
+    <script>
+        $('.ui.search').search({
+            apiSettings: {
+                action: 'search',
+                url: '/{{ g.lang }}/world-player-search/{query}',
+                onResponse: function (serverResponse) {
+                    var response = {results: []};
+                    $.each(serverResponse, function (index, item) {
+                        response.results.push({
+                            title: item.name + ' <span style="color:green">' + item.rating + '</span>',
+                            description: item.city,
+                            url: item.url
+                        });
+                    });
+                    return response;
+                }
+            },
+            minCharacters: 3
+        });
+    </script>
+{% endblock %}

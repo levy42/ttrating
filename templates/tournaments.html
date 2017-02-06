@@ -1,0 +1,51 @@
+{% extends "index.html" %}
+{% block title %}{{ _('Tournaments') }}{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    {{ super() }}
+    <div class="ui text container">
+        <div class="ui pagination menu">
+            {% for year in years %}
+                <a class="ui {% if year == current_year %}active{% endif %} item"
+                   href="{{ url_for('.tournaments', year=year, month=1) }}">
+                    {{ year }}
+                </a>
+            {% endfor %}
+        </div>
+        <div class="ui secondary pointing menu">
+            {% for month in range(1, 13) %}
+                <a class="ui {% if current_month == month %}active{% endif %} item"
+                   href="{{ url_for('.tournaments', year=current_year, month=month) }}">
+                    {{ _(month|month_abbr) }}
+                </a>
+            {% endfor %}
+        </div>
+        <table id="table" class="ui table data-table">
+            <thead>
+            <tr>
+                <th>{{ _('#') }}</th>
+                <th>{{ _('Name') }}</th>
+                <th>{{ _('Judge') }}</th>
+                <th>{{ _('City') }}</th>
+{#                <th>{{ _('Participants') }}</th>#}
+            </tr>
+            </thead>
+            <tbody>
+            {% for t in tournaments %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>
+                        <a href="{{ url_for('.tournament',id=t.id) }}">{{ name(t.name) }}
+                    </td>
+                    </a>
+                    <td>{{ name(t.judge) }}</td>
+                    <td>{{ name(t.city) }}</td>
+{#                    <td>{{ t.player_total }}</td>#}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

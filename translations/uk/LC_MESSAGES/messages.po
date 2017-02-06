@@ -1,0 +1,320 @@
+# Ukrainian translations for PROJECT.
+# Copyright (C) 2017 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2017-03-18 15:44+0200\n"
+"PO-Revision-Date: 2017-03-18 15:46+0200\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: uk\n"
+"Language-Team: uk <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+msgid "Tournament total"
+msgstr "Кількість турнірів"
+
+msgid "City"
+msgstr "Місто"
+
+msgid "Search player in archive"
+msgstr "Пошук гравця в архіві"
+
+msgid "Participants"
+msgstr "Учасники"
+
+msgid "Tournaments"
+msgstr "Турніри"
+
+msgid "Start Weight"
+msgstr "Початкова вага"
+
+msgid "#"
+msgstr "№"
+
+msgid "Start Rating"
+msgstr "Початковий рейтинг"
+
+msgid "Player name"
+msgstr "Ім'я гравця"
+
+msgid "Search game"
+msgstr "Пошук ігор"
+
+msgid "Games"
+msgstr "Ігри"
+
+msgid "Opponent rating"
+msgstr "Рейтинг суперника"
+
+msgid "Result"
+msgstr "Резутьтат"
+
+msgid "Opponent"
+msgstr "Суперник"
+
+msgid "Contribution"
+msgstr "Вклад"
+
+msgid "Country"
+msgstr "Країна"
+
+msgid "Judge"
+msgstr "Суддя"
+
+msgid "Rating archive"
+msgstr "Архів рейтингів"
+
+msgid "WOMEN"
+msgstr "Жінки"
+
+msgid "Fine Rating"
+msgstr "Рейтинг зі штрафом"
+
+msgid "Name"
+msgstr "Назва"
+
+msgid "Opponent name"
+msgstr "Ім'я суперника"
+
+msgid "Players"
+msgstr "Гравці"
+
+msgid "Rating"
+msgstr "Рейтинг"
+
+msgid "Weight"
+msgstr "Вага"
+
+msgid "MEN"
+msgstr "Чоловіки"
+
+msgid "Main Judge"
+msgstr "Головний Суддя"
+
+msgid "Game total"
+msgstr "Кількість ігор"
+
+msgid "World rating"
+msgstr "Світовий рейтинг"
+
+msgid "Year"
+msgstr "Рік"
+
+msgid "Game Search"
+msgstr "Пошук ігор"
+
+msgid "World Players"
+msgstr "Світові Гравці"
+
+msgid "Currently this player is out of rating"
+msgstr "На данний момент игрок вибув з рейтингу"
+
+msgid "Statistics"
+msgstr "Статистика"
+
+msgid "Max Rating"
+msgstr "Максимальний рейтинг"
+
+msgid "Tournament count"
+msgstr "Кількість турнирів"
+
+msgid "Jan"
+msgstr "Січ"
+
+msgid "Feb"
+msgstr "Лют"
+
+msgid "Mar"
+msgstr "Бер"
+
+msgid "Apr"
+msgstr "Кві"
+
+msgid "May"
+msgstr "Тра"
+
+msgid "Jun"
+msgstr "Чер"
+
+msgid "Jul"
+msgstr "Лип"
+
+msgid "Aug"
+msgstr "Сер"
+
+msgid "Sep"
+msgstr "Вер"
+
+msgid "Oct"
+msgstr "Жов"
+
+msgid "Nov"
+msgstr "Лис"
+
+msgid "Dec"
+msgstr "Гру"
+
+msgid "Live Tournament"
+msgstr "Турніри онлайн"
+
+msgid "Next"
+msgstr "Далі"
+
+msgid "Prev"
+msgstr "Назад"
+
+msgid "Player already exists"
+msgstr "Гравець з таким іменем вже існує"
+
+msgid "Filter"
+msgstr "Фільтр"
+
+msgid "Create tournament"
+msgstr "Створити турнір"
+
+msgid "Register player"
+msgstr "Зареєструвати учасників"
+
+msgid "Create grid"
+msgstr "Створити турнірну таблицю"
+
+msgid "Start"
+msgstr "Старт"
+
+msgid "Rankings, tournaments, statistics and other stuff"
+msgstr "Рейтинги, турніри, статистика і багато іншого"
+
+msgid "Table tennis Ukraine"
+msgstr "Настільний теніс України"
+
+msgid "Menu"
+msgstr "Меню"
+
+msgid "Find tournament"
+msgstr "Знайти турнір"
+
+msgid "Create new tournament"
+msgstr "Новий турнір"
+
+msgid "Input unique key"
+msgstr "Вставте ключ"
+
+msgid "About us"
+msgstr "Про сайт"
+
+msgid "About"
+msgstr "Про сайт"
+
+msgid "Rating data a taken from"
+msgstr "Рейтинги взяті з сайту"
+
+msgid "Contacts"
+msgstr "Контакти"
+
+msgid "World rating"
+msgstr "Світовий рейтинг"
+
+msgid "Home"
+msgstr "На головну"
+
+msgid "Oooops, something goes wrong"
+msgstr "Ой, щось пішло не так"
+
+msgid "Main judge"
+msgstr "Головний суддя"
+
+msgid "No results"
+msgstr "Немає результатів"
+
+msgid "Input location"
+msgstr "Введіть адресу/розміщення"
+
+msgid "Add your offer"
+msgstr "Розмістити своє оголошення"
+
+msgid "Action"
+msgstr "Дія"
+
+msgid "Position"
+msgstr "Позиція"
+
+msgid "Rating tournament"
+msgstr "Рейтингований турнір"
+
+msgid "Tournament create"
+msgstr "Створити турнір"
+
+msgid "Email"
+msgstr ""
+
+msgid "Player1"
+msgstr "Гравець 1"
+
+msgid "Player"
+msgstr "Гравець"
+
+msgid "Tournament"
+msgstr "Турнир"
+
+msgid "Tournament name"
+msgstr "Назва турніру"
+
+msgid "sparring announcement"
+msgstr "Спаринг оголошення"
+
+msgid "Tournament coefficient"
+msgstr "Коефіцієнт турніру"
+
+msgid "Player2"
+msgstr "Гравець 2"
+
+msgid "Publish offer"
+msgstr "Опоблікувати оголошення"
+
+msgid "Sparring announcement"
+msgstr "Спаринг оголошення"
+
+msgid "Copy this key, your will need it for access"
+msgstr "Зкопіюйте цей ключ для доступу до турніру"
+
+msgid "Publish"
+msgstr "Опоблікувати"
+
+msgid "Page not found"
+msgstr "Сторінка не знайдена"
+
+msgid "Price from"
+msgstr "Ціна від"
+
+msgid "Try 'Win chain'"
+msgstr "Ланцюжок перемоги"
+
+msgid "Players count"
+msgstr "Кількість гравців"
+
+msgid "This is 'Win chain' robot, it can find a chain of player throw that one player win another"
+msgstr "Це робот для розрахунку ланцюга перемог через проміжні перемоги одного гравця над іншим"
+
+msgid "Count all games between player"
+msgstr "Враховувати сумарний резульатат ігор між гравцями"
+
+msgid "Win chain"
+msgstr "Ланцюжок перемоги"
+
+msgid "No games"
+msgstr "Немає ігор"
+
+msgid "Win"
+msgstr "Перемога"
+
+msgid "Lose"
+msgstr "Поразка"

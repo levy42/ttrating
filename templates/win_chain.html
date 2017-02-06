@@ -1,0 +1,95 @@
+{% extends "index.html" %}
+{% block title %}{{ _('Win chain') }}{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    {{ super() }}
+    <div class="ui text container">
+        <h3 align="center">{{ _('Win chain') }}</h3>
+        <p>{{ _("This is 'Win chain' robot, it can find a chain of players throw that one player win another") }}</p>
+        <form class="ui form" action="{{ url_for('.win_chain') }}"
+              name="search_game">
+            <div class="ui centered grid fields">
+                <input id="id1" name="player1_id" hidden
+                       value="{{ player1.id if player1 else '' }}">
+                <input id="id2" name="player2_id" hidden
+                       value="{{ player2.id if player2 else '' }}">
+                <div id="player1_search" class="field ui search">
+                    <input class="prompt" type="text" name="player1"
+                           placeholder="{{ _('Player name') }}"
+                           value="{{ name(player1.name) if player1 else '' }}"
+                           required>
+                    <div align="left" class="results"></div>
+                </div>
+                <div id="player2_search" class="field ui search">
+                    <input class="prompt" type="text" name="player2"
+                           placeholder="{{ _('Opponent name') }}"
+                           value="{{ name(player2.name) if player2 else '' }}"
+                           required>
+                    <div align="left" class="results"></div>
+                </div>
+                <button class="ui basic icon button"
+                        type="submit"><i class="search icon"></i></button>
+            </div>
+            <div class="ui checkbox">
+                <input type="checkbox" name="count_all"
+                       {% if count_all %}checked{% endif %}>
+                <label>{{ _('Count all games between players') }}</label>
+            </div>
+        </form>
+        {% if chain == None %}
+            <h3 class="ui header">{{ _('No results') }}</h3>
+        {% endif %}
+        {% if chain %}
+            {% for player in chain %}
+                <div align="center">
+                    <div>
+                        <a href="{{ url_for('.player',id=player.id) }}">
+                            {{ name(player.name) }}
+                        </a> <span
+                            style="color: green;">{{ player.rating or '0.0' }}</span>
+                    </div>
+                    {% if loop.index < loop.length %}
+                        <i class="ui icon down arrow"></i>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <script>
+        var options = {
+            action: 'search',
+            url: '/{{ g.lang }}/player-search/{query}',
+            onResponse: function (serverResponse) {
+                var response = {results: []};
+                $.each(serverResponse, function (index, item) {
+                    var row = {
+                        title: item.name,
+                        description: item.city + ' <span style="color:green">'
+                        + item.rating + '</span>',
+                        id: item.id
+                    };
+                    if (item.image != null)
+                        row.image = item.image;
+                    response.results.push(row);
+                });
+                return response;
+            }
+        };
+        $('#player1_search').search({
+            apiSettings: options,
+            onSelect: function (item) {
+                $('#id1').val(item.id);
+            },
+            minCharacters: 3
+        });
+        $('#player2_search').search({
+            apiSettings: options,
+            onSelect: function (item) {
+                $('#id2').val(item.id);
+            },
+            minCharacters: 3
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,11 @@
+Flask
+Flask-Cache
+Flask-SQLalchemy
+Flask-Script
+Flask-Babel
+Flask-Mobility
+Flask-Bcrypt
+bs4
+requests
+xlrd
+networkx
