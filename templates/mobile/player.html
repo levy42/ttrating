@@ -1,113 +1,103 @@
-{% extends "mobile/index.html" %}
+{% extends "mobile/base.html" %}
 {% block title %}{{ name(player.name) }}{% endblock %}
 {% block head %}
     {{ super() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.bundle.min.js"></script>
 {% endblock %}
 {% block content %}
     {{ super() }}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.bundle.min.js"></script>
-    <div class="ui grid ">
-        {% if player.info.photo_url %}
-            <div>
-                <img class="ui rounded image"
-                     src="{{ player.info.photo_url }}"
-                     height="200">
-            </div>
-        {% endif %}
-        <div>
-            <h2 class="header">{{ name(player.name) }}
-                {% if player.rating %}
-                    <span style="color: green">{{ player.rating }}</span>
-                {% else %}
-                    <span style="color: red" class="popup"
-                          data-content="{{ _('Currently this player is out of rating') }}">
+    <h2 class="header">{{ name(player.name) }}
+        {% if player.rating %}
+            <span style="color: green">{{ player.rating }}</span>
+        {% else %}
+            <span style="color: red" class="popup"
+                  data-content="{{ _('Currently this player is out of rating') }}">
                         0.0</span>
-                {% endif %}
-            </h2>
-            <table>
-                <tr>
-                    <td><strong>{{ _('City') }}:</strong></td>
-                    <td>{{ name(player.city) + "-" + name(player.city2)
+        {% endif %}
+    </h2>
+    <table style="margin-left: 5%">
+        <tr>
+            <td><strong>{{ _('City') }}:</strong></td>
+            <td>{{ name(player.city) + "-" + name(player.city2)
                 if player.city2 else name(player.city) }}</td>
-                </tr>
-                <tr>
-                    <td><strong>{{ _('Year') }}:</strong></td>
-                    <td>{{ player.year }}</td>
-                </tr>
-                <tr>
-                    <td><strong>{{ _('Weight') }}:</strong></td>
-                    <td>{{ player.weight }}</td>
-                </tr>
-                <tr>
-                    <td><strong>{{ _('Tournaments') }}:</strong></td>
-                    <td>{{ player.info.tournaments_total }}</td>
-                </tr>
-                <tr>
-                    <td><strong>{{ _('Games') }}:</strong></td>
-                    <td>{{ player.info.game_total }}/<span style="color:
+        </tr>
+        <tr>
+            <td><strong>{{ _('Year') }}:</strong></td>
+            <td>{{ player.year }}</td>
+        </tr>
+        <tr>
+            <td><strong>{{ _('Weight') }}:</strong></td>
+            <td>{{ player.weight }}</td>
+        </tr>
+        <tr>
+            <td><strong>{{ _('Tournaments') }}:</strong></td>
+            <td>{{ player.info.tournaments_total }}</td>
+        </tr>
+        <tr>
+            <td><strong>{{ _('Games') }}:</strong></td>
+            <td>{{ player.info.game_total }}/<span style="color:
                     green;">{{ player.info.game_won }}</span>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <canvas id="myChart"></canvas>
-        <h3 class="ui header">{{ _('Tournaments') }}</h3>
-        <div class="row">
-            <table id="table" class="ui table data-table">
-                <thead>
-                <tr>
-                    <th>{{ _('#') }}</th>
-                    <th>{{ _('Name') }}</th>
-                    <th class="popup" data-content="{{ _('Start Rating') }}">
-                        P<sub>0</sub></th>
-                    <th>ΔP</th>
-                    <th class="popup" data-content="{{ _('Start Weight') }}">
-                        B<sub>0</sub></th>
-                    <th>ΔB</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for player_tournament in player.tournaments %}
-                    <tr>
-                        <td>{{ loop.index }}</td>
-                        <td>
-                            <a href="{{ url_for('.player_tournament',
+            </td>
+        </tr>
+    </table>
+    <canvas id="myChart">
+        <script type="text/javascript">
+            var dates = {{ dates|tojson }};
+            var ratings = {{ ratings|tojson }};
+            var positions = {{ positions|tojson}};
+            var ctx = document.getElementById("myChart");
+            var myChart = new Chart(ctx, {
+                type: 'line',
+                defaultFontSize: 40,
+                data: {
+                    labels: dates,
+                    fontSize: 2,
+                    datasets: [{
+                        label: "{{ _('Rating') }}",
+                        data: ratings,
+                        pointHitRadius: 13
+                    }, {
+                        label: "{{ _('Position') }}",
+                        data: positions,
+                        pointHitRadius: 13,
+                        hidden: true,
+                        backgroundColor: "rgba(0,100,255,0.1)"
+                    }]
+                }
+            });
+        </script>
+    </canvas>
+    <h3 class="ui header">{{ _('Tournaments') }}</h3>
+    <table id="table" class="ui table data-table">
+        <thead>
+        <tr>
+            <th>{{ _('#') }}</th>
+            <th>{{ _('Name') }}</th>
+            <th class="popup" data-content="{{ _('Start Rating') }}">
+                P<sub>0</sub></th>
+            <th>ΔP</th>
+            <th class="popup" data-content="{{ _('Start Weight') }}">
+                B<sub>0</sub></th>
+            <th>ΔB</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for player_tournament in player.tournaments %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>
+                    <a href="{{ url_for('.player_tournament',
                     player_id=player_tournament.player_id,
                     tournament_id=player_tournament.tournament_id) }}">
-                                {{ name(player_tournament.tournament.name) }}
-                            </a>
-                        </td>
-                        <td>{{ player_tournament.start_rating }}</td>
-                        <td>{{ player_tournament.delta_rating|color }}</td>
-                        <td>{{ player_tournament.start_weight }}</td>
-                        <td>{{ player_tournament.delta_weight }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <script type="text/javascript">
-        var dates = {{ dates|tojson }};
-        var ratings = {{ ratings|tojson }};
-        var positions = {{ positions|tojson}};
-        var ctx = document.getElementById("myChart");
-        var myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: dates,
-                datasets: [{
-                    label: "{{ _('Rating') }}",
-                    data: ratings,
-                    pointHitRadius: 13
-                }, {
-                    label: "{{ _('Position') }}",
-                    data: positions,
-                    pointHitRadius: 13,
-                    hidden: true,
-                    backgroundColor: "rgba(0,100,255,0.1)"
-                }]
-            }
-        });
-    </script>
+                        {{ name(player_tournament.tournament.name) }}
+                    </a>
+                </td>
+                <td>{{ player_tournament.start_rating }}</td>
+                <td>{{ player_tournament.delta_rating|color }}</td>
+                <td>{{ player_tournament.start_weight }}</td>
+                <td>{{ player_tournament.delta_weight }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

@@ -297,7 +297,7 @@ def tournaments(year=None, month=None):
                 rating_list_id=rating_list.id).order_by(
                 m.Tournament.start_date.desc()).all()
     return render_template('tournaments.html', tournaments=tournaments,
-                           current_year=year, current_month=month, years=years)
+                           year=year, month=month, years=years)
 
 
 @main.route("/win-chain")

@@ -1,84 +1,82 @@
-{% extends "mobile/index.html" %}
+{% extends "mobile/base.html" %}
 {% block title %}{{ _('Search game') }}{% endblock %}
 {% block head %}
     {{ super() }}
 {% endblock %}
 {% block content %}
     {{ super() }}
-    <div class="ui ">
-        <h3 align="center">{{ _('Game Search') }}</h3>
-        <form class="ui form" action="{{ url_for('.game_search') }}"
-              name="search_game">
-            <input id="id1" name="player1_id" hidden>
-            <input id="id2" name="player2_id" hidden>
-            <div class="ui centered grid fields">
-                <div id="player1_search" class="field ui search">
-                    <input class="prompt" type="text" name="player1"
-                           placeholder="{{ _('Player name') }}"
-                           value="{{ player1 }}" required>
-                    <div align="left" class="results"></div>
-                </div>
-                <div id="player2_search" class="field ui search">
-                    <input class="prompt" type="text" name="player2"
-                           placeholder="{{ _('Opponent name') }}"
-                           value="{{ player2 }}">
-                    <div align="left" class="results"></div>
-                </div>
-                <button class="ui basic icon button"
-                        type="submit"><i class="search icon"></i></button>
+    <h3 align="center">{{ _('Game Search') }}</h3>
+    <form class="ui form" action="{{ url_for('.game_search') }}"
+          name="search_game">
+        <input id="id1" name="player1_id" hidden>
+        <input id="id2" name="player2_id" hidden>
+        <div class="ui centered grid fields">
+            <div id="player1_search" class="field ui search">
+                <input class="prompt" type="text" name="player1"
+                       placeholder="{{ _('Player name') }}"
+                       value="{{ player1 }}" required>
+                <div align="left" class="results"></div>
             </div>
-        </form>
-        <div align="right">
-            <a href="{{ url_for('.win_chain') }}">
-                {{ _("Try 'Win chain'") }} >>
-            </a>
+            <div id="player2_search" class="field ui search">
+                <input class="prompt" type="text" name="player2"
+                       placeholder="{{ _('Opponent name') }}"
+                       value="{{ player2 }}">
+                <div align="left" class="results"></div>
+            </div>
+            <button class="ui basic icon button"
+                    type="submit"><i class="search icon"></i></button>
         </div>
-        {% if games == [] %}
-            <h3 class="ui header">{{ _('No results') }}</h3>
-        {% endif %}
-        {% if games %}
-            <table class="ui table">
-                <thead>
-                <tr>
-                    <th>{{ _('Player1') }}</th>
-                    <th>{{ _('Player2') }}</th>
-                    <th>{{ _('Contribution') }}</th>
-                    <th>{{ _('Tournament') }}</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for x in games.items %}
-                    <tr>
-                        <td>
-                            <a href="{{ url_for('.player', id=x.player_id) }}"
-                               {% if
-                   x.result %}style="color: green;font-weight: bold;" {% endif %}>{{ name(x.player_name) }}</a>
-                        </td>
-                        {% if x.opponent_id %}
-                            <td>
-                                <a href="{{ url_for('.player', id=x.opponent_id) }}"
-                                   {% if not
-                   x.result %}style="color: green;font-weight: bold;" {% endif %}>{{ name(x.opponent_name) }}</a>
-                            </td>
-                        {% else %}
-                            <td>
-                                <a {% if not x.result %}style="color: green" {% endif %}>
-                                    {{ name(x.opponent_name) }}</a></td>
-                        {% endif %}
-                        <td>{{ x.contribution }}</td>
-                        <td>
-                            <a href="{{ url_for('.tournament', id=x.tournament_id) }}">
-                                {{ name(x.tournament.name) }}</a></td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            <div align=right>
-                {% from '_utils.html' import render_pagination with context %}
-                {{ render_pagination(games) }}
-            </div>
-        {% endif %}
+    </form>
+    <div align="right">
+        <a href="{{ url_for('.win_chain') }}">
+            {{ _("Try 'Win chain'") }} >>
+        </a>
     </div>
+    {% if games == [] %}
+        <h3 class="ui header">{{ _('No results') }}</h3>
+    {% endif %}
+    {% if games %}
+        <table class="ui table">
+            <thead>
+            <tr>
+                <th>{{ _('Player1') }}</th>
+                <th>{{ _('Player2') }}</th>
+                <th>{{ _('Contribution') }}</th>
+                <th>{{ _('Tournament') }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for x in games.items %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('.player', id=x.player_id) }}"
+                           {% if
+                   x.result %}style="color: green;font-weight: bold;" {% endif %}>{{ name(x.player_name) }}</a>
+                    </td>
+                    {% if x.opponent_id %}
+                        <td>
+                            <a href="{{ url_for('.player', id=x.opponent_id) }}"
+                               {% if not
+                   x.result %}style="color: green;font-weight: bold;" {% endif %}>{{ name(x.opponent_name) }}</a>
+                        </td>
+                    {% else %}
+                        <td>
+                            <a {% if not x.result %}style="color: green" {% endif %}>
+                                {{ name(x.opponent_name) }}</a></td>
+                    {% endif %}
+                    <td>{{ x.contribution }}</td>
+                    <td>
+                        <a href="{{ url_for('.tournament', id=x.tournament_id) }}">
+                            {{ name(x.tournament.name) }}</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div align=right>
+            {% from '_utils.html' import render_pagination with context %}
+            {{ render_pagination(games) }}
+        </div>
+    {% endif %}
     <script>
         var options = {
             action: 'search',
@@ -92,8 +90,6 @@
                         + item.rating + '</span>',
                         id: item.id
                     };
-                    if (item.image != null)
-                        row.image = item.image;
                     response.results.push(row);
                 });
                 return response;
