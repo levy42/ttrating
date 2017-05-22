@@ -45,7 +45,8 @@
 
     <style type="text/css">
         html, body {
-            font-size: 2rem;
+            font-size: 1.5rem;
+            line-height: 90%;
         !important;
         }
 
@@ -67,50 +68,48 @@
     </a>
     <h2 class="ui header">{{ _('Table tennis Ukraine') }}</h2>
 </div>
-<div class="ui bottom attached segment pushable">
-    {% block content %}
-    {% endblock %}
-    <div class="ui inverted labeled icon left inline vertical sidebar menu">
-        <a href="{{ url_for('.statistics') }}"
-           class="{% if '.statistics' in request.endpoint %}active{% endif %} item">
-            <i class="bar chart icon"></i>
-            {{ _('Statistics') }}</a>
-        <a href="{{ url_for('.rating') }}"
-           class="{% if '.rating' in request.endpoint %}active{% endif %} item">
-            <i class="table icon"></i>
-            {{ _('Rating') }}</a>
-        <a class="{% if '.world_rating' in request.endpoint %}
+{% block content %}
+{% endblock %}
+<div class="ui inverted labeled icon left inline vertical sidebar menu">
+    <a href="{{ url_for('.statistics') }}"
+       class="{% if '.statistics' in request.endpoint %}active{% endif %} item">
+        <i class="bar chart icon"></i>
+        {{ _('Statistics') }}</a>
+    <a href="{{ url_for('.rating') }}"
+       class="{% if '.rating' in request.endpoint %}active{% endif %} item">
+        <i class="table icon"></i>
+        {{ _('Rating') }}</a>
+    <a class="{% if '.world_rating' in request.endpoint %}
                             active{% endif %} item"
-           href="{{ url_for('.world_rating') }}">
-            <i class="world icon"></i>
-            {{ _('World rating') }}</a>
-        <a href="{{ url_for('.tournaments') }}"
-           class="{% if '.tournaments' in request.endpoint %}active{% endif %} item">
-            <i class="trophy icon"></i>
-            {{ _('Tournaments') }}</a>
-        <a href="{{ url_for('.game_search') }}"
-           class="{% if   '.game_search' in request.endpoint %}active{% endif %} item">
-            <i class="search icon"></i>
-            {{ _('Game Search') }}</a>
-        <div class="divider"></div>
-        <a href="{{ url_for('.about') }}"
-           class="{% if '.about' in request.endpoint %}active{% endif %} item">
-            <i class="info circle icon"></i>
-            {{ _('About us') }}</a>
-        <div class="divider"></div>
-        <!--language selection-->
-        {% for i, name in config.SUPPORTED_LANGUAGES.items() %}
-            {% if i == g.lang %}
-                <a class="active item"
-                   href="{{ request.url.replace('/%s/' % g.lang,'/%s/' % i) }}">
-                    {{ name }}</a>
-            {% else %}
-                <a class="item" style="color: darkgrey"
-                   href="{{ request.url.replace('/%s/' % g.lang,'/%s/' % i) }}">
-                    {{ name }}</a>
-            {% endif %}
-        {% endfor %}
-    </div>
+       href="{{ url_for('.world_rating') }}">
+        <i class="world icon"></i>
+        {{ _('World rating') }}</a>
+    <a href="{{ url_for('.tournaments') }}"
+       class="{% if '.tournaments' in request.endpoint %}active{% endif %} item">
+        <i class="trophy icon"></i>
+        {{ _('Tournaments') }}</a>
+    <a href="{{ url_for('.game_search') }}"
+       class="{% if   '.game_search' in request.endpoint %}active{% endif %} item">
+        <i class="search icon"></i>
+        {{ _('Game Search') }}</a>
+    <div class="divider"></div>
+    <a href="{{ url_for('.about') }}"
+       class="{% if '.about' in request.endpoint %}active{% endif %} item">
+        <i class="info circle icon"></i>
+        {{ _('About us') }}</a>
+    <div class="divider"></div>
+    <!--language selection-->
+    {% for i, name in config.SUPPORTED_LANGUAGES.items() %}
+        {% if i == g.lang %}
+            <a class="active item"
+               href="{{ request.url.replace('/%s/' % g.lang,'/%s/' % i) }}">
+                {{ name }}</a>
+        {% else %}
+            <a class="item" style="color: darkgrey"
+               href="{{ request.url.replace('/%s/' % g.lang,'/%s/' % i) }}">
+                {{ name }}</a>
+        {% endif %}
+    {% endfor %}
 </div>
 <div id="footer" class="footer-right">
     {% block footer %}

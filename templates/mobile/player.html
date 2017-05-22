@@ -6,7 +6,7 @@
 {% endblock %}
 {% block content %}
     {{ super() }}
-    <h2 class="header">{{ name(player.name) }}
+    <h2>{{ name(player.name) }}
         {% if player.rating %}
             <span style="color: green">{{ player.rating }}</span>
         {% else %}
