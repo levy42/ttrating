@@ -1,0 +1,81 @@
+{% extends "mobile/index.html" %}
+{% block title %}{{  _('Sparring') }}{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    {{ super() }}
+    <div class="ui ">
+        <h1 align="center">{{ _('Sparring announcement') }}
+            <small style="color: gray;">{{ sparrings.total }}</small>
+        </h1>
+        <div align="right">
+            <a class="ui positive basic button"
+               href="{{ url_for('.add_sparring') }}">{{ _('Publish offer') }}</a>
+        </div>
+        <div>
+            <form action="{{ url_for(request.endpoint) }}">
+                <label>{{ _('City') }}:</label>
+                <select onchange="this.form.submit()"
+                        class="ui compact dropdown" name="city">
+                    <option value="-">{{ _('All') }}</option>
+                    {% for c in cities %}
+                        <option value="{{ c }}"
+                                {% if city==c %}selected{% endif %}>{{ name(c) }}</option>
+                    {% endfor %}
+                </select>
+                <label>{{ _('Sort by') }}:</label>
+                <select onchange="this.form.submit()"
+                        class="ui compact dropdown" name="sort_by">
+                    <option value="datetime"
+                            {% if sort_by=='datetime' %}selected{% endif %}>{{ _('Date') }}</option>
+                    <option value="rating"
+                            {% if sort_by=='rating' %}selected{% endif %}>{{ _('Rating') }}</option>
+                    <option value="price"
+                            {% if sort_by=='price' %}selected{% endif %}>{{ _('Price') }}</option>
+                </select>
+            </form>
+        </div>
+        <div class="ui large divided list">
+            {% for s in sparrings.items %}
+                <div class="item" style="margin-bottom:1rem">
+                    <div class="right floated content">
+                        <p style="font-size: small;color: darkgray">{{ _('from %(price)d ₴ per hour',price=s.price) }}</p>
+                    </div>
+                    <img class="ui tiny circular image"
+                         src="/static/img/empty-profile-image.png">
+                    <div class="content" style="margin-top:1rem">
+                        {% if s.player_id %}
+                            <div class="header"><a
+                                    href="{{ url_for('.player',id=s.player_id) }}">
+                                {{ name(s.name) }}
+                            </a>
+                                <small style="color: green">{{ s.player.rating }}</small>
+                            </div>
+                        {% else %}
+                            <div class="header">{{ s.name }}</div>
+                        {% endif %}
+                        <div class="description">
+                            <i class="icon marker"></i>
+                            <span>{{ name(s.city) }}</span>
+                            <span style="font-size: small">{{ s.location }}</span>
+                        </div>
+                        <div class="description">
+                            <i class="icon mail"></i>
+                            <small>{{ s.email }}</small>
+                        </div>
+                    </div>
+                    <div class="content">
+                        <div class="description">
+                            <small style="white-space: pre-wrap;">{{ s.description }}</small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div align=right>
+            {% from '_utils.html' import render_pagination with context %}
+            {{ render_pagination(sparrings) }}
+        </div>
+    </div>
+{% endblock %}

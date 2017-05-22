@@ -1,0 +1,12 @@
+{% extends "mobile/base.html" %}
+{% block title %}404{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    <div class="ui page" style="text-align: center; margin-top: 10%">
+        <h1 class="ui header">{{ _('Page not found') }}</h1>
+        <a class="ui green button"
+           href="{{ url_for('.home') }}">{{ _('Home') }}</a>
+    </div>
+{% endblock %}

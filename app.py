@@ -40,8 +40,7 @@ Mobility(app)
 
 def render_template(name, **kwargs):
     if request.blueprint == 'mobile':
-        # return _render_template('mobile/' + name, **kwargs)
-        return _render_template(name, **kwargs)
+        return _render_template('mobile/' + name, **kwargs)
     else:
         return _render_template(name, **kwargs)
 
