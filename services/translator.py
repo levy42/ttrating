@@ -71,9 +71,9 @@ def retranslate(text):
     return RETRANSLATION.get(text, text)
 
 
-def search_translations(text, lang):
+def search_translations(text, lang=None):
     return [t.origin for t in TRANSLATIONS.values() if
-            t.locale == lang and text in t.translated]
+            t.locale == lang and (text in t.translated or text in t.origin)]
 
 
 def add_translations(arr, lang):
