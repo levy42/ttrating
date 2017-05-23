@@ -182,13 +182,13 @@ def rating(category='MEN'):
 
     years = get_years()
     rating = m.Rating.query.join(m.Player).options(
-            eagerload('player')).filter(
-            m.Rating.year == year,
-            m.Rating.month == month,
-            m.Player.category == category,
-            m.Rating.rating >= 10).order_by('rating.' + sort_by).paginate(
-            per_page=limit,
-            page=page)
+        eagerload('player')).filter(
+        m.Rating.year == year,
+        m.Rating.month == month,
+        m.Player.category == category,
+        m.Rating.rating >= 10).order_by('rating.' + sort_by).paginate(
+        per_page=limit,
+        page=page)
     date = '%s %s' % (_(calendar.month_abbr[month]), year)
 
     return render_template('rating.html', rating=rating,
@@ -201,8 +201,8 @@ def rating(category='MEN'):
 @cache.cached(key_prefix=lambda: request.url)
 def world_rating(year=None, month=None, category='MEN'):
     rating_lists = m.WorldRatingList.query.order_by(
-            m.WorldRatingList.year.desc(),
-            m.WorldRatingList.month.desc()).all()
+        m.WorldRatingList.year.desc(),
+        m.WorldRatingList.month.desc()).all()
 
     year = request.args.get('year', rating_lists[0].year, type=int)
     month = request.args.get('month', rating_lists[0].month, type=int)
@@ -219,11 +219,11 @@ def world_rating(year=None, month=None, category='MEN'):
     years = sorted(list(set([l.year for l in rating_lists])), reverse=True)
 
     rating = m.WorldRating.query.join(m.WorldPlayer).options(
-            eagerload('player')).filter(
-            m.WorldRating.year == year,
-            m.WorldRating.month == month,
-            m.WorldPlayer.category == category,
-            m.WorldRating.rating > 0
+        eagerload('player')).filter(
+        m.WorldRating.year == year,
+        m.WorldRating.month == month,
+        m.WorldPlayer.category == category,
+        m.WorldRating.rating > 0
     ).order_by('world_rating.' + sort_by).paginate(page=page, per_page=limit)
 
     return render_template('world-rating.html', rating=rating,
@@ -238,7 +238,7 @@ def world_player(id):
     if not player:
         abort(404)
     ratings = m.WorldRating.query.filter_by(player_id=id).order_by(
-            m.WorldRating.year, m.WorldRating.month).all()[-36:]  # tmp limit
+        m.WorldRating.year, m.WorldRating.month).all()[-36:]  # tmp limit
     ratings_values = [r.rating for r in ratings]
     dates = ["%s %s" % (_(calendar.month_abbr[r.month]), r.year) for r in
              ratings]
@@ -253,7 +253,7 @@ def player(id):
     if not player:
         abort(404)
     ratings = m.Rating.query.filter_by(player_id=id).order_by(
-            m.Rating.year, m.Rating.month).all()
+        m.Rating.year, m.Rating.month).all()
     ratings_values = [r.rating for r in ratings]
     weight_values = [r.weight for r in ratings]
     position_values = [r.position for r in ratings]
@@ -268,7 +268,7 @@ def player(id):
 @cache.cached()
 def player_tournament(player_id, tournament_id):
     player_tournament = m.PlayerTournament.query.filter_by(
-            player_id=player_id, tournament_id=tournament_id).first()
+        player_id=player_id, tournament_id=tournament_id).first()
     return render_template('player_tournament.html',
                            player_tournament=player_tournament)
 
@@ -294,8 +294,8 @@ def tournaments(year=None, month=None):
         tournaments = []
     else:
         tournaments = m.Tournament.query.filter_by(
-                rating_list_id=rating_list.id).order_by(
-                m.Tournament.start_date.desc()).all()
+            rating_list_id=rating_list.id).order_by(
+            m.Tournament.start_date.desc()).all()
     return render_template('tournaments.html', tournaments=tournaments,
                            year=year, month=month, years=years)
 
@@ -336,7 +336,7 @@ def game_search():
     games = None
     if filters:
         games = m.Game.query.filter(*filters).order_by('id').paginate(
-                page=page, per_page=25)
+            page=page, per_page=25)
     return render_template('games_search.html', games=games, player1=player1,
                            player2=player2)
 
@@ -346,8 +346,8 @@ def game_search():
 def statistics():
     page = request.args.get('page', 1, type=int)
     issues = m.TopicIssue.query.join(m.Topic).options(
-            eagerload('topic')).order_by(m.TopicIssue.new).order_by(
-            m.Topic.index).paginate(per_page=7, page=page)
+        eagerload('topic')).order_by(m.TopicIssue.new).order_by(
+        m.Topic.index).paginate(per_page=7, page=page)
     return render_template('statistics.html', issues=issues)
 
 
@@ -415,7 +415,7 @@ def live_tournament_remove_player(key, number):
     m.db.session.add(tournament)
     m.db.session.commit()
     return redirect(
-            url_for('.live_tournament_add_players', key=tournament.key))
+        url_for('.live_tournament_add_players', key=tournament.key))
 
 
 @main.route("/live-tournament/<key>/add-players", methods=['GET', 'POST'])
@@ -465,7 +465,7 @@ def sparring():
     sort_by = request.args.get('sort_by', 'rating')
     if sort_by == 'rating':
         query = m.Sparring.query.join(m.Player).order_by(
-                m.Player.rating.desc())
+            m.Player.rating.desc())
     elif sort_by == 'price':
         query = m.Sparring.query.order_by(m.Sparring.price.desc())
     else:
@@ -512,11 +512,11 @@ def add_sparring():
 def player_search(name):
     if g.lang == 'ru':  # default player name language
         matches = m.Player.query.filter(
-                m.Player.name.like('%' + name.title() + '%')).limit(10).all()
+            m.Player.name.like('%' + name.title() + '%')).limit(10).all()
     else:
         translations = search_translations(name.title(), g.lang)
         matches = m.db.session.query(m.Player).filter(
-                m.Player.name.in_(translations)).limit(10).all()
+            m.Player.name.in_(translations)).limit(10).all()
     return json.dumps([{'name': translate_name(p.name),
                         'rating': p.rating or '0.0',
                         'url': url_for('.player', id=p.id),
@@ -530,12 +530,12 @@ def player_search(name):
 @main.route("/world-player-search/<name>")
 def world_player_search(name):
     matches = m.WorldPlayer.query.filter(m.WorldPlayer.name.like(
-            '%' + name.title() + '%')).limit(10).all()
+        '%' + name.title() + '%')).limit(10).all()
     return json.dumps([{'name': p.name,
                         'rating': p.rating or '0.0',
                         'url': url_for('.world_player', id=p.id),
                         'country': translate_name(countries().get(
-                                p.country_code).name)} for p in matches])
+                            p.country_code).name)} for p in matches])
 
 
 # cached
@@ -561,10 +561,13 @@ def about():
 @app.route('/')
 @main.route('/')
 def home():
-    if request.MOBILE:
-        return redirect(url_for('mobile.statistics'))
+    if request.args.get('version'):
+        return redirect(url_for('.statistics'))
     else:
-        return redirect(url_for('main.statistics'))
+        if request.MOBILE:
+            return redirect(url_for('mobile.statistics'))
+        else:
+            return redirect(url_for('main.statistics'))
 
 
 @app.errorhandler(404)

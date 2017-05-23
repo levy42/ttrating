@@ -262,10 +262,10 @@ msgstr "Цепочка победы"
 msgid "Try 'Win chain'"
 msgstr "Цепочка победы"
 
-msgid "This is 'Win chain' robot, it can find a chain of player throw that one player win another"
+msgid "This is 'Win chain' robot, it can find a chain of players throw that one player win another"
 msgstr "Это робот для расчета цепочки побед через промежуточные победы одного игрока над другим"
 
-msgid "Count all games between player"
+msgid "Count all games between players"
 msgstr "Считать только сумарный результат по играх"
 
 msgid "Date"
@@ -345,3 +345,9 @@ msgstr "Победа"
 
 msgid "Lose"
 msgstr "Поражение"
+
+msgid "Full version"
+msgstr "Полная версия"
+
+msgid "Mobile version"
+msgstr "Мобильная версия"

@@ -301,10 +301,10 @@ msgstr "Ланцюжок перемоги"
 msgid "Players count"
 msgstr "Кількість гравців"
 
-msgid "This is 'Win chain' robot, it can find a chain of player throw that one player win another"
+msgid "This is 'Win chain' robot, it can find a chain of players throw that one player win another"
 msgstr "Це робот для розрахунку ланцюга перемог через проміжні перемоги одного гравця над іншим"
 
-msgid "Count all games between player"
+msgid "Count all games between players"
 msgstr "Враховувати сумарний резульатат ігор між гравцями"
 
 msgid "Win chain"
@@ -318,3 +318,9 @@ msgstr "Перемога"
 
 msgid "Lose"
 msgstr "Поразка"
+
+msgid "Full version"
+msgstr "Повна версія"
+
+msgid "Mobile version"
+msgstr "Мобільна версія"

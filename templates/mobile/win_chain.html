@@ -31,12 +31,13 @@
             <button class="ui basic icon button"
                     type="submit"><i class="search icon"></i></button>
         </div>
-        <div class="ui checkbox">
+        <div align="center" class="ui big toggle checkbox">
             <input type="checkbox" name="count_all"
                    {% if count_all %}checked{% endif %}>
             <label>{{ _('Count all games between players') }}</label>
         </div>
     </form>
+    <div class="ui divider"></div>
     {% if chain == None %}
         <h3 class="ui header">{{ _('No results') }}</h3>
     {% endif %}

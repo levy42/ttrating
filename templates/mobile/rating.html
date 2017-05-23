@@ -94,7 +94,7 @@
         $('.ui.search').search({
             apiSettings: {
                 action: 'search',
-                url: '/{{ g.lang }}/player-search/{query}',
+                url: '{{ url_for('.player_search', name='') }}{query}',
                 onResponse: function (serverResponse) {
                     var response = {results: []};
                     $.each(serverResponse, function (index, item) {
