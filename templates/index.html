@@ -176,6 +176,12 @@
                                 {{ name }}</a>
                         {% endif %}
                     {% endfor %}
+                    <div class="divider"></div>
+                    <a class="item"
+                       href="{{ url_for('mobile.home',version=True) }}">
+                        <i class="mobile icon"></i>
+                        {{ _('Mobile version') }}
+                    </a>
                 </div>
             </div>
         </div>
