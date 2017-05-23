@@ -45,9 +45,7 @@
 
     <style type="text/css">
         html, body {
-            font-size: 1.5rem;
-            line-height: 90%;
-        !important;
+            font-size: xx-large;
         }
 
         h1, h2, h3, h4, p {
@@ -68,8 +66,6 @@
     </a>
     <h2 class="ui header">{{ _('Table tennis Ukraine') }}</h2>
 </div>
-{% block content %}
-{% endblock %}
 <div class="ui inverted labeled icon left inline vertical sidebar menu">
     <a href="{{ url_for('.statistics') }}"
        class="{% if '.statistics' in request.endpoint %}active{% endif %} item">
@@ -110,6 +106,10 @@
                 {{ name }}</a>
         {% endif %}
     {% endfor %}
+</div>
+<div>
+    {% block content %}
+    {% endblock %}
 </div>
 <div id="footer" class="footer-right">
     {% block footer %}

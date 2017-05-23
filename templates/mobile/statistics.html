@@ -84,14 +84,14 @@
             </script>
         {% endif %}
     {% endfor %}
-    {% if issues.page > 1 %}
+    <div>
         <a class="ui basic button"
-           href="{{ url_for_other_page(issues.page - 1) }}">
+           href="{{ url_for_other_page(issues.page - 1) }}"
+           {% if issues.page < 2 %}style="visibility: hidden"{% endif %}>
             &#8592; {{ _('Prev') }}</a>
-    {% endif %}
-    {% if issues.has_next %}
         <a class="ui basic right floated button"
-           href="{{ url_for_other_page(issues.page + 1) }}">{{ _('Next') }}
+           href="{{ url_for_other_page(issues.page + 1) }}"
+           {% if not issues.has_next %}style="visibility: hidden"{% endif %}>{{ _('Next') }}
             &#8594;</a>
-    {% endif %}
+    </div>
 {% endblock %}

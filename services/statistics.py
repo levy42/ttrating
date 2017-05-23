@@ -49,7 +49,7 @@ def top_rating_list(topic):
         models.Player.year >= (year - props['max_age'])).limit(
         props['count'])
     data = [{'Player name': {'text': x.name,
-                             'href': 'main.player',
+                             'href': '.player',
                              'name': True,
                              'id': x.id},
              'Rating': x.rating,
