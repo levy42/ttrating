@@ -338,7 +338,8 @@ def game_search():
         games = m.Game.query.filter(*filters).order_by('id').paginate(
             page=page, per_page=25)
     return render_template('games_search.html', games=games, player1=player1,
-                           player2=player2)
+                           player2=player2, player1_id=player1_id,
+                           player2_id=player2_id)
 
 
 @main.route("/statistics/")
