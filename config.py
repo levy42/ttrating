@@ -21,4 +21,4 @@ CACHE_DEFAULT_TIMEOUT = 3600 * 4
 SUPPORTED_LANGUAGES = {'ru': u'Русский', 'uk': 'Українська'}
 BABEL_DEFAULT_LOCALE = 'uk'
 
-MODE = 'PROD'  # DEBV | PROD
+MODE = 'DEV'  # DEV | PROD

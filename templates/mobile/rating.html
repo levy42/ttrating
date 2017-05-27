@@ -33,62 +33,61 @@
             <button style="border: none;background: none" type="submit">
                 <i class="search icon"></i>
             </button>
-        </div>
-        <br>
-        <div class="ui two column grid">
-            <div class="column">
-                <div class="ui basic buttons">
-                    <a class="ui button {% if category=='MEN' %}active{% endif %}"
-                       href="{{ url_for('.rating', year=year, month=month, category='MEN') }}">
-                        {{ _('MEN') }}</a>
-                    <a class="ui button {% if category=='WOMEN' %}active{% endif %}"
-                       href="{{ url_for('.rating', year=year, month=month, category='WOMEN') }}">
-                        {{ _('WOMEN') }}</a>
+            <br>
+            <div class="ui two column grid">
+                <div class="column">
+                    <div class="ui basic buttons">
+                        <a class="ui button {% if category=='MEN' %}active{% endif %}"
+                           href="{{ url_for('.rating', year=year, month=month, category='MEN') }}">
+                            {{ _('MEN') }}</a>
+                        <a class="ui button {% if category=='WOMEN' %}active{% endif %}"
+                           href="{{ url_for('.rating', year=year, month=month, category='WOMEN') }}">
+                            {{ _('WOMEN') }}</a>
+                    </div>
+                </div>
+                <div align="right" class="ui column search">
+                    <div class="ui icon input">
+                        <input class="prompt" type="text" name="player"
+                               placeholder="{{ _('Player name') }}">
+                        <i class="search icon"></i>
+                    </div>
+                    <div align="left" class="results"></div>
                 </div>
             </div>
-            <div align="right" class="ui column search">
-                <div class="ui icon input">
-                    <input class="prompt" type="text" name="player"
-                           placeholder="{{ _('Player name') }}">
-                    <i class="search icon"></i>
-                </div>
-                <div align="left" class="results"></div>
-            </div>
-        </div>
-        <table class="ui striped compact table" cellspacing="0"
-               width="100%">
-            <thead>
-            <tr>
-                <th>{{ _('#') }}</th>
-                <th>{{ _('Player name') }}</th>
-                <th class="popup" data-content="{{ _('Fine Rating') }}">
-                    P*
-                </th>
-                <th class="popup" data-content="{{ _('Rating') }}">P
-                </th>
-                <th>{{ _('Year') }}</th>
-                <th>{{ _('City') }}</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for p in rating.items %}
+            <table class="ui striped compact table" cellspacing="0"
+                   width="100%">
+                <thead>
                 <tr>
-                    <td>{{ p.position }}</td>
-                    <td>
-                        <a href="{{ url_for('.player', id=p.player.id) }}">{{ name(p.player.name) }}</a>
-                    </td>
-                    <td>{{ p.rating_fine }}</td>
-                    <td><strong>{{ p.rating }}</strong></td>
-                    <td>{{ p.player.year }}</td>
-                    <td>{{ name(p.player.city) if not p.player.city2 else name(p.player.city) + '-' + name(p.player.city2) }}</td>
+                    <th>{{ _('#') }}</th>
+                    <th>{{ _('Player name') }}</th>
+                    <th class="popup" data-content="{{ _('Fine Rating') }}">
+                        P*
+                    </th>
+                    <th class="popup" data-content="{{ _('Rating') }}">P
+                    </th>
+                    <th>{{ _('Year') }}</th>
+                    <th>{{ _('City') }}</th>
                 </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        <div align=right>
-            {% from '_utils.html' import render_pagination with context %}
-            {{ render_pagination(rating) }}
-        </div>
+                </thead>
+                <tbody>
+                {% for p in rating.items %}
+                    <tr>
+                        <td>{{ p.position }}</td>
+                        <td>
+                            <a href="{{ url_for('.player', id=p.player.id) }}">{{ name(p.player.name) }}</a>
+                        </td>
+                        <td>{{ p.rating_fine }}</td>
+                        <td><strong>{{ p.rating }}</strong></td>
+                        <td>{{ p.player.year }}</td>
+                        <td>{{ name(p.player.city) if not p.player.city2 else name(p.player.city) + '-' + name(p.player.city2) }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <div align=right>
+                {% from '_utils.html' import render_pagination with context %}
+                {{ render_pagination(rating) }}
+            </div>
     </form>
     <script>
         $('.ui.search').search({

@@ -33,6 +33,7 @@
                     $('.message .close').on('click', function () {
                         $(this).closest('.message').transition('fade')
                     });
+                    $('.accordion').accordion();
 
                     // fix main menu to page on passing
                     $('.main.menu').visibility({
@@ -149,15 +150,15 @@
                        class="{% if   '.game_search' in request.endpoint %}active{% endif %} item">
                         <i class="search icon"></i>
                         {{ _('Game Search') }}</a>
-                    {#                    <a href="{{ url_for('.sparring') }}"#}
-                    {#                       class="{% if   '.sparring' in request.endpoint %}active{% endif %} item">#}
-                    {#                        <i class="announcement icon"></i>#}
-                    {#                        {{ _('Sparring announcement') }}</a>#}
-                    {#                    <div class="divider"></div>#}
-                    {#                    <a href="{{ url_for('.live_tournament_home') }}"#}
-                    {#                       class="{% if '.live_tournament_home' in request.endpoint %}active{% endif %} item">#}
-                    {#                        <i class="sitemap icon"></i>#}
-                    {#                        {{ _('Live Tournament') }}</a>#}
+                    <a href="{{ url_for('.sparring') }}"
+                       class="{% if   '.sparring' in request.endpoint %}active{% endif %} item">
+                        <i class="announcement icon"></i>
+                        {{ _('Sparring announcement') }}</a>
+                    <div class="divider"></div>
+                    <a href="{{ url_for('.live_tournament_home') }}"
+                       class="{% if '.live_tournament_home' in request.endpoint %}active{% endif %} item">
+                        <i class="sitemap icon"></i>
+                        {{ _('Live Tournament') }}</a>
                     <div class="divider"></div>
                     <a href="{{ url_for('.about') }}"
                        class="{% if '.about' in request.endpoint %}active{% endif %} item">

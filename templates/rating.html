@@ -7,7 +7,7 @@
     {{ super() }}
     <div class="ui text container">
         <form>
-            <div class="four inline fields">
+            <div class="five inline fields">
                 <strong class="header field">{{ _('Rating' ) }}</strong>
                 <div class="ui field dropdown">
                     <input type="hidden" name="year" value="{{ year }}">
@@ -31,9 +31,34 @@
                         {% endfor %}
                     </div>
                 </div>
-                <button style="border: none;background: none" type="submit">
+                <button class="ui field" style="border: none;background: none"
+                        type="submit">
                     <i class="search icon"></i>
                 </button>
+                <div class="ui accordion field" align="right">
+                    <div class="title">
+                        <i class="icon dropdown"></i>
+                        {{ _('Filter') }}
+                    </div>
+                    <div class="content field" align="left">
+                        <div id="city_search"
+                             class="five wide field ui search">
+                            <input class="prompt" type="text"
+                                   placeholder="{{ _('City') }}"
+                                   value="{{ city }}">
+                            <input id="city" name="city"
+                                   hidden>
+                            <div class="results"></div>
+                        </div>
+                        <div data-role="rangeslider">
+                            <label for="price-min">{{ _('Year') }}:</label>
+                            <input type="range" name="year-min" id="year-min"
+                                   value="1900" min="0" max="{{ year }}">
+                            <input type="range" name="year-max" id="year-max"
+                                   value="{{ year }}" min="0" max="1900">
+                        </div>
+                    </div>
+                </div>
             </div>
             <br>
             <div class="ui two column grid">
@@ -47,7 +72,7 @@
                             {{ _('WOMEN') }}</a>
                     </div>
                 </div>
-                <div align="right" class="ui column search">
+                <div align="right" class="ui column search" id="player_search">
                     <div class="ui icon input">
                         <input class="prompt" type="text" name="player"
                                placeholder="{{ _('Player name') }}">
@@ -99,7 +124,18 @@
         </form>
     </div>
     <script>
-        $('.ui.search').search({
+        $('#city_search').search({
+            source: {{ cities|tojson }},
+            searchFields: [
+                'title'
+            ],
+            onSelect: function (item) {
+                $('#city_search').val(item.title);
+                $('#city').val(item.id)
+            },
+            minCharacters: 3
+        });
+        $('#player_search').search({
             apiSettings: {
                 action: 'search',
                 url: '/{{ g.lang }}/player-search/{query}',
