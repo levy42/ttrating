@@ -19,6 +19,6 @@ CACHE_TYPE = 'simple'
 CACHE_DEFAULT_TIMEOUT = 3600 * 4
 
 SUPPORTED_LANGUAGES = {'ru': u'Русский', 'uk': 'Українська'}
-BABEL_DEFAULT_LOCALE = 'uk'
+DEFAULT_LOCALE = 'uk'
 
 MODE = 'DEV'  # DEV | PROD

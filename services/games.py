@@ -5,8 +5,8 @@ import models as m
 
 GRAPH = {}
 GRAPH_ALL = {}
-graph_path = 'static/graph.json'
-graph_all_path = 'static/graph_all.json'
+graph_path = 'resources/graph.json'
+graph_all_path = 'resources/graph_all.json'
 
 
 def create_graphs():
@@ -68,6 +68,3 @@ def find_chain(player1_id, player2_id, all=False):
     except nx.NetworkXNoPath:
         return None
     return [m.Player.query.get(id) for id in path]
-
-
-create_graphs()
