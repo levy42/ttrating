@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-import sys
 import re
 
 from flask.ext.script import Manager
@@ -8,7 +7,6 @@ from flask.ext.script import Manager
 import config
 from app import app, db
 from services import parser
-import models
 
 manager = Manager(app)
 

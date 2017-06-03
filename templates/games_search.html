@@ -9,8 +9,10 @@
         <h3 align="center">{{ _('Game Search') }}</h3>
         <form class="ui form" action="{{ url_for('.game_search') }}"
               name="search_game">
-            <input id="id1" name="player1_id" value="{{ player1_id }}" hidden>
-            <input id="id2" name="player2_id" value="{{ player2_id }}"hidden>
+            <input id="id1" name="player1_id" value="{{ player1_id or '' }}"
+                   hidden>
+            <input id="id2" name="player2_id" value="{{ player2_id or '' }}"
+                   hidden>
             <div class="ui centered grid fields">
                 <div id="player1_search" class="field ui search">
                     <input class="prompt" type="text" name="player1"
