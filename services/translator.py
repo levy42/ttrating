@@ -1,5 +1,6 @@
 import json
 import traceback
+import six
 
 import requests
 
@@ -58,7 +59,7 @@ def load_transations():
 
 
 def translate(text, lang):
-    if not isinstance(text, str):
+    if not isinstance(text, six.text_type):
         return text
     t = TRANSLATIONS.get(text + '_' + lang)
     if t:

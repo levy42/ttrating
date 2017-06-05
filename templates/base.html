@@ -44,7 +44,7 @@
                         {% endif %}
                     {% endfor %}
                     <div>{% from '_utils.html' import share_buttons with context %}
-                        {{ share_buttons() }}</div>
+                        {{ share_buttons(request.url) }}</div>
                 </div>
                 <div class="column" align="center">
                     <strong>{{ _('Contacts') }}:</strong>
