@@ -23,14 +23,14 @@
     {% endif %}
 {% endmacro %}
 
-{% macro share_buttons(url=request.url) %}
+{% macro share_buttons(url) %}
     {# vk share  #}
-    <a href="{{ 'http://vkontakte.ru/share.php?title=' + _(config.APP_DESCRIPTION) + '&url=' + request.url.replace('&','%26') + '&amp' }}"><i
+    <a href="{{ 'http://vkontakte.ru/share.php?title=' + _(config.APP_DESCRIPTION) + '&url=' + url.replace('&','%26') + '&amp' }}"><i
             class="large vk icon"></i></a>
     {# facebook share  #}
-    <a href="{{ 'http://www.facebook.com/sharer.php?s=100&p[title]=' + _(config.APP_DESCRIPTION) + '&p[url]=' + request.url.replace('&','%26') }}"><i
+    <a href="{{ 'http://www.facebook.com/sharer.php?s=100&p[title]=' + _(config.APP_DESCRIPTION) + '&p[url]=' + url.replace('&','%26') }}"><i
             class="large facebook icon"></i></a>
     {# twitter share  #}
-    <a href="{{ 'http://twitter.com/share?url=' + request.url.replace('&','%26') + '&test=' + _(config.APP_DESCRIPTION) }}"><i
+    <a href="{{ 'http://twitter.com/share?url=' + url.replace('&','%26') + '&test=' + _(config.APP_DESCRIPTION) }}"><i
             class="large twitter icon"></i></a>
 {% endmacro %}
