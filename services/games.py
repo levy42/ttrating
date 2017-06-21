@@ -68,6 +68,3 @@ def find_chain(player1_id, player2_id, all=False):
     except nx.NetworkXNoPath:
         return None
     return [m.Player.query.get(id) for id in path]
-
-
-create_graphs()
