@@ -20,21 +20,28 @@ def update_ratings():
 
 
 def update_player_info():
-    games = models.Game.query.all()
+    print('progress: '),
+    _games = models.Game.query.paginate(page=1, per_page=50000)
     player_infos = models.PlayerInfo.query.all()
-    player_games = {}
-    for g in games:
-        if not player_games.get(g.player_id):
-            player_games[g.player_id] = list()
-        player_games[g.player_id].append(g)
-    for i, p in enumerate(player_infos):
-        if not player_games.get(p.id):
-            continue
-        won = [g for g in player_games[p.id] if g.result]
-        tourns = set([g.tournament_id for g in player_games[p.id]])
-        p.game_total = len(player_games[p.id])
-        p.game_won = len(won)
-        p.tournaments_total = len(tourns)
-        db.session.add(p)
-
-    db.session.commit()
+    games = _games.items
+    page = 1
+    while page <= _games.pages:
+        player_games = {}
+        for g in games:
+            if not player_games.get(g.player_id):
+                player_games[g.player_id] = list()
+            player_games[g.player_id].append(g)
+        for i, p in enumerate(player_infos):
+            if not player_games.get(p.id):
+                continue
+            won = [g for g in player_games[p.id] if g.result]
+            tourns = set([g.tournament_id for g in player_games[p.id]])
+            p.game_total = len(player_games[p.id])
+            p.game_won = len(won)
+            p.tournaments_total = len(tourns)
+            db.session.add(p)
+        db.session.commit()
+        page += 1
+        _games = models.Game.query.paginate(page=page, per_page=10000)
+        games = _games.items
+        print('+'),
