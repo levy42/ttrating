@@ -67,7 +67,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for player_tournament in player.tournaments %}
+                {% for player_tournament in player.tournaments | sort(attribute='tournament.start_date', reverse=True) %}
                     <tr>
                         <td>{{ loop.index }}</td>
                         <td>

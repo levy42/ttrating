@@ -36,6 +36,7 @@ def parse_world_all():
 @manager.command
 def parse_ua():
     parser.parse_ua()
+    calculate_statistics()
 
 
 @manager.command
@@ -53,9 +54,9 @@ def translate():
 def calculate_statistics():
     from services import statistics
     statistics.load_topics()
-    statistics.calculate(statistics.calculate(statistics.Period.ENTIRE))
-    statistics.calculate(statistics.calculate(statistics.Period.MONTH))
-    statistics.calculate(statistics.calculate(statistics.Period.YEAR))
+    statistics.calculate(statistics.Period.ENTIRE)
+    statistics.calculate(statistics.Period.MONTH)
+    statistics.calculate(statistics.Period.YEAR)
 
 
 @manager.command
@@ -75,6 +76,12 @@ def create_translations():
             for w in words:
                 if w not in text:
                     f.write('\nmsgid "%s"\nmsgstr ""\n' % w)
+
+
+@manager.command
+def update_player_info():
+    from services import scheduler
+    scheduler.update_player_info()
 
 
 @manager.command

@@ -234,7 +234,7 @@ def load_topics():
     TOPICS = models.Topic.query.filter_by(active=True).all()
 
 
-def calculate(period, only_new=True):
+def calculate(period, only_new=False):
     for t in TOPICS:
         if only_new and models.TopicIssue.query.filter_by(
                 topic_id=t.id).first():

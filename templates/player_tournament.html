@@ -1,5 +1,6 @@
 {% extends "index.html" %}
-{% block title %}{% endblock %}
+{% block title %}{{ name(player_tournament.player.name) }} -
+    {{ name(player_tournament.tournament.name) }}{% endblock %}
 {% block head %}
     {{ super() }}
 {% endblock %}
