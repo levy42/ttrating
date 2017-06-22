@@ -21,34 +21,39 @@ def update_ratings():
 
 def update_player_info():
     print('progress: ')
-    n = 10
-    games = models.Game.query.all()
+    n = 10000
+    player_infos = models.PlayerInfo.query.all()
+
+    for p in player_infos:
+        p.game_total = 0
+        p.game_won = 0
+        p.tournaments_total = 0
+        models.db.session.add(p)
+    models.db.session.commit()
+
     page = 0
     pages = 1
     while page < pages:
         page += 1
-        player_infos = models.PlayerInfo.query.paginate(page=page, per_page=n)
-        print('got')
+        _games = models.Game.query.paginate(page=page, per_page=n)
         if page == 1:
-            print('Count: %s' % player_infos.total)
-            print('Pages %s' % player_infos.pages)
-            pages = player_infos.pages
+            print('Count: %s' % _games.total)
+            print('Pages %s' % _games.pages)
+            pages = _games.pages
+        games = _games.items
         player_games = {}
-        print('got2')
         for g in games:
             if not player_games.get(g.player_id):
                 player_games[g.player_id] = list()
             player_games[g.player_id].append(g)
-        print('got3')
-        for i, p in enumerate(player_infos.items):
-            print(i)
+        for i, p in enumerate(player_infos):
             if not player_games.get(p.id):
                 continue
             won = [g for g in player_games[p.id] if g.result]
             tourns = set([g.tournament_id for g in player_games[p.id]])
-            p.game_total = len(player_games[p.id])
-            p.game_won = len(won)
-            p.tournaments_total = len(tourns)
+            p.game_total += len(player_games[p.id])
+            p.game_won += len(won)
+            p.tournaments_total += len(tourns)
             db.session.add(p)
+        db.session.commit()
         print('+')
-    db.session.commit()
