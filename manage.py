@@ -83,7 +83,7 @@ def update_player_info():
     import models
     players = models.Player.query.all()
     for p in players:
-        if p.rating > p.max:
+        if p.rating and p.rating > p.max:
             p.max = p.rating
             models.db.session.add(p)
     models.db.session.commit()
