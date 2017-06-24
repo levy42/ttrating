@@ -12,7 +12,7 @@ RETRANSLATION = {}
 
 
 def _translate_yandex(text, language):
-    if isinstance(text, str):
+    if isinstance(text, six.string_types):
         url = 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' \
               '%s&text=%s&lang=%s' % (
                   API_KEY, text, language)
