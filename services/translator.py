@@ -37,11 +37,11 @@ def _translate_yandex(text, language):
         return json.loads(translation.text)['text']
 
 
-def _translate(text, language, engine='google'):
-    if engine == 'google':
-        raise NotImplementedError
+def _translate(text, language, engine='yandex'):
     if engine == 'yandex':
         return _translate_yandex(text, language)
+    else:
+        raise NotImplementedError
 
 
 def load_transations():
