@@ -112,7 +112,7 @@ def translate_all():
     models.db.session.commit()
 
     print('Tournaments')
-    tourns = models.Tournament.query.limit(500).all()
+    tourns = models.Tournament.query.all()
     for t in tourns:
         if not models.Translation.query.get(t.name + '_uk'):
             ua_name = models.Translation(t.name, 'uk')
