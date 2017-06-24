@@ -89,6 +89,7 @@ def add_translations(arr, lang):
 
 
 def translate_all():
+    print('Players')
     players = models.Player.query.all()
     for player in players:
         if not models.Translation.query.get(player.name + '_uk'):
@@ -96,36 +97,27 @@ def translate_all():
             ua_name.translated = _translate(player.name, 'uk')
             models.db.session.add(ua_name)
             print(ua_name.translated)
-        if not models.Translation.query.get(player.name + '_en'):
-            en_name = models.Translation(player.name, 'en')
-            en_name.translated = _translate(player.name, 'en')
-            models.db.session.add(en_name)
 
     models.db.session.commit()
-    print('HEEEE')
 
-    # cities = models.City.query.all()
-    # for c in cities:
-    #     if not models.Translation.query.get(c.name + '_uk'):
-    #         ua_name = models.Translation(c.name, 'uk')
-    #         ua_name.translated = _translate(c.name, 'uk')
-    #         models.db.session.add(ua_name)
-    #         en_name = models.Translation(c.name, 'en')
-    #         en_name.translated = _translate(c.name, 'en')
-    #         models.db.session.add(ua_name)
-    #         print ua_name.translated
-    #
-    # models.db.session.commit()
-    #
-    # tourns = models.Tournament.query.limit(500).all()
-    # for t in tourns:
-    #     if not models.Translation.query.get(t.name + '_uk'):
-    #         ua_name = models.Translation(t.name, 'uk')
-    #         ua_name.translated = _translate(t.name, 'uk')
-    #         models.db.session.add(ua_name)
-    #         en_name = models.Translation(t.name, 'en')
-    #         en_name.translated = _translate(t.name, 'en')
-    #         models.db.session.add(ua_name)
-    #         print ua_name.translated
+    print('Cities')
+    cities = models.City.query.all()
+    for c in cities:
+        if not models.Translation.query.get(c.name + '_uk'):
+            ua_name = models.Translation(c.name, 'uk')
+            ua_name.translated = _translate(c.name, 'uk')
+            models.db.session.add(ua_name)
+            print(ua_name.translated)
+
+    models.db.session.commit()
+
+    print('Tournaments')
+    tourns = models.Tournament.query.limit(500).all()
+    for t in tourns:
+        if not models.Translation.query.get(t.name + '_uk'):
+            ua_name = models.Translation(t.name, 'uk')
+            ua_name.translated = _translate(t.name, 'uk')
+            models.db.session.add(ua_name)
+            print(ua_name.translated)
 
     models.db.session.commit()
