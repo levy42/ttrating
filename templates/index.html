@@ -150,15 +150,15 @@
                        class="{% if   '.game_search' in request.endpoint %}active{% endif %} item">
                         <i class="search icon"></i>
                         {{ _('Game Search') }}</a>
-{#                    <a href="{{ url_for('.sparring') }}"#}
-{#                       class="{% if   '.sparring' in request.endpoint %}active{% endif %} item">#}
-{#                        <i class="announcement icon"></i>#}
-{#                        {{ _('Sparring announcement') }}</a>#}
-{#                    <div class="divider"></div>#}
-{#                    <a href="{{ url_for('.live_tournament_home') }}"#}
-{#                       class="{% if '.live_tournament_home' in request.endpoint %}active{% endif %} item">#}
-{#                        <i class="sitemap icon"></i>#}
-{#                        {{ _('Live Tournament') }}</a>#}
+                    {#                    <a href="{{ url_for('.sparring') }}"#}
+                    {#                       class="{% if   '.sparring' in request.endpoint %}active{% endif %} item">#}
+                    {#                        <i class="announcement icon"></i>#}
+                    {#                        {{ _('Sparring announcement') }}</a>#}
+                    {#                    <div class="divider"></div>#}
+                    {#                    <a href="{{ url_for('.live_tournament_home') }}"#}
+                    {#                       class="{% if '.live_tournament_home' in request.endpoint %}active{% endif %} item">#}
+                    {#                        <i class="sitemap icon"></i>#}
+                    {#                        {{ _('Live Tournament') }}</a>#}
                     <div class="divider"></div>
                     <a href="{{ url_for('.about') }}"
                        class="{% if '.about' in request.endpoint %}active{% endif %} item">
@@ -179,7 +179,7 @@
                     {% endfor %}
                     <div class="divider"></div>
                     <a class="item"
-                       href="{{ url_for('mobile.home',version=True) }}">
+                       href="{{ mobile_url() }}">
                         <i class="mobile icon"></i>
                         {{ _('Mobile version') }}
                     </a>

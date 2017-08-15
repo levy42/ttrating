@@ -13,6 +13,7 @@
                    hidden>
             <input id="id2" name="player2_id" value="{{ player2_id or '' }}"
                    hidden>
+            <input hidden id="sort_by" name="sort_by">
             <div class="ui centered grid fields">
                 <div id="player1_search" class="field ui search">
                     <input class="prompt" type="text" name="player1"
@@ -29,6 +30,15 @@
                 <button class="ui basic icon button"
                         type="submit"><i class="search icon"></i></button>
             </div>
+            <select onchange="this.form.submit()"
+                    class="ui compact dropdown" name="sort_by">
+                <option value="datetime"
+                        {% if sort_by=='datetime' %}selected{% endif %}>{{ _('Date') }}</option>
+                <option value="rating"
+                        {% if sort_by=='contribution' %}selected{% endif %}>{{ _('Contribution') }}</option>
+                <option value="price"
+                        {% if sort_by=='price' %}selected{% endif %}>{{ _('Price') }}</option>
+            </select>
         </form>
         <div align="right">
             <a href="{{ url_for('.win_chain') }}">

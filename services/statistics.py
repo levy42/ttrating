@@ -150,8 +150,7 @@ def rating_dynamics(topic):
     label = 'Players count'
     rating_lists = models.RatingList.query.order_by('year', 'month').all()
     x = []
-    y = ["%s %s" % (calendar.month_abbr[r.month], r.year) for r in
-         rating_lists]
+    y = [f'{calendar.month_abbr[r.month]} {r.year}' for r in rating_lists]
     for r in rating_lists:
         player60_count = models.Rating.query.filter(
             models.Rating.rating > rating_limit,

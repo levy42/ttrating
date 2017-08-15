@@ -351,3 +351,6 @@ msgstr "Полная версия"
 
 msgid "Mobile version"
 msgstr "Мобильная версия"
+
+msgid "Rating without a fine"
+msgstr "Рейтинг без штрафа"

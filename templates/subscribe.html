@@ -1,0 +1,71 @@
+{% extends "index.html" %}
+{% block title %}{{ _('Subscribe') }}{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    {{ super() }}
+    <div class="ui text container">
+        {% if accepted %}
+            <div>
+                <h3>{{ _('Thanks! Confirmation mail from sent on your email!') }}</h3>
+            </div>
+        {% elif confirmed %}
+            <div>
+                <h3>{{ _('Thanks! Your email is confirmed.
+                We will send you reports every month, when new rating is comming!') }}</h3>
+            </div>
+        {% else %}
+            <form class="ui form" method="post">
+                <div class="field">
+                    <input type="email" name="email"
+                           placeholder="{{ _('Your email') }}">
+                </div>
+                <div class="field">
+                    <input type="password" name="password"
+                           placeholder="{{ _('Your password') }}">
+                </div>
+                <h3>{{ _('If you are a player, please find yourself:') }}</h3>
+                <div id="player_search" class="five wide field ui search">
+                    <input class="prompt" type="text" name="name"
+                           placeholder="{{ _('Player name') }}"
+                           value="{{ player1 }}">
+                    <div align="left" class="results"></div>
+                </div>
+                <input id="player_id" name="player_id" hidden>
+                <label>{{ _('Prefered language') }}:</label>
+                <select class="ui compact dropdown" name="lang">
+                    {% for i, name in config.SUPPORTED_LANGUAGES.items() %}
+                        <option value="{{ i }}">{{ name }}</option>
+                    {% endfor %}
+                </select>
+                <button class="ui positive button" type="submit"></button>
+            </form>
+        {% endif %}
+    </div>
+    <script>
+        var options = {
+            action: 'search',
+            url: '/{{ g.lang }}/player-search/{query}',
+            onResponse: function (serverResponse) {
+                var response = {results: []};
+                $.each(serverResponse, function (index, item) {
+                    response.results.push({
+                        title: item.name,
+                        description: item.city,
+                        id: item.id
+                    });
+                });
+                return response;
+            }
+        };
+        $('#player_search').search({
+            apiSettings: options,
+            onSelect: function (item) {
+                $('#player_id').val(item.id);
+            },
+            minCharacters: 3
+        });
+    </script>
+{% endblock %}
+

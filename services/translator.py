@@ -1,21 +1,20 @@
 import json
 import traceback
-import six
 
 import requests
 
 import models
+import config
 
-API_KEY = 'trnsl.1.1.20170317T133701Z.9ef6d1256a8576ac.573492aef994d1df8f13b84c3740dc337dd52104'
+API_KEY = config.YANDEX_API_KEY
 TRANSLATIONS = {}
 RETRANSLATION = {}
 
 
 def _translate_yandex(text, language):
-    if isinstance(text, six.string_types):
-        url = 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' \
-              '%s&text=%s&lang=%s' % (
-                  API_KEY, text, language)
+    if isinstance(text, str):
+        url = f'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' \
+              f'{API_KEY}&text={text}&lang={language}'
         translation = requests.get(url)
         if translation.status_code != 200:
             print(text, language)
@@ -23,11 +22,10 @@ def _translate_yandex(text, language):
             return text
         return json.loads(translation.text)['text'][0]
     if isinstance(text, list):
-        url = 'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' \
-              '%s&lang=%s' % (
-                  API_KEY, language)
+        url = f'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' \
+              f'{API_KEY}&lang={language}'
         for t in text:
-            url += '&text=%s' % t
+            url += f'&text={t}'
         translation = requests.get(url)
         if translation.status_code != 200:
             print(text, language)
@@ -59,7 +57,7 @@ def load_transations():
 
 
 def translate(text, lang):
-    if not isinstance(text, six.text_type):
+    if not isinstance(text, str):
         return text
     t = TRANSLATIONS.get(text + '_' + lang)
     if t:

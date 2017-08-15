@@ -88,34 +88,56 @@ def update_player_info():
             models.db.session.add(p)
     models.db.session.commit()
     print('Updated max rating values')
-    from services import scheduler
-    scheduler.update_player_info()
-
-
-
-@manager.command
-def start():
-    os.system('nohup python app.py &')
-    os.system('echo $! > app.pid')
+    from services import rating_update
+    rating_update.update_player_info()
 
 
 @manager.command
-def stop():
-    if os.path.exists('app.pid'):
-        os.system('kill %s' % open('app.pid').read())
+def tmp():
+    from app import _
+    import glob
+    import os
+    import re
 
+    os.chdir(".")
+    files = []
 
-@manager.command
-def restart():
-    stop()
-    start()
+    for f in glob.iglob("./**/*.py", recursive=True):
+        files.append(f)
 
+    for f in glob.iglob("./**/*.html", recursive=True):
+        files.append(f)
 
-@manager.command
-def deploy():
-    os.system('git pull')
-    initdb()
-    restart()
+    print(files)
+    all_phrases = set()
+    for f in files:
+        data = open(f).read()
+        phrases = re.findall("{{ _\([\',\"](.+)[\',\"]\) }}", data)
+        if phrases:
+            all_phrases.update(phrases)
+
+    print(all_phrases)
+    all_phrases = sorted(all_phrases, key=lambda x: -len(x))
+
+    word_dict = {}
+    for phrase in all_phrases:
+        uk_version = _(phrase)
+        word_dict[phrase] = uk_version
+        print(uk_version)
+
+    for f in files:
+        with open(f, 'w') as fd:
+            data = fd.read()
+            for phrase in all_phrases:
+                if phrase not in data:
+                    continue
+                data = data.replace(f"{{ _('{phrase}') }}",
+                                    f"{{ _('{word_dict[phrase]}') }}")
+
+    with open('translation/ru/LC_MESSAGES/messages.po', 'w') as f:
+        data = f.read()
+        for w in all_phrases:
+            data = data.replace(w, word_dict[w])
 
 
 if __name__ == '__main__':

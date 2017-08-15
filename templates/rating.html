@@ -35,30 +35,30 @@
                         type="submit">
                     <i class="search icon"></i>
                 </button>
-{#                <div class="ui accordion field" align="right">#}
-{#                    <div class="title">#}
-{#                        <i class="icon dropdown"></i>#}
-{#                        {{ _('Filter') }}#}
-{#                    </div>#}
-{#                    <div class="content field" align="left">#}
-{#                        <div id="city_search"#}
-{#                             class="five wide field ui search">#}
-{#                            <input class="prompt" type="text"#}
-{#                                   placeholder="{{ _('City') }}"#}
-{#                                   value="{{ city }}">#}
-{#                            <input id="city" name="city"#}
-{#                                   hidden>#}
-{#                            <div class="results"></div>#}
-{#                        </div>#}
-{#                        <div data-role="rangeslider">#}
-{#                            <label for="price-min">{{ _('Year') }}:</label>#}
-{#                            <input type="range" name="year-min" id="year-min"#}
-{#                                   value="1900" min="0" max="{{ year }}">#}
-{#                            <input type="range" name="year-max" id="year-max"#}
-{#                                   value="{{ year }}" min="0" max="1900">#}
-{#                        </div>#}
-{#                    </div>#}
-{#                </div>#}
+                {#                <div class="ui accordion field" align="right">#}
+                {#                    <div class="title">#}
+                {#                        <i class="icon dropdown"></i>#}
+                {#                        {{ _('Filter') }}#}
+                {#                    </div>#}
+                {#                    <div class="content field" align="left">#}
+                {#                        <div id="city_search"#}
+                {#                             class="five wide field ui search">#}
+                {#                            <input class="prompt" type="text"#}
+                {#                                   placeholder="{{ _('City') }}"#}
+                {#                                   value="{{ city }}">#}
+                {#                            <input id="city" name="city"#}
+                {#                                   hidden>#}
+                {#                            <div class="results"></div>#}
+                {#                        </div>#}
+                {#                        <div data-role="rangeslider">#}
+                {#                            <label for="price-min">{{ _('Year') }}:</label>#}
+                {#                            <input type="range" name="year-min" id="year-min"#}
+                {#                                   value="1900" min="0" max="{{ year }}">#}
+                {#                            <input type="range" name="year-max" id="year-max"#}
+                {#                                   value="{{ year }}" min="0" max="1900">#}
+                {#                        </div>#}
+                {#                    </div>#}
+                {#                </div>#}
             </div>
             <br>
             <div class="ui two column grid">
@@ -72,16 +72,19 @@
                             {{ _('WOMEN') }}</a>
                     </div>
                 </div>
-                <div align="right" class="ui column search" id="player_search">
-                    <div class="ui icon input">
-                        <input class="prompt" type="text" name="player"
-                               placeholder="{{ _('Player name') }}">
-                        <i class="search icon"></i>
+                <div class="column">
+                    <div align="right" class="ui search"
+                         id="player_search">
+                        <div class="ui icon input">
+                            <input class="prompt" type="text" name="player"
+                                   placeholder="{{ _('Player name') }}">
+                            <i class="search icon"></i>
+                        </div>
+                        <div align="left" class="results"></div>
                     </div>
-                    <div align="left" class="results"></div>
                 </div>
             </div>
-            <table class="ui striped compact table" cellspacing="0"
+            <table class="ui compact table" cellspacing="0"
                    width="100%">
                 <thead>
                 <tr>

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import datetime
 import os
 import traceback
@@ -23,7 +22,7 @@ CATEGORY_MAPPINGS = {
 
 
 def parse_ua(month=None, year=None, rating_id=None):
-    print('Called rating parse: month: %s, year: %s' % (month, year))
+    print(f'Called rating parse: month: {month}, year: {year}.')
     year = year or datetime.datetime.now().year
     month = month or datetime.datetime.now().month
     rating_list = m.RatingList.query.filter_by(month=month, year=year).first()
@@ -82,8 +81,7 @@ def parse_ua_all():
 
 def parse_ua_by_category(month, year, category=m.Category.MEN,
                          rating_id=None, parse_tourn=True, previous_id=None):
-    print('Parsing rating: month = %s, year = %s, external id = %s' % (
-        month, year, rating_id))
+    print(f'Parsing rating: month = {month}, year = {year}, id = {rating_id}.')
     updated_data = {'players': [], 'cities': [], 'tournaments': []}
 
     cities = {c.name: c.name for c in m.City.query.all()}
@@ -123,7 +121,7 @@ def parse_ua_by_category(month, year, category=m.Category.MEN,
         prev_rating = float(cells[7].find(text=True).replace(',', '.'))
 
         player = m.Player.query.filter_by(
-                external_id=external_id).first()
+            external_id=external_id).first()
         if not player:
             player = m.Player()
             updated_data['players'].append(name)
@@ -215,18 +213,18 @@ def parse_ua_by_category(month, year, category=m.Category.MEN,
                                 tournament.judge = judge
                                 tournament.name = name + " " + sub_name
                                 tourn_external_id = int(
-                                        sub_href.rsplit('/', 2)[1])
+                                    sub_href.rsplit('/', 2)[1])
                                 if m.Tournament.query.filter_by(
                                         external_id=tourn_external_id).first():
                                     print('Tournament already exist')
                                     continue
                                 updated_data['tournaments'].append(
-                                        tournament.name)
+                                    tournament.name)
                                 tournament.external_id = tourn_external_id
                                 tournament.rating_list_id = rating_id
                                 parce_tournament_date(tournament)
                                 tournaments.append((tournament, sub_href))
-                                print("--Parsed tournaments %s" % tourn_href)
+                                print(f'--Parsed tournaments {tourn_href}')
                             except Exception:
                                 traceback.print_exc()
                                 pass
@@ -241,17 +239,16 @@ def parse_ua_by_category(month, year, category=m.Category.MEN,
                             print('Tournament already exist')
                             continue
                         updated_data['tournaments'].append(
-                                tournament.name)
+                            tournament.name)
                         tournament.external_id = tourn_external_id
                         tournament.rating_list_id = rating_id
                         parce_tournament_date(tournament)
                         tournaments.append((tournament, tourn_href))
-                        print("--Parsed tournaments %s" % tourn_href)
+                        print(f'--Parsed tournaments {tourn_href}')
                 except Exception:
                     traceback.print_exc()
                     print(
-                            'ERROR. Failed to pasre tournaments. Rating id %s' %
-                            rating_id)
+                        f'Failed to pasre tournaments. Rating id {rating_id}')
                     pass
 
             for tournament, _ in tournaments:
@@ -259,7 +256,7 @@ def parse_ua_by_category(month, year, category=m.Category.MEN,
             m.db.session.commit()
 
             for tournament, href in tournaments:
-                parse_tournament(href, tournament.id)
+                parse_tournament(href, tournament.id, tournament)
             m.db.session.commit()
 
     return int(page.url.rsplit('/', 3)[1])
@@ -297,8 +294,8 @@ def parse_world_by_category(category='100_M', year=None, month=None):
     latest_ratings = requests.get(man_rating_link)
     if latest_ratings.status_code != 200:
         return
-    document_name = os.path.join('/tmp/WorldRating_%s_%s_%s.xls' % (
-        category, month, year))
+    document_name = os.path.join(
+        f'/tmp/WorldRating_{category}_{month}_{year}.xls')
 
     with open(document_name, 'wb') as f:
         f.write(latest_ratings.content)
@@ -307,7 +304,7 @@ def parse_world_by_category(category='100_M', year=None, month=None):
     sheet = xls_book.sheet_by_index(0)
     players = {p.name: p for p in
                m.WorldPlayer.query.filter_by(
-                       category=mapped_category).all()}
+                   category=mapped_category).all()}
     for p in players.values():
         p.rating = 0
     for index in range(0, sheet.nrows):
@@ -339,7 +336,7 @@ def parse_world_by_category(category='100_M', year=None, month=None):
     m.db.session.commit()
     previous_world_ratings = {r.player_id: 1 for r in
                               m.WorldRating.query.filter_by(
-                                      year=year, month=month).all()}
+                                  year=year, month=month).all()}
     for p in players.values():
         if not p.id or previous_world_ratings.get(p.id):
             continue
@@ -367,7 +364,7 @@ def parse_world_by_category(category='100_M', year=None, month=None):
     os.remove(document_name)
 
 
-def parse_tournament(href, tournament_id):
+def parse_tournament(href, tournament):
     page = requests.get(UA_RATING_DOMEN + href + '?limit=1000')
     if page.status_code != 200:
         return []
@@ -396,22 +393,24 @@ def parse_tournament(href, tournament_id):
             m.db.session.commit()
         player_tourn = m.PlayerTournament()
         player_tourn.player_id = player.id
-        player_tourn.tournament_id = tournament_id
+        player_tourn.tournament_id = tournament.id
         player_tourn.start_rating = float(
-                cells[1].find(text=True).replace(',', '.'))
+            cells[1].find(text=True).replace(',', '.'))
         player_tourn.final_rating = float(
-                cells[5].find(text=True).replace(',', '.'))
+            cells[5].find(text=True).replace(',', '.'))
         player_tourn.start_weight = int(cells[2].find(text=True))
         player_tourn.final_weight = int(cells[6].find(text=True))
         player_tourn.delta_rating = float(
-                cells[3].find(text=True).replace(',', '.'))
+            cells[3].find(text=True).replace(',', '.'))
         player_tourn.delta_weight = int(cells[4].find(text=True))
         player_games = parse_games(player, href, player_tourn.start_rating)
+        for g in player_games:
+            g.date = tournament.start_date
         games += player_games
         player_tourn.game_total = len(player_games)
         player_tourns.append(player_tourn)
     for g in games:
-        g.tournament_id = tournament_id
+        g.tournament_id = tournament.id
         m.db.session.add(g)
     for p_t in player_tourns:
         m.db.session.add(p_t)
@@ -419,7 +418,7 @@ def parse_tournament(href, tournament_id):
 
 def parse_player(player_id):
     print("Found not existing player, parsing new player")
-    page = requests.get(UA_RATING_DOMEN + '/rating/p/1/%s/' % player_id)
+    page = requests.get(UA_RATING_DOMEN + f'/rating/p/1/{player_id}/')
     if page.status_code != 200:
         return []
     soup = BeautifulSoup(page.text)
@@ -435,7 +434,7 @@ def parse_player(player_id):
 
 
 def parse_games(player, player_href, start_rating):
-    print("----Parse games %s" % player_href)
+    print(f'----Parse games {player_href}')
     games = []
     page = requests.get(UA_RATING_DOMEN + player_href)
     if page.status_code != 200:
@@ -465,7 +464,7 @@ def parse_games(player, player_href, start_rating):
         game.player_id = player.id
         game.player_name = player.name
         oponent = m.Player.query.filter_by(
-                external_id=oponent_external_id).first()
+            external_id=oponent_external_id).first()
         game.opponent_name = oponent_name
         if oponent:
             game.opponent_id = oponent.id
@@ -519,10 +518,14 @@ def parce_tournament_date(tournament):
                 break
         if not date:
             tournament.start_date = datetime.date(
-                    year=tournament.rating_list.year,
-                    month=tournament.rating_list.month,
-                    day=1)
+                year=tournament.rating_list.year,
+                month=tournament.rating_list.month,
+                day=1)
     except Exception as e:
+        tournament.start_date = datetime.date(
+            year=tournament.rating_list.year,
+            month=tournament.rating_list.month,
+            day=1)
         print(e)
         print(tournament.name)
 
@@ -531,7 +534,7 @@ def parse_tt_cup_photos():
     import json
     players_data = {}
     for i in range(1, 27):
-        page = requests.get('http://tt-cup.com/player/%s' % i)
+        page = requests.get(f'http://tt-cup.com/player/{i}')
         if page.status_code != 200:
             continue
         soup = BeautifulSoup(page.text)
@@ -547,6 +550,6 @@ def parse_tt_cup_photos():
                 print(photo_url)
                 players_data[name] = photo_url
             except Exception as e:
-                print("Error: %s" % e)
+                print(f'Error processing image for url {photo_url} : {e}')
     with open('photos.json', 'w') as f:
         json.dump(players_data, f)

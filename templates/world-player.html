@@ -16,6 +16,7 @@
         <script type="text/javascript">
             var dates = {{ dates|tojson }};
             var ratings = {{ ratings|tojson }};
+            var positions = {{ positions|tojson }};
             var ctx = document.getElementById("myChart");
             var myChart = new Chart(ctx, {
                 type: 'line',
@@ -26,6 +27,12 @@
                         data: ratings,
                         borderWidth: 2,
                         pointHitRadius: 13
+                    }, {
+                        label: "{{ _('Position') }}",
+                        data: positions,
+                        borderWidth: 2,
+                        pointHitRadius: 13,
+                        backgroundColor: "rgba(0,255,0,0.1)"
                     }]
                 }
             });

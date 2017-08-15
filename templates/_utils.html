@@ -16,8 +16,9 @@
                 {% endif %}
             {% endfor %}
             {% if pagination.has_next %}
-                <a class="item"
-                   href="{{ url_for_other_page(pagination.page + 1) }}">{{ _('Next') }} &raquo;</a>
+                <a class="icon item"
+                   href="{{ url_for_other_page(pagination.page + 1) }}"><i
+                        class="right chevron icon"></i></a>
             {% endif %}
         </div>
     {% endif %}

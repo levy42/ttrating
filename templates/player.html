@@ -18,6 +18,12 @@
             <h2 class="header">{{ name(player.name) }}
                 {% if player.rating %}
                     <span style="color: green">{{ player.rating }}</span>
+                    <span class="popup"
+                          data-content="{{ _('Rating without a fine') }}">
+                        {% if player.fine_rating != player.rating %}/
+                            {{ player.fine_rating }}
+                        {% endif %}
+                    </span>
                 {% else %}
                     <span style="color: red" class="popup"
                           data-content="{{ _('Currently this player is out of rating') }}">
@@ -53,7 +59,7 @@
         <canvas id="myChart"></canvas>
         <h3 class="ui header">{{ _('Tournaments') }}</h3>
         <div class="row">
-            <table id="table" class="ui table data-table">
+            <table id="table" class="ui table">
                 <thead>
                 <tr>
                     <th>{{ _('#') }}</th>

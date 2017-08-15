@@ -1,6 +1,9 @@
 import calendar
 import datetime
 import json
+from itsdangerous import URLSafeTimedSerializer
+import logging
+from logging.handlers import RotatingFileHandler
 import uuid
 
 import jinja2
@@ -18,12 +21,14 @@ from flask_cache import Cache
 from flask_mobility import Mobility
 from jinja2 import filters
 from sqlalchemy.orm import eagerload
+from flask_mail import Mail, Message
+from flask_apscheduler import APScheduler
 
 import config
 import models as m
 from services.translator import search_translations
 from services.translator import translate, load_transations
-from services.games import find_chain
+from services.games_chain import find_chain
 
 app = Flask(config.APP_NAME)
 app.config.from_pyfile('config.py')
@@ -33,6 +38,13 @@ m.db.init_app(app)
 
 babel = Babel(app)
 cache = Cache(app, config=app.config)
+mail = Mail()
+mail.init_app(app)
+
+handler = RotatingFileHandler('app.log', maxBytes=10000, backupCount=1)
+app.logger.addHandler(handler)
+handler.setLevel(logging.DEBUG)
+
 main = Blueprint('main', __name__)
 mobile = Blueprint('mobile', __name__)
 Mobility(app)
@@ -56,6 +68,26 @@ def route(rule, **options):
 
 
 main.route = route
+
+# jobs
+from services import rating_update
+
+
+def update_ua_rating():
+    rating_update.update_ua()
+
+
+def update_world_rating():
+    rating_update.update_world()
+
+
+def delete_expired_users():
+    expired_time = datetime.datetime.now() - datetime.timedelta(days=1)
+    m.User.query.filter_by(m.User.registered_on <= expired_time).delete()
+
+
+cron = APScheduler(app=app)
+cron.start()
 
 
 # localization
@@ -86,6 +118,13 @@ def ensure_lang_support():
         g.lang = app.config['BABEL_DEFAULT_LOCALE']
 
 
+@app.before_request
+def ensure_lang_support():
+    if request.MOBILE and request.blueprint == 'main':
+        parts = request.full_path.rsplit('/', 2)
+        return redirect(parts[0] + '/m/' + parts[1])
+
+
 # context filters
 
 @jinja2.contextfilter
@@ -98,9 +137,9 @@ def month_filter(context, value):
 @app.template_filter(name='color')
 def number_color(context, value):
     if value > 0:
-        value = '<p style="color:green">+%s</p>' % value
+        value = f'<p style="color:green">+{value}</p>'
     elif value < 0:
-        value = '<p style="color:red">%s</p>' % value
+        value = f'<p style="color:red">{value}</p>'
     else:
         return value
     return filters.do_mark_safe(value)
@@ -123,6 +162,15 @@ def url_for_other_page(page):
     return url_for(request.endpoint, **args)
 
 
+def mobile_url():
+    parts = request.full_path.rsplit('/', 2)
+    return parts[0] + '/m/' + parts[1]
+
+
+def full_version_url():
+    return request.full_path.replace('/m/', '/')
+
+
 def iter_pages(pagination, left_edge=2, left_current=2,
                right_current=5, right_edge=2):
     last = 0
@@ -140,7 +188,9 @@ def dynamic_translate_processor():
     return dict(name=translate_name,
                 translate_arr=translate_array,
                 url_for_other_page=url_for_other_page,
-                iter_pages=iter_pages)
+                iter_pages=iter_pages,
+                mobile_url=mobile_url,
+                full_version_url=full_version_url)
 
 
 @app.context_processor
@@ -165,7 +215,7 @@ def get_years():
     return sorted(list(set([x.year for x in get_rating_lists()])))
 
 
-# routes
+# views
 
 @main.route('/rating/<category>/')
 @main.route('/rating/')
@@ -183,15 +233,15 @@ def rating(category='MEN'):
 
     years = get_years()
     rating = m.Rating.query.join(m.Player).options(
-            eagerload('player')).filter(
-            m.Rating.year == year,
-            m.Rating.month == month,
-            m.Player.category == category,
-            m.Rating.rating >= 10).order_by('rating.' + sort_by)
+        eagerload('player')).filter(
+        m.Rating.year == year,
+        m.Rating.month == month,
+        m.Player.category == category,
+        m.Rating.rating >= 10).order_by('rating.' + sort_by)
     if city != 'all cities':
         rating = rating.filter(m.Player.city == city)
     rating = rating.paginate(per_page=limit, page=page)
-    date = '%s %s' % (_(calendar.month_abbr[month]), year)
+    date = f'{calendar.month_abbr[month]} {year}'
 
     return render_template('rating.html', rating=rating,
                            categories=m.Category.VALUES, category=category,
@@ -202,10 +252,10 @@ def rating(category='MEN'):
 @main.route('/world-rating/<category>/')
 @main.route('/world-rating/')
 @cache.cached(key_prefix=lambda: request.url)
-def world_rating(year=None, month=None, category='MEN'):
+def world_rating(category='MEN'):
     rating_lists = m.WorldRatingList.query.order_by(
-            m.WorldRatingList.year.desc(),
-            m.WorldRatingList.month.desc()).all()
+        m.WorldRatingList.year.desc(),
+        m.WorldRatingList.month.desc()).all()
 
     year = request.args.get('year', rating_lists[0].year, type=int)
     month = request.args.get('month', rating_lists[0].month, type=int)
@@ -222,11 +272,11 @@ def world_rating(year=None, month=None, category='MEN'):
     years = sorted(list(set([l.year for l in rating_lists])), reverse=True)
 
     rating = m.WorldRating.query.join(m.WorldPlayer).options(
-            eagerload('player')).filter(
-            m.WorldRating.year == year,
-            m.WorldRating.month == month,
-            m.WorldPlayer.category == category,
-            m.WorldRating.rating > 0
+        eagerload('player')).filter(
+        m.WorldRating.year == year,
+        m.WorldRating.month == month,
+        m.WorldPlayer.category == category,
+        m.WorldRating.rating > 0
     ).order_by('world_rating.' + sort_by).paginate(page=page, per_page=limit)
 
     return render_template('world-rating.html', rating=rating,
@@ -240,13 +290,14 @@ def world_player(id):
     player = m.WorldPlayer.query.get(id)
     if not player:
         abort(404)
-    ratings = m.WorldRating.query.filter_by(player_id=id).order_by(
-            m.WorldRating.year, m.WorldRating.month).all()[-36:]  # tmp limit
-    ratings_values = [r.rating for r in ratings]
-    dates = ["%s %s" % (_(calendar.month_abbr[r.month]), r.year) for r in
-             ratings]
-    return render_template('world-player.html', player=player,
-                           ratings=ratings_values, dates=dates)
+    rating_history = m.WorldRating.query.filter_by(player_id=id).order_by(
+        m.WorldRating.year, m.WorldRating.month).all()[-36:]  # tmp limit
+    ratings = [r.rating for r in rating_history]
+    positions = [r.position for r in rating_history]
+    dates = [f'{calendar.month_abbr[r.month]} {r.year}' for r in
+             rating_history]
+    return render_template('world-player.html', player=player, ratings=ratings,
+                           positions=positions, dates=dates)
 
 
 @main.route("/player/<id>/")
@@ -256,11 +307,11 @@ def player(id):
     if not player:
         abort(404)
     ratings = m.Rating.query.filter_by(player_id=id).order_by(
-            m.Rating.year, m.Rating.month).all()
+        m.Rating.year, m.Rating.month).all()
     ratings_values = [r.rating for r in ratings]
     weight_values = [r.weight for r in ratings]
     position_values = [r.position for r in ratings]
-    dates = ["%s %s" % (_(calendar.month_abbr[r.month]), r.year) for r in
+    dates = [f'{calendar.month_abbr[r.month]} {r.year}' for r in
              ratings]
     return render_template('player.html', player=player,
                            ratings=ratings_values, weights=weight_values,
@@ -271,7 +322,7 @@ def player(id):
 @cache.cached()
 def player_tournament(player_id, tournament_id):
     player_tournament = m.PlayerTournament.query.filter_by(
-            player_id=player_id, tournament_id=tournament_id).first()
+        player_id=player_id, tournament_id=tournament_id).first()
     return render_template('player_tournament.html',
                            player_tournament=player_tournament)
 
@@ -284,7 +335,7 @@ def tournament(id):
 
 
 @main.route("/tournaments/<int:year>/<int:month>")
-@main.route("/tournaments")
+@main.route("/tournaments/")
 @cache.cached()
 def tournaments(year=None, month=None):
     years = get_years()
@@ -297,13 +348,13 @@ def tournaments(year=None, month=None):
         tournaments = []
     else:
         tournaments = m.Tournament.query.filter_by(
-                rating_list_id=rating_list.id).order_by(
-                m.Tournament.start_date.desc()).all()
+            rating_list_id=rating_list.id).order_by(
+            m.Tournament.start_date.desc()).all()
     return render_template('tournaments.html', tournaments=tournaments,
                            year=year, month=month, years=years)
 
 
-@main.route("/win-chain")
+@main.route("/win-chain/")
 def win_chain():
     player1_id = request.args.get('player1_id', type=int)
     player2_id = request.args.get('player2_id', type=int)
@@ -338,8 +389,8 @@ def game_search():
         filters.append(m.Game.opponent_name.like("%" + player2.title() + "%"))
     games = None
     if filters:
-        games = m.Game.query.filter(*filters).order_by('id').paginate(
-                page=page, per_page=25)
+        games = m.Game.query.join(m.Tournament).filter(*filters).order_by(
+            m.Tournament.start_date.desc()).paginate(page=page, per_page=25)
     return render_template('games_search.html', games=games, player1=player1,
                            player2=player2, player1_id=player1_id,
                            player2_id=player2_id)
@@ -350,8 +401,8 @@ def game_search():
 def statistics():
     page = request.args.get('page', 1, type=int)
     issues = m.TopicIssue.query.join(m.Topic).options(
-            eagerload('topic')).order_by(m.TopicIssue.new).order_by(
-            m.Topic.index).paginate(per_page=7, page=page)
+        eagerload('topic')).order_by(m.TopicIssue.new).order_by(
+        m.Topic.index).paginate(per_page=7, page=page)
     return render_template('statistics.html', issues=issues)
 
 
@@ -364,9 +415,7 @@ def live_tournament_home():
 
 @main.route("/live-tournament/<key>")
 def live_tournament(key):
-    tournament = m.LiveTournament.query.filter_by(key=key).first()
-    if not tournament:
-        return abort(404)
+    tournament = m.LiveTournament.query.filter_by(key=key).first_or_404()
     if tournament.status == 'created':
         return redirect(url_for('.live_tournament_add_players', key=key))
     return render_template('live_tournament_home.html')
@@ -396,9 +445,7 @@ def live_tournament_create():
 
 @main.route("/live-tournament/<key>/")
 def live_tournament_add_players(key):
-    tournament = m.LiveTournament.query.filter_by(key=key).first()
-    if not tournament:
-        return abort(404)
+    tournament = m.LiveTournament.query.filter_by(key=key).first_or_404()
     if tournament.status == 'created':
         return render_template('live_tournament_add_players.html',
                                tournament=tournament,
@@ -411,23 +458,19 @@ def live_tournament_add_players(key):
 
 @main.route("/live-tournament/<key>/remove-player/<int:number>")
 def live_tournament_remove_player(key, number):
-    tournament = m.LiveTournament.query.filter_by(key=key).first()
-    if not tournament:
-        return abort(404)
+    tournament = m.LiveTournament.query.filter_by(key=key).first_or_404()
     players = [p for p in tournament.players if p['number'] != number]
     tournament._players = json.dumps(players)
     m.db.session.add(tournament)
     m.db.session.commit()
     return redirect(
-            url_for('.live_tournament_add_players', key=tournament.key))
+        url_for('.live_tournament_add_players', key=tournament.key))
 
 
 @main.route("/live-tournament/<key>/add-players", methods=['GET', 'POST'])
 def live_tournament_add_player(key):
     error = False
-    tournament = m.LiveTournament.query.filter_by(key=key).first()
-    if not tournament:
-        return abort(404)
+    tournament = m.LiveTournament.query.filter_by(key=key).first_or_404()
     if request.method == 'GET':
         return render_template('live_tournament_add_players.html',
                                tournament=tournament,
@@ -469,7 +512,7 @@ def sparring():
     sort_by = request.args.get('sort_by', 'rating')
     if sort_by == 'rating':
         query = m.Sparring.query.join(m.Player).order_by(
-                m.Player.rating.desc())
+            m.Player.rating.desc())
     elif sort_by == 'price':
         query = m.Sparring.query.order_by(m.Sparring.price.desc())
     else:
@@ -516,11 +559,11 @@ def add_sparring():
 def player_search(name):
     if g.lang == 'ru':  # default player name language
         matches = m.Player.query.filter(
-                m.Player.name.like('%' + name.title() + '%')).limit(10).all()
+            m.Player.name.like('%' + name.title() + '%')).limit(10).all()
     else:
         translations = search_translations(name.title(), g.lang)
         matches = m.db.session.query(m.Player).filter(
-                m.Player.name.in_(translations)).limit(10).all()
+            m.Player.name.in_(translations)).limit(10).all()
     return json.dumps([{'name': translate_name(p.name),
                         'rating': p.rating or '0.0',
                         'url': url_for('.player', id=p.id),
@@ -534,12 +577,12 @@ def player_search(name):
 @main.route("/world-player-search/<name>")
 def world_player_search(name):
     matches = m.WorldPlayer.query.filter(m.WorldPlayer.name.like(
-            '%' + name.title() + '%')).limit(10).all()
+        '%' + name.title() + '%')).limit(10).all()
     return json.dumps([{'name': p.name,
                         'rating': p.rating or '0.0',
                         'url': url_for('.world_player', id=p.id),
                         'country': translate_name(countries().get(
-                                p.country_code).name)} for p in matches])
+                            p.country_code).name)} for p in matches])
 
 
 # cached
@@ -557,21 +600,60 @@ def cities():
 
 
 # base routes
-@main.route('/about')
+@main.route('/about/')
 def about():
     return render_template('about.html')
+
+
+def generate_confirmation_token(email):
+    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    return serializer.dumps(email, salt=app.config['SECURITY_PASSWORD_SALT'])
+
+
+@main.route('/subscribe/', methods=['GET', 'POST'])
+def subscribe():
+    if request.method == 'GET':
+        return render_template('subscribe.html')
+    else:
+        password = request.form.get('password')
+        player_id = request.form.get('player_id')
+        email = request.form.get('email')
+        language = request.form.get('lang')
+        user = m.User(email, password, confirmed=False, player_id=player_id,
+                      confirmed_on=datetime.datetime.now(), language=language)
+        token = generate_confirmation_token(email)
+        msg = Message(subject=f'Subscribe {config.APP_NAME}',
+                      body=render_template('email/subscribe_confirm.html',
+                                           token=token), recipients=[email])
+        mail.send(msg)
+        db.session.add(user)
+        db.session.commit()
+        return render_template('subscribe.html', accepted=True)
+
+
+@main.route('/subscribe/confirm/<token>')
+def subscribe_confirm(token):
+    serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    try:
+        email = serializer.loads(
+            token,
+            salt=app.config['SECURITY_PASSWORD_SALT'],
+            max_age=24 * 3600
+        )
+        user = m.User.query.filter_by(email=email).first_or_404()
+        user.confirmed = True
+        user.confirmed_on = datetime.datetime.now()
+        return render_template('subscribe.html', confirmed=True)
+
+    except Exception as e:
+        app.logger.error(f'Failed to confirm email. Reason: {e}')
+        raise e
 
 
 @app.route('/')
 @main.route('/')
 def home():
-    if request.args.get('version'):
-        return redirect(url_for('.statistics'))
-    else:
-        if request.MOBILE:
-            return redirect(url_for('mobile.statistics'))
-        else:
-            return redirect(url_for('main.statistics'))
+    return redirect(url_for(f'main.{config.HOME_PAGE}'))
 
 
 @app.errorhandler(404)

@@ -324,3 +324,6 @@ msgstr "Повна версія"
 
 msgid "Mobile version"
 msgstr "Мобільна версія"
+
+msgid "Rating without a fine"
+msgstr "Рейтинг без врахування штрафу"
