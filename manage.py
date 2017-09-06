@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import re
 
@@ -53,10 +52,7 @@ def translate():
 @manager.command
 def calculate_statistics():
     from services import statistics
-    statistics.load_topics()
-    statistics.calculate(statistics.Period.ENTIRE)
-    statistics.calculate(statistics.Period.MONTH)
-    statistics.calculate(statistics.Period.YEAR)
+    statistics.calculate()
 
 
 @manager.command
@@ -76,68 +72,6 @@ def create_translations():
             for w in words:
                 if w not in text:
                     f.write('\nmsgid "%s"\nmsgstr ""\n' % w)
-
-
-@manager.command
-def update_player_info():
-    import models
-    players = models.Player.query.all()
-    for p in players:
-        if p.rating and p.rating > p.max:
-            p.max = p.rating
-            models.db.session.add(p)
-    models.db.session.commit()
-    print('Updated max rating values')
-    from services import rating_update
-    rating_update.update_player_info()
-
-
-@manager.command
-def tmp():
-    from app import _
-    import glob
-    import os
-    import re
-
-    os.chdir(".")
-    files = []
-
-    for f in glob.iglob("./**/*.py", recursive=True):
-        files.append(f)
-
-    for f in glob.iglob("./**/*.html", recursive=True):
-        files.append(f)
-
-    print(files)
-    all_phrases = set()
-    for f in files:
-        data = open(f).read()
-        phrases = re.findall("{{ _\([\',\"](.+)[\',\"]\) }}", data)
-        if phrases:
-            all_phrases.update(phrases)
-
-    print(all_phrases)
-    all_phrases = sorted(all_phrases, key=lambda x: -len(x))
-
-    word_dict = {}
-    for phrase in all_phrases:
-        uk_version = _(phrase)
-        word_dict[phrase] = uk_version
-        print(uk_version)
-
-    for f in files:
-        with open(f, 'w') as fd:
-            data = fd.read()
-            for phrase in all_phrases:
-                if phrase not in data:
-                    continue
-                data = data.replace(f"{{ _('{phrase}') }}",
-                                    f"{{ _('{word_dict[phrase]}') }}")
-
-    with open('translation/ru/LC_MESSAGES/messages.po', 'w') as f:
-        data = f.read()
-        for w in all_phrases:
-            data = data.replace(w, word_dict[w])
 
 
 if __name__ == '__main__':

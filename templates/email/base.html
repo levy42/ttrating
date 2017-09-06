@@ -1,0 +1,14 @@
+<!doctype html>
+<head>
+</head>
+<body>
+<h3>{{ _("Шановний") }} {{ user.email if not user.player_id else name(user.player.name) }},</h3>
+<div>{% block content %}{% endblock %}</div>
+{% if user.confirmed %}
+    <hr style="width: 10px;color: lightgrey">
+    <a href="{{ url_for('.unsubscribe', token=token, _external=True) }}">
+        {{ _("відписатись") }}
+    </a>
+{% endif %}
+</body>
+</html>

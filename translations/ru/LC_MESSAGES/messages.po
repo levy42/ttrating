@@ -2,7 +2,7 @@
 # Copyright (C) 2017 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
-#
+
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
@@ -22,335 +22,278 @@ msgstr ""
 msgid "rating"
 msgstr "рейтинг"
 
-msgid "Tournament total"
+msgid "Турнир total"
 msgstr "Количество турниров"
 
-msgid "City"
+msgid "Місто"
 msgstr "Город"
 
-msgid "Search player in archive"
+msgid "Пошук гравця в архіві"
 msgstr "Поиск игрока в архиве"
 
-msgid "Participants"
+msgid "Учасники"
 msgstr "Участники"
 
-msgid "Tournaments"
+msgid "Турніри"
 msgstr "Турниры"
 
-msgid "Tournament"
+msgid "Турнир"
 msgstr "Турнир"
 
-msgid "Start Weight"
+msgid "Початкова вага"
 msgstr "Начальный вес"
 
-msgid "#"
+msgid "№"
 msgstr "№"
 
-msgid "Start Rating"
+msgid "Початковий рейтинг"
 msgstr "Начальный рейтинг"
 
-msgid "Player name"
+msgid "Ім'я гравця"
 msgstr "Имя игрока"
 
-msgid "Search game"
+msgid "Пошук ігор"
 msgstr "Поиск игры"
 
-msgid "Country"
+msgid "Країна"
 msgstr "Страна"
 
-msgid "Judge"
+msgid "Суддя"
 msgstr "Судья"
 
-msgid "Rating archive"
-msgstr "Архив рейтингов"
-
-msgid "WOMEN"
+msgid "Жінки"
 msgstr "Женщины"
 
-msgid "Fine Rating"
+msgid "Рейтинг зі штрафом"
 msgstr "Рейтинг со штрафом"
 
-msgid "Name"
+msgid "Назва"
 msgstr "Название"
 
-msgid "Opponent name"
+msgid "Ім'я суперника"
 msgstr "Имя соперника"
 
-msgid "Players"
+msgid "Гравці"
 msgstr "Игроки"
 
-msgid "Rating"
+msgid "Рейтинг"
 msgstr "Рейтинг"
 
-msgid "Weight"
+msgid "Вага"
 msgstr "Вес"
 
-msgid "MEN"
+msgid "Чоловіки"
 msgstr "Мужчины"
-
-msgid "Main Judge"
-msgstr "Главный Судья"
 
 msgid "Game total"
 msgstr "Количество игор"
 
-msgid "Games"
+msgid "Ігри"
 msgstr "Игры"
 
-msgid "Opponent rating"
+msgid "Рейтинг суперника"
 msgstr "Рейтинг противника"
 
-msgid "Result"
+msgid "Резутьтат"
 msgstr "Резутьтат"
 
-msgid "Opponent"
+msgid "Суперник"
 msgstr "Противник"
 
-msgid "Contribution"
+msgid "Вклад"
 msgstr "Вклад"
 
-msgid "World rating"
+msgid "Світовий рейтинг"
 msgstr "Мировой рейтинг"
 
-msgid "Year"
+msgid "Рік"
 msgstr "Год"
 
-msgid "Game Search"
+msgid "Пошук ігор"
 msgstr "Поиск по играх"
 
-msgid "World Players"
-msgstr "Мировые Игроки"
-
-msgid "rating"
-msgstr "рейтинг"
-
-msgid "Currently this player is out of rating"
+msgid "На данний момент игрок вибув з рейтингу"
 msgstr "На данный момент игрок выбил из рейтинга"
 
-msgid "Max Rating"
+msgid "Максимальний рейтинг"
 msgstr "Максимальный рейтинг"
 
-msgid "Statistics"
+msgid "Статистика"
 msgstr "Статистика"
 
-msgid "Tournament count"
+msgid "Турнир count"
 msgstr "Количество турниров"
 
-msgid "Live Tournament"
+msgid "Турніри онлайн"
 msgstr "Турниры онлайн"
 
-msgid "Next"
+msgid "Далі"
 msgstr "Дальше"
 
-msgid "Prev"
+msgid "Назад"
 msgstr "Назад"
 
-msgid "Filter"
+msgid "Фільтр"
 msgstr "Фильтр"
 
-msgid "Player already exists"
+msgid "Гравець з таким іменем вже існує"
 msgstr "Игрок с таким именем уже был додан"
 
-msgid "Rankings, tournaments, statistics and other stuff"
+msgid "Рейтинги, турніри, статистика і багато іншого"
 msgstr "Рейтинги,турниры, статистика и многое другое"
 
-msgid "Table tennis Ukraine"
+msgid "Настільний теніс України"
 msgstr "Настольный теннис Украины"
 
-msgid "Menu"
+msgid "Меню"
 msgstr "Меню"
 
-msgid "Find tournament"
+msgid "Знайти турнір"
 msgstr "Найти турнір"
 
-msgid "Create new tournament"
+msgid "Новий турнір"
 msgstr "Новый турнир"
 
-msgid "Input unique key"
+msgid "Вставте ключ"
 msgstr "Введите ключ"
 
-msgid "About us"
+msgid "Про сайт"
 msgstr "Про сайт"
 
-msgid "About"
-msgstr "Про сайт"
-
-msgid "Rating data a taken from"
+msgid "Рейтинги взяті з сайту"
 msgstr "Рейтинги взяты c сайта"
 
-msgid "Contacts"
+msgid "Контакти"
 msgstr "Контакты"
 
-msgid "World rating"
+msgid "Світовий рейтинг"
 msgstr "Мировой рейтинг"
 
-msgid "Home"
+msgid "На головну"
 msgstr "На главную"
 
-msgid "Oooops, something goes wrong"
+msgid "Ой, щось пішло не так"
 msgstr "Ой, что-то пошло не так"
 
-msgid "Main judge"
-msgstr "Главный суддья"
-
-msgid "No results"
+msgid "Немає результатів"
 msgstr "Нет результатов"
 
-msgid "Input location"
+msgid "Введіть адресу/розміщення"
 msgstr "Введите разположение/адрес"
 
-msgid "Add your offer"
+msgid "Розмістити своє оголошення"
 msgstr "Публиковать услугу"
 
-msgid "Create tournament"
+msgid "Створити турнір"
 msgstr "Создать турнир"
 
-msgid "Action"
+msgid "Дія"
 msgstr "Действие"
 
-msgid "Position"
+msgid "Позиція"
 msgstr "Позиция"
 
-msgid "Create grid"
+msgid "Створити турнірну таблицю"
 msgstr "Создать таблицу"
 
-msgid "Rating tournament"
-msgstr ""
+msgid "Рейтингований турнір"
+msgstr "Рейтингований турнир"
 
-msgid "Tournament created"
+msgid "Турнир created"
 msgstr "Турнир создан"
 
 msgid "Email"
-msgstr ""
+msgstr "Email"
 
-msgid "Player1"
+msgid "Гравець 1"
 msgstr "Игрок 1"
 
-msgid "Player"
-msgstr "Игрок"
-
-msgid "Tournament name"
-msgstr "Название турнира"
-
-msgid "Sparring announcement"
-msgstr "Спаринг услуги"
-
-msgid "Register player"
-msgstr "Зарегестрирывать игроков"
-
-msgid "Player2"
+msgid "Гравець 2"
 msgstr "Игрок 2"
 
-msgid "Publish offer"
-msgstr "Публиковать услугу"
+msgid "Гравець"
+msgstr "Игрок"
 
-msgid "Copy this key, your will need it for access"
+msgid "Назва турніру"
+msgstr "Название турнира"
+
+msgid "Спаринг оголошення"
+msgstr "Спаринг услуги"
+
+msgid "Загеєструвати гравця"
+msgstr "Зарегестрирывать игроков"
+
+msgid "Зкопіюйте цей ключ для доступу до турніру"
 msgstr "Скопируйте этот ключ, он необходим для доступа к турниру"
 
-msgid "Publish"
+msgid "Опоблікувати"
 msgstr "Публиковать"
 
-msgid "Page not found"
+msgid "Сторінка не знайдена"
 msgstr "Страница не найдена"
 
-msgid "from %(price)d ₴ per hour"
+msgid "від %(price)d ₴ за годину"
 msgstr "от %(price)d ₴/час"
 
-msgid "Win chain"
+msgid "Ланцюжок перемоги"
 msgstr "Цепочка победы"
 
-msgid "Try 'Win chain'"
+msgid "Ланцюжок перемоги"
 msgstr "Цепочка победы"
 
-msgid "This is 'Win chain' robot, it can find a chain of players throw that one player win another"
+msgid "Це робот для розрахунку ланцюга перемог через проміжні перемоги одного гравця над іншим"
 msgstr "Это робот для расчета цепочки побед через промежуточные победы одного игрока над другим"
 
-msgid "Count all games between players"
+msgid "Враховувати сумарний резульатат ігор між гравцями"
 msgstr "Считать только сумарный результат по играх"
 
-msgid "Date"
-msgstr "Дата"
-
-msgid "Price"
-msgstr "Цена"
-
-msgid "All"
+msgid "Всі"
 msgstr "Все"
 
-msgid "Sort by"
+msgid "Сортувати за"
 msgstr "Сортировать по"
 
-msgid "Jan"
-msgstr "Янв"
-
-msgid "Feb"
-msgstr "Фев"
-
-msgid "Mar"
-msgstr "Мар"
-
-msgid "Apr"
-msgstr "Апр"
-
-msgid "May"
-msgstr "Май"
-
-msgid "Jun"
-msgstr "Июн"
-
-msgid "Jul"
-msgstr "Июл"
-
-msgid "Aug"
-msgstr "Авг"
-
-msgid "Sep"
-msgstr "Сен"
-
-msgid "Oct"
-msgstr "Окт"
-
-msgid "Nov"
-msgstr "Ноя"
-
-msgid "Dec"
-msgstr "Дек"
-
-msgid "Tournament coefficient"
+msgid "Коефіцієнт турніру"
 msgstr "Коэффициент турнира"
 
-msgid "Activation mail for sent on your email"
-msgstr ""
-
-msgid "View announcements"
-msgstr ""
-
-msgid "Congratulation! You successfuly confirmed your announcement"
-msgstr ""
-
-msgid "Price per hour"
-msgstr ""
-
-msgid "Players count"
+msgid "Кількість гравців"
 msgstr "Количество игроков"
 
-msgid "Other"
+msgid "Інші"
 msgstr "Другие"
 
-msgid "No games"
+msgid "Немає ігор"
 msgstr "Нету игор"
 
-msgid "Win"
+msgid "Перемога"
 msgstr "Победа"
 
-msgid "Lose"
+msgid "Поразка"
 msgstr "Поражение"
 
-msgid "Full version"
+msgid "Повна версія"
 msgstr "Полная версия"
 
-msgid "Mobile version"
+msgid "Мобільна версія"
 msgstr "Мобильная версия"
 
-msgid "Rating without a fine"
+msgid "Рейтинг без врахування штрафу"
 msgstr "Рейтинг без штрафа"
+
+msgid "Шановний"
+msgstr "Уважаемый"
+
+msgid "Вийшов новий рейтинг з настільного тенісу"
+msgstr "Появилася новый рейтинг по настольному теннису"
+
+msgid "Рейтинг на"
+msgstr "Рейтинг на"
+
+msgid "відкрити"
+msgstr "открыть"
+
+msgid "Рейтинг на офіційному сайті"
+msgstr "Рейтинг на официальном сайте"
+
+msgid "Підтердити"
+msgstr "Подтвердить"

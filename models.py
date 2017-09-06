@@ -4,6 +4,7 @@ import json
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import ForeignKey
+from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
 db = SQLAlchemy()
@@ -274,7 +275,8 @@ class User(db.Model):
     registered_on = db.Column(db.DateTime, nullable=False)
     confirmed = db.Column(db.Boolean, nullable=False, default=False)
     confirmed_on = db.Column(db.DateTime, nullable=True)
-    player_id = db.Column(db.Integer)
+    player_id = db.Column(db.Integer, ForeignKey('player.id'))
+    player = relationship('Player')
     language = db.Column(db.String)
 
     def __init__(self, email, password, confirmed, confirmed_on=None,
@@ -286,3 +288,8 @@ class User(db.Model):
         self.confirmed_on = confirmed_on
         self.player_id = player_id
         self.language = language
+
+
+class Test(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime, server_default=func.now())

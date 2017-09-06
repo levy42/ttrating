@@ -1,0 +1,99 @@
+{% extends "index.html" %}
+{% block title %}{{ _('Статистика') }}{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    {{ super() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.bundle.min.js"></script>
+    <div class="ui text container">
+        {% for i in issues.items %}
+            <h3>{{ name(i.topic.name) }}</h3>
+            {% if i.topic.type == 1 %}
+                <table id="table" class="ui basic compact table">
+                    <thead>
+                    <tr>
+                        <th>{{ _('№') }}</th>
+                        {% for h in i.data.headers %}
+                            <th>{{ _(h) }}</th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for x in i.data.data %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            {% for h in i.data.headers %}
+                                <td>
+                                    {% if x[h].href %}
+                                        <a href={{ url_for(x[h].href, id=x[h].id) }}>
+                                            {% if x[h].name %}
+                                                {{ name(x[h].text) }}
+                                            {% else %}
+                                                {{ _(x[h]) }}
+                                            {% endif %}
+                                        </a>
+                                    {% else %}
+                                        {% if x[h].name %}
+                                            {{ name(x[h].text) }}
+                                        {% else %}
+                                            {{ _(x[h]) }}
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+            {% if i.topic.type == 2 %}
+                <div>
+                    <canvas id="{{ i.id }}"></canvas>
+                </div>
+                <script type="text/javascript">
+                    var y = {{ translate_arr(i.data.y)|tojson }};
+                    var x = {{ i.data.x|tojson}};
+                    var type = '{{ i.topic.properties.get("chart_type", "line") }}';
+                    var backgroundColor = undefined;
+                    if (type != 'line')
+                        backgroundColor = [
+                            "#ff1d33",
+                            "#1e8ceb",
+                            "#ffd62f",
+                            "#FF6384",
+                            "#5ce6eb",
+                            "#ff9476",
+                            "#FF6123",
+                            "#12365F",
+                            "#a93d85",
+                            "#4cff2e"
+                        ];
+                    var ctx = document.getElementById("{{ i.id }}");
+                    var myChart = new Chart(ctx, {
+                        type: type,
+                        data: {
+                            labels: y,
+                            datasets: [{
+                                label: "{{ _(i.data.label) }}",
+                                data: x,
+                                pointHitRadius: 13,
+                                backgroundColor: backgroundColor
+                            }]
+                        }
+                    });
+                </script>
+            {% endif %}
+        {% endfor %}
+        {% if issues.page > 1 %}
+            <a class="ui basic button"
+               href="{{ url_for_other_page(issues.page - 1) }}">
+                &#8592; {{ _('Назад') }}</a>
+        {% endif %}
+        {% if issues.has_next %}
+            <a class="ui basic right floated button"
+               href="{{ url_for_other_page(issues.page + 1) }}">{{ _('Далі') }}
+                &#8594;</a>
+        {% endif %}
+    </div>
+{% endblock %}

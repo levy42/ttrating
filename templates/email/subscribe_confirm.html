@@ -1,7 +1,11 @@
-{{ _('Hi') }}
-{{ _('Please, click this link in order to confirm subscribe on ttennis.life') }}
+{% extends "email/base.html" %}
+{% block content %}
+    <p>{{ _('Будь ласка, підтвердіть підписку на') }} <a
+            href="{{ url_for('.rating',_external=True) }}">{{ config.BRAND }}</a>
+    </p>
 
-{{ url_for('.subscribe_confirm',_external=True, token=token) }}
-
-{{ _('If you did not sign up for a ttennis.life account please click on the link below.') }}
-{{ _('Good luck!') }}
+    <a href="{{ url_for('.subscribe_confirm',_external=True, token=token) }}">
+        {{ _('Підтвердити') }}</a>
+    <hr>
+    {{ _('Всього найкращого') }}!
+{% endblock %}

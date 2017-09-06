@@ -24,8 +24,8 @@
             <div class="ui three column grid">
                 <div class="column" align="center">
                     @ 2017 <a
-                        href="{{ url_for('main.about') }}">{{ config.BRAND }}</a>
-                    <div>{{ _('Rating data a taken from') }}
+                        href="{{ url_for('about') }}">{{ config.BRAND }}</a>
+                    <div>{{ _('Рейтинги взяті з сайту') }}
                         <a href="http://reiting.com.ua/"
                            target="_blank">reiting.com.ua</a>
                     </div>
@@ -43,16 +43,24 @@
                                 {{ name }}</a> ·
                         {% endif %}
                     {% endfor %}
-                    <div>{% from '_utils.html' import share_buttons with context %}
-                        {{ share_buttons(request.url) }}</div>
+                    <div>
+                        {# vk share  #}
+                        <a href="{{ 'http://vkontakte.ru/share.php?title=' + _(config.APP_DESCRIPTION) + '&url=' + request.url.replace('&','%26') + '&amp' }}"><i
+                                class="large vk icon"></i></a>
+                        {# facebook share  #}
+                        <a href="{{ 'http://www.facebook.com/sharer.php?s=100&p[title]=' + _(config.APP_DESCRIPTION) + '&p[url]=' + request.url.replace('&','%26') }}"><i
+                                class="large facebook icon"></i></a>
+                        {# twitter share  #}
+                        <a href="{{ 'http://twitter.com/share?url=' + request.url.replace('&','%26') + '&test=' + _(config.APP_DESCRIPTION) }}"><i
+                                class="large twitter icon"></i></a></div>
                 </div>
                 <div class="column" align="center">
-                    <strong>{{ _('Contacts') }}:</strong>
+                    <strong>{{ _('Контакти') }}:</strong>
                     <p><i class="mail icon"></i>{{ config.EMAIL }}</p>
                 </div>
             </div>
             <a style="position: fixed; right:15px;top :15px; z-index: 1000"
-               href="{{ url_for('main.subscribe') }}"
+               href="{{ url_for('subscribe.subscribe') }}"
                data-content="{{ _('Subscribe on rating update!') }}"><i
                     class="ui big bell outline icon"></i></a>
         </div>

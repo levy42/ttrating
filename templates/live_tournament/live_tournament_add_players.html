@@ -1,0 +1,164 @@
+{% extends "index.html" %}
+{% block title %}{{ _('Турніри онлайн') }}{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    {{ super() }}
+    <div class="ui container">
+        {% if tournament.is_started %}
+            <p>started</p>
+        {% else %}
+            <div align="center">
+                <div class="ui ordered steps">
+                    <div class="completed step">
+                        <div class="content">
+                            <div class="title">{{ _('Створити турнір') }}</div>
+                        </div>
+                    </div>
+                    <div class="active step">
+                        <div class="content">
+                            <div class="title">{{ _('Register players') }}</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="content">
+                            <div class="title"><a
+                                    href="">{{ _('Створити турнірну таблицю') }}</a></div>
+                        </div>
+                    </div>
+                    <div class="disabled step">
+                        <div class="content">
+                            <div class="title">{{ _('Старт') }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <h3>{{ _('Гравці') }}</h3>
+            <form action="{{ url_for('.live_tournament_add_player', key=tournament.key) }}"
+                  method="post">
+                <table class="ui celled compact table">
+                    <thead>
+                    <tr>
+                        <th class="one wide">{{ _('№') }}</th>
+                        <th class="five wide">{{ _("Ім'я гравця") }}</th>
+                        <th class="one wide">{{ _('Рейтинг') }}</th>
+                        <th class="two wide">{{ _('Рік') }}</th>
+                        <th class="five wide">{{ _('Місто') }}</th>
+                        <th class="two-wide">{{ _('Дія') }}</th>
+                    </tr>
+                    </thead>
+                    {% for p in tournament.players %}
+                        <tr>
+                            <td>{{ p.number }}</td>
+                            {% if p.player_id %}
+                                <td>
+                                    <a target="_blank"
+                                       href="{{ url_for('.player', id=p.player_id) }}">
+                                        {{ name(p.name) }}</a>
+                                </td>
+                            {% else %}
+                                <td>{{ name(p.name) }}</td>
+                            {% endif %}
+                            <td>{{ p.rating }}</td>
+                            <td>{{ p.year }}</td>
+                            <td>{{ name(p.city) }}</td>
+                            <td>
+                                <a href="{{ url_for('.live_tournament_remove_player',
+                                key=tournament.key,
+                                number=p.number) }}"
+                                   class="ui basic red tiny button">-</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td>{{ tournament.players.__len__() + 1 }}</td>
+                        <td>
+                            <div id="player_search" class="five wide ui search">
+                                <input class="prompt" type="text" name="name"
+                                       placeholder="{{ _("Ім'я гравця") }}">
+                                <div class="results"></div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="one wide ui input">
+                                <input id="rating" name="rating"
+                                       placeholder="{{ _('Рейтинг') }}">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="two wide ui field input">
+                                <input id="year" name="year"
+                                       placeholder="{{ _('Рік') }}">
+                            </div>
+                        </td>
+                        <td>
+                            <div id="city_search"
+                                 class="five wide field ui search">
+                                <input id="city" class="prompt" type="text"
+                                       placeholder="{{ _('Місто') }}"
+                                       name="city">
+                                <div class="results"></div>
+                            </div>
+                        </td>
+                        <td>
+                            <button type="submit" class="ui tiny green button">+
+                            </button>
+                            <input id="player_id" name="player_id" hidden>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        {% endif %}
+        {% if error %}
+            <div class="ui negative message">
+                <i class="close icon"></i>
+                <div class="header">
+                    {{ _('Гравець з таким іменем вже існує') }}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <script>
+        $('#player_search').search({
+            apiSettings: {
+                action: 'search',
+                url: '/{{ g.lang }}/player-search/{query}',
+                onResponse: function (serverResponse) {
+                    var response = {results: []};
+                    $.each(serverResponse, function (index, item) {
+                        response.results.push({
+                            title: item.name,
+                            description: item.city + ' <span style="color:green">'
+                            + item.rating + '</span>',
+                            rating: item.rating,
+                            city: item.city,
+                            year: item.year,
+                            id: item.id
+                        });
+                    });
+                    return response;
+                }
+            },
+            onSelect: function (item) {
+                $('#city_search').val(item.city);
+                $('#city').val(item.city);
+                $('#year').val(item.year);
+                $('#rating').val(item.rating);
+                $('#player_id').val(item.id)
+            },
+            minCharacters: 3
+        });
+        $('#city_search').search({
+            source: {{ cities|tojson }},
+            searchFields: [
+                'title'
+            ],
+            onSelect: function (item) {
+                $('#city_search').val(item.title);
+                $('#city').val(item.id)
+            },
+            minCharacters: 3
+        });
+    </script>
+{% endblock %}

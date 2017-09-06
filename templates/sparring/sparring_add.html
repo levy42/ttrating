@@ -1,0 +1,91 @@
+{% extends "index.html" %}
+{% block title %}{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    {{ super() }}
+    <div class="ui text container">
+        {% if not offer %}
+            <h3>{{ _('Розмістити своє оголошення') }}</h3>
+            <form class="ui form" method="post">
+                <div class="field">
+                    <input type="email" name="email"
+                           placeholder="{{ _('Email') }}">
+                </div>
+                <div id="player_search" class="five wide field ui search">
+                    <input class="prompt" type="text" name="name"
+                           placeholder="{{ _("Ім'я гравця") }}"
+                           value="{{ player1 }}">
+                    <div align="left" class="results"></div>
+                </div>
+                <div class="field">
+                    <input id="id1" name="player_id" placeholder="" hidden>
+                </div>
+                <div id="city_search"
+                     class="five wide field ui search">
+                    <input id="city" class="prompt" type="text"
+                           placeholder="{{ _('Місто') }}"
+                           name="city">
+                    <div class="results"></div>
+                </div>
+                <div class="field">
+                    <input name="location"
+                           placeholder="{{ _('Введіть адресу/розміщення') }}">
+                </div>
+                <div class="field">
+                    <input type="number" name="price"
+                           placeholder="{{ _('Price per hour') }} ₴">
+                </div>
+                <div class="field">
+                <textarea name="description"
+                          placeholder="{{ 'Description' }}"></textarea>
+                </div>
+                <button class="ui basic positive button"
+                        type="submit">{{ _('Опоблікувати') }}</button>
+            </form>
+            </div>
+        {% elif offer.confirmed %}
+            <h3>{{ _('Activation mail for sent on your email') }}</h3>
+        {% else %}
+            <h3>{{ _('Congratulation! You successfuly confirmed your announcement') }}</h3>
+            <a href="{{ url_for('.sparring') }}"
+               class="ui basic button">{{ _('View announcements') }}</a>
+        {% endif %}
+    <script>
+        var options = {
+            action: 'search',
+            url: '/{{ g.lang }}/player-search/{query}',
+            onResponse: function (serverResponse) {
+                var response = {results: []};
+                $.each(serverResponse, function (index, item) {
+                    response.results.push({
+                        title: item.name,
+                        description: item.city + ' <span style="color:green">'
+                        + item.rating + '</span>',
+                        id: item.id
+                    });
+                });
+                return response;
+            }
+        };
+        $('#player_search').search({
+            apiSettings: options,
+            onSelect: function (item) {
+                $('#id1').val(item.id);
+            },
+            minCharacters: 3
+        });
+        $('#city_search').search({
+            source: {{ cities|tojson }},
+            searchFields: [
+                'title'
+            ],
+            onSelect: function (item) {
+                $('#city_search').val(item.title);
+                $('#city').val(item.id)
+            },
+            minCharacters: 3
+        });
+    </script>
+{% endblock %}

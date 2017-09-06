@@ -1,11 +1,12 @@
 import datetime
 import os
-import traceback
 import re
 
 import requests
 import xlrd
 from bs4 import BeautifulSoup
+from flask import current_app
+from werkzeug.local import LocalProxy
 
 import models as m
 from models import Category
@@ -20,29 +21,36 @@ CATEGORY_MAPPINGS = {
     '100_W': Category.WOMEN,
 }
 
+LOG = LocalProxy(lambda: current_app.logger)
+
 
 def parse_ua(month=None, year=None, rating_id=None):
-    print(f'Called rating parse: month: {month}, year: {year}.')
+    LOG.debug(f'Called rating parse: month: {month}, year: {year}.')
     year = year or datetime.datetime.now().year
     month = month or datetime.datetime.now().month
     rating_list = m.RatingList.query.filter_by(month=month, year=year).first()
     if rating_list:  # rating was already parsed
-        print('Rating already parsed')
+        LOG.debug('Rating already parsed')
         return
     if not rating_id:
         remote_rating_lists = get_all_rating_lists()
         rating_id = remote_rating_lists[0][0]
         if remote_rating_lists[0][2] != month:  # no new rating available
-            print('No new rating available')
+            LOG.debug('No new rating available')
             return
+    updated_data = {'players': set(), 'cities': set(), 'tournaments': set()}
     res = parse_ua_by_category(month, year, category=Category.MEN,
                                rating_id=rating_id,
                                parse_tourn=False)
+    for k, v in res.items():
+        updated_data[k].update(v)
     if res == -1:
-        print('Rating cannot be parsed')
+        LOG.debug('Rating cannot be parsed')
         return
-    parse_ua_by_category(month, year, category=Category.WOMEN,
-                         rating_id=rating_id)
+    res = parse_ua_by_category(month, year, category=Category.WOMEN,
+                               rating_id=rating_id)
+    for k, v in res.items():
+        updated_data[k].update(v)
     rating_list = m.RatingList()
     rating_list.year = year
     rating_list.month = month
@@ -50,6 +58,8 @@ def parse_ua(month=None, year=None, rating_id=None):
 
     m.db.session.add(rating_list)
     m.db.session.commit()
+
+    return updated_data
 
 
 def get_all_rating_lists():
@@ -81,7 +91,8 @@ def parse_ua_all():
 
 def parse_ua_by_category(month, year, category=m.Category.MEN,
                          rating_id=None, parse_tourn=True, previous_id=None):
-    print(f'Parsing rating: month = {month}, year = {year}, id = {rating_id}.')
+    LOG.debug(
+        f'Parsing rating: month = {month}, year = {year}, id = {rating_id}.')
     updated_data = {'players': [], 'cities': [], 'tournaments': []}
 
     cities = {c.name: c.name for c in m.City.query.all()}
@@ -180,7 +191,7 @@ def parse_ua_by_category(month, year, category=m.Category.MEN,
     m.db.session.commit()
 
     if parse_tourn:
-        print('Parsing tournaments...')
+        LOG.debug('Parsing tournaments...')
         tourn_table = soup.find("table", {"id": "tourn-table"})
         if tourn_table:
             tournaments = []
@@ -216,7 +227,7 @@ def parse_ua_by_category(month, year, category=m.Category.MEN,
                                     sub_href.rsplit('/', 2)[1])
                                 if m.Tournament.query.filter_by(
                                         external_id=tourn_external_id).first():
-                                    print('Tournament already exist')
+                                    LOG.debug('Tournament already exist')
                                     continue
                                 updated_data['tournaments'].append(
                                     tournament.name)
@@ -224,10 +235,10 @@ def parse_ua_by_category(month, year, category=m.Category.MEN,
                                 tournament.rating_list_id = rating_id
                                 parce_tournament_date(tournament)
                                 tournaments.append((tournament, sub_href))
-                                print(f'--Parsed tournaments {tourn_href}')
-                            except Exception:
-                                traceback.print_exc()
-                                pass
+                                LOG.debug(f'--Parsed tournaments {tourn_href}')
+                            except Exception as e:
+                                LOG.debug(f'Failed to pasre tournaments. '
+                                          f'Rating id {rating_id}')
                     else:
                         tournament = m.Tournament()
                         tournament.city = city
@@ -236,7 +247,7 @@ def parse_ua_by_category(month, year, category=m.Category.MEN,
                         tourn_external_id = int(tourn_href.rsplit('/', 2)[1])
                         if m.Tournament.query.filter_by(
                                 external_id=tourn_external_id).first():
-                            print('Tournament already exist')
+                            LOG.debug('Tournament already exist')
                             continue
                         updated_data['tournaments'].append(
                             tournament.name)
@@ -244,12 +255,10 @@ def parse_ua_by_category(month, year, category=m.Category.MEN,
                         tournament.rating_list_id = rating_id
                         parce_tournament_date(tournament)
                         tournaments.append((tournament, tourn_href))
-                        print(f'--Parsed tournaments {tourn_href}')
+                        LOG.debug(f'--Parsed tournaments {tourn_href}')
                 except Exception:
-                    traceback.print_exc()
-                    print(
+                    LOG.debug(
                         f'Failed to pasre tournaments. Rating id {rating_id}')
-                    pass
 
             for tournament, _ in tournaments:
                 m.db.session.add(tournament)
@@ -259,7 +268,7 @@ def parse_ua_by_category(month, year, category=m.Category.MEN,
                 parse_tournament(href, tournament.id, tournament)
             m.db.session.commit()
 
-    return int(page.url.rsplit('/', 3)[1])
+    return updated_data
 
 
 def parse_world_rating_all():
@@ -268,7 +277,7 @@ def parse_world_rating_all():
         for month in range(1, 13):
             for category in CATEGORY_MAPPINGS:
                 i += 1
-                print(year, month, category)
+                LOG.debug(year, month, category)
                 parse_world_by_category(category, year=year, month=month)
 
 
@@ -417,7 +426,7 @@ def parse_tournament(href, tournament):
 
 
 def parse_player(player_id):
-    print("Found not existing player, parsing new player")
+    LOG.debug("Found not existing player, parsing new player")
     page = requests.get(UA_RATING_DOMEN + f'/rating/p/1/{player_id}/')
     if page.status_code != 200:
         return []
@@ -434,7 +443,7 @@ def parse_player(player_id):
 
 
 def parse_games(player, player_href, start_rating):
-    print(f'----Parse games {player_href}')
+    LOG.debug(f'----Parse games {player_href}')
     games = []
     page = requests.get(UA_RATING_DOMEN + player_href)
     if page.status_code != 200:
@@ -526,8 +535,8 @@ def parce_tournament_date(tournament):
             year=tournament.rating_list.year,
             month=tournament.rating_list.month,
             day=1)
-        print(e)
-        print(tournament.name)
+        LOG.debug(e)
+        LOG.debug(tournament.name)
 
 
 def parse_tt_cup_photos():
@@ -546,10 +555,10 @@ def parse_tt_cup_photos():
                 photo_url = p.find("a", {'class': 'fancybox'}).get('href')
                 name = p.find("div", {'class': 'player-name'}).find('a').get(
                     'title')
-                print(name)
-                print(photo_url)
+                LOG.debug(name)
+                LOG.debug(photo_url)
                 players_data[name] = photo_url
             except Exception as e:
-                print(f'Error processing image for url {photo_url} : {e}')
+                LOG.debug(f'Error processing image for url {photo_url} : {e}')
     with open('photos.json', 'w') as f:
         json.dump(players_data, f)

@@ -42,20 +42,20 @@ def topic_processor(func):
 def top_rating_list(topic):
     year = datetime.date.today().year
     props = topic.properties
-    headers = ['Player name', 'Rating', 'Weight', 'Year', 'City']
+    headers = ['Гравець', 'Рейтинг', 'Вага', 'Рік', 'Місто']
     top10 = models.Player.query.order_by(
         models.Player.rating.desc()).filter(
         models.Player.category == props['category'],
         models.Player.year >= (year - props['max_age'])).limit(
         props['count'])
-    data = [{'Player name': {'text': x.name,
-                             'href': '.player',
-                             'name': True,
-                             'id': x.id},
-             'Rating': x.rating,
-             'Weight': x.weight,
-             'Year': x.year,
-             'City': {'text': x.city, 'name': True}}
+    data = [{'Гравець': {'text': x.name,
+                         'href': 'main.player',
+                         'name': True,
+                         'id': x.id},
+             'Рейтинг': x.rating,
+             'Вага': x.weight,
+             'Рік': x.year,
+             'Місто': {'text': x.city, 'name': True}}
             for x in top10]
     return dict(headers=headers, data=data)
 
@@ -63,22 +63,22 @@ def top_rating_list(topic):
 @topic_processor
 def top_win(topic):
     props = topic.properties
-    headers = ['Player', 'Rating', 'Opponent', 'Opponent rating',
-               'Contribution']
+    headers = ['Гравець', 'Рейтинг', 'Суперник', 'Рейтинг суперника',
+               'Вклад']
     games = models.Game.query.join(models.Tournament).filter(
         models.Game.opponent_rating > props['rating_limit']).order_by(
         models.Game.contribution.desc()).limit(props['count']).all()
-    data = [{'Player': {'text': g.player_name,
-                        'href': 'main.player',
-                        'id': g.player_id,
-                        'name': True},
-             'Rating': g.player_rating,
-             'Opponent': {'text': g.opponent_name,
+    data = [{'Гравець': {'text': g.player_name,
+                         'href': 'main.player',
+                         'id': g.player_id,
+                         'name': True},
+             'Рейтинг': g.player_rating,
+             'Суперник': {'text': g.opponent_name,
                           'href': 'main.player' if g.opponent_id else None,
                           'id': g.opponent_id,
                           'name': True},
-             'Opponent rating': g.opponent_rating,
-             'Contribution': g.contribution}
+             'Рейтинг суперника': g.opponent_rating,
+             'Вклад': g.contribution}
             for g in games]
     return dict(data=data, headers=headers)
 
@@ -91,14 +91,14 @@ def top_total(topic):
     header = props['header']
     player_infos = models.PlayerInfo.query.order_by(criteria).limit(
         props['count'])
-    headers = ['Player name', header, 'Year', 'City']
-    data = [{'Player name': {'text': x.player.name,
-                             'href': 'main.player',
-                             'name': True,
-                             'id': x.id},
+    headers = ['Гравець', header, 'Рік', 'Місто']
+    data = [{'Гравець': {'text': x.player.name,
+                         'href': 'main.player',
+                         'name': True,
+                         'id': x.id},
              header: getattr(x, props['field']),
-             'Year': x.player.year,
-             'City': {'text': x.player.city, 'name': True}}
+             'Рік': x.player.year,
+             'Місто': {'text': x.player.city, 'name': True}}
             for x in player_infos]
     return dict(headers=headers, data=data)
 
@@ -110,13 +110,13 @@ def top_player_age(topic):
     player_infos = models.Player.query.order_by(
         getattr(models.Player.year, order)()).filter(
         models.Player.year).limit(props['count'])
-    headers = ['Player name', 'Year', 'City']
-    data = [{'Player name': {'text': x.name,
-                             'href': 'main.player',
-                             'name': True,
-                             'id': x.id},
-             'Year': x.year,
-             'City': {'text': x.city, 'name': True}}
+    headers = ['Гравець', 'Рік', 'Місто']
+    data = [{'Гравець': {'text': x.name,
+                         'href': 'main.player',
+                         'name': True,
+                         'id': x.id},
+             'Рік': x.year,
+             'Місто': {'text': x.city, 'name': True}}
             for x in player_infos]
     return dict(headers=headers, data=data)
 
@@ -131,15 +131,15 @@ def top_winner(topic):
     top_list = sorted(player_infos, key=lambda x: float(
         x.game_won) / x.game_total, reverse=True)[:count]
 
-    headers = ['Player name', 'Win', 'Lose', 'Year', 'City']
-    data = [{'Player name': {'text': x.player.name,
-                             'href': 'main.player',
-                             'name': True,
-                             'id': x.id},
-             'Win': x.game_won,
-             'Lose': x.game_total - x.game_won,
-             'Year': x.player.year,
-             'City': {'text': x.player.city, 'name': True}}
+    headers = ['Гравець', 'Перемога', 'Поразка', 'Рік', 'Місто']
+    data = [{'Гравець': {'text': x.player.name,
+                         'href': 'main.player',
+                         'name': True,
+                         'id': x.id},
+             'Перемога': x.game_won,
+             'Поразка': x.game_total - x.game_won,
+             'Рік': x.player.year,
+             'Місто': {'text': x.player.city, 'name': True}}
             for x in top_list]
     return dict(headers=headers, data=data)
 
@@ -147,10 +147,10 @@ def top_winner(topic):
 @topic_processor
 def rating_dynamics(topic):
     rating_limit = topic.properties['rating_limit']
-    label = 'Players count'
+    label = 'Кількість гравців'
     rating_lists = models.RatingList.query.order_by('year', 'month').all()
     x = []
-    y = [f'{calendar.month_abbr[r.month]} {r.year}' for r in rating_lists]
+    y = [f'{r.month:0>2} {r.year}' for r in rating_lists]
     for r in rating_lists:
         player60_count = models.Rating.query.filter(
             models.Rating.rating > rating_limit,
@@ -163,7 +163,7 @@ def rating_dynamics(topic):
 @topic_processor
 def tournament_dynamics_by_year(topic):
     city = topic.properties.get('city')
-    label = 'Tournament count'
+    label = 'Кількість турнірів'
     rating_lists = models.RatingList.query.all()
     years = set()
     for l in rating_lists:
@@ -186,7 +186,7 @@ def tournament_dynamics_by_year(topic):
 def tournament_dynamics_by_city(topic):
     count = topic.properties.get('count')
     tournaments = models.Tournament.query.all()
-    label = 'Tournament count'
+    label = 'Кількість турнірів'
     city_totals = {}
     for t in tournaments:
         city_totals[t.city] = city_totals.get(t.city, 0) + 1
@@ -200,7 +200,7 @@ def tournament_dynamics_by_city(topic):
     for i in top_totals:
         y.append(i[0])
         x.append(i[1])
-    y.append('Other')
+    y.append('Інші')
     x.append(other_total)
 
     return dict(label=label, x=x, y=y)
@@ -217,37 +217,28 @@ def most_active_judges(topic):
     judges_totals_sorted = sorted(judges_totals.items(), key=lambda x: x[1],
                                   reverse=True)
     top_totals = judges_totals_sorted[:count]
-    headers = ['Judge', 'Tournament total']
-    data = [{'Judge': k,
-             'Tournament total': v}
+    headers = ['Суддя', 'Кількість турнірів']
+    data = [{'Суддя': k,
+             'Кількість турнірів': v}
             for k, v in top_totals]
 
     return dict(headers=headers, data=data)
 
 
-TOPICS = []
-
-
-def load_topics():
-    global TOPICS
-    TOPICS = models.Topic.query.filter_by(active=True).all()
-
-
-def calculate(period, only_new=False):
-    for t in TOPICS:
+def calculate(only_new=False):
+    for t in models.Topic.query.filter_by(active=True).all():
         if only_new and models.TopicIssue.query.filter_by(
                 topic_id=t.id).first():
             continue
-        if period == t.period:
-            data = PROCESSORS[t.processor](t)
-            topic_issue = models.TopicIssue(t.id, data)
-            topic_issue.topic = t
-            set_date(topic_issue, datetime.date.today())
-            old_issue = models.TopicIssue.query. \
-                filter_by(new=True, topic_id=t.id).first()
-            if old_issue:
-                old_issue.new = False
-                models.db.session.add(old_issue)
-            models.db.session.add(topic_issue)
+        data = PROCESSORS[t.processor](t)
+        topic_issue = models.TopicIssue(t.id, data)
+        topic_issue.topic = t
+        set_date(topic_issue, datetime.date.today())
+        old_issue = models.TopicIssue.query. \
+            filter_by(new=True, topic_id=t.id).first()
+        if old_issue:
+            old_issue.new = False
+            models.db.session.add(old_issue)
+        models.db.session.add(topic_issue)
 
     models.db.session.commit()

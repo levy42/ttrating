@@ -1,0 +1,41 @@
+{% extends "index.html" %}
+{% block title %}{{ name(tournament.name) }}{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    {{ super() }}
+    <div class="ui text container">
+        <h3 class="ui header">{{ name(tournament.name) }}</h3>
+        <p><strong>{{ _('Місто') }}: </strong>{{ name(tournament.city) }}</p>
+        <p><strong>{{ _('Суддя') }}: </strong>{{ name(tournament.judge) }}</p>
+        <h3 class="ui header">{{ _('Учасники') }} {{ tournament.players_info|length }}</h3>
+        <table id="table" class="ui table">
+            <thead>
+            <tr>
+                <th>{{ _('Гравець') }}</th>
+                <th class="popup" data-content="{{ _('Початковий рейтинг') }}">
+                    P<sub>0</sub></th>
+                <th>Δ P</th>
+                <th class="popup" data-content="{{ _('Початкова вага') }}">
+                    B<sub>0</sub></th>
+                <th>Δ B</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for x in tournament.players_info %}
+                <tr>
+                    <td><a href="{{ url_for('.player_tournament',
+                  player_id=x.player_id,
+                  tournament_id=tournament.id) }}">
+                        {{ name(x.player.name) }}</a></td>
+                    <td>{{ x.start_rating }}</td>
+                    <td>{{ x.delta_rating|color }}</td>
+                    <td>{{ x.start_weight }}</td>
+                    <td>{{ x.delta_weight }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

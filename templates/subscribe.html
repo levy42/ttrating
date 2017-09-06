@@ -1,45 +1,50 @@
 {% extends "index.html" %}
-{% block title %}{{ _('Subscribe') }}{% endblock %}
+{% block title %}{{ _('Підписатись') }}{% endblock %}
 {% block head %}
     {{ super() }}
 {% endblock %}
 {% block content %}
     {{ super() }}
     <div class="ui text container">
+        <h3 align="center">{{ _('Нова підписка') }}</h3>
         {% if accepted %}
             <div>
-                <h3>{{ _('Thanks! Confirmation mail from sent on your email!') }}</h3>
+                <h3>{{ _('Дякуємо! Лист з підтвердженням вислано на Ваш email!') }}</h3>
             </div>
         {% elif confirmed %}
             <div>
-                <h3>{{ _('Thanks! Your email is confirmed.
-                We will send you reports every month, when new rating is comming!') }}</h3>
+                <h3>{{ _('Дякуємо! Ваш email підтверджено!') }}</h3>
             </div>
         {% else %}
+            {{ _('Підпишіться на ttennis.life і отримуйте сповіщення про оновлення
+             рейтингу щомісяця з цікавою статистикою та аналітикою!') }}
             <form class="ui form" method="post">
                 <div class="field">
-                    <input type="email" name="email"
-                           placeholder="{{ _('Your email') }}">
+                    <input type="email" name="email" required
+                           placeholder="{{ _('Введіть email') }}">
                 </div>
                 <div class="field">
-                    <input type="password" name="password"
-                           placeholder="{{ _('Your password') }}">
+                    <input type="password" name="password" required
+                           placeholder="{{ _('Введіть пароль') }}">
                 </div>
-                <h3>{{ _('If you are a player, please find yourself:') }}</h3>
+                <h4>{{ _('Якщо ви гравець, будь-ласка знайдіть себе:') }}</h4>
                 <div id="player_search" class="five wide field ui search">
                     <input class="prompt" type="text" name="name"
-                           placeholder="{{ _('Player name') }}"
+                           placeholder="{{ _("Ім'я гравця") }}"
                            value="{{ player1 }}">
                     <div align="left" class="results"></div>
                 </div>
                 <input id="player_id" name="player_id" hidden>
-                <label>{{ _('Prefered language') }}:</label>
-                <select class="ui compact dropdown" name="lang">
+                <label>{{ _('Мова') }}:</label>
+                <select class="ui compact dropdown field" name="lang">
                     {% for i, name in config.SUPPORTED_LANGUAGES.items() %}
                         <option value="{{ i }}">{{ name }}</option>
                     {% endfor %}
                 </select>
-                <button class="ui positive button" type="submit"></button>
+                <div class="field" align="center">
+                    <button class="ui negative button"
+                            type="submit">{{ _('Підписатись') }}</button>
+                </div>
             </form>
         {% endif %}
     </div>

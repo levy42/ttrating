@@ -1,0 +1,119 @@
+{% extends "index.html" %}
+{% block title %}{{ name(player.name) }}{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    {{ super() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.bundle.min.js"></script>
+    <div class="ui grid text container">
+        {% if player.info.photo_url %}
+            <div>
+                <img class="ui rounded image"
+                     src="{{ player.info.photo_url }}"
+                     height="200">
+            </div>
+        {% endif %}
+        <div>
+            <h2 class="header">{{ name(player.name) }}
+                {% if player.rating %}
+                    <span style="color: green">{{ player.rating }}</span>
+                    <span class="popup"
+                          data-content="{{ _('Рейтинг без врахування штрафу') }}">
+                        {% if player.fine_rating != player.rating %}/
+                            {{ player.fine_rating }}
+                        {% endif %}
+                    </span>
+                {% else %}
+                    <span style="color: red" class="popup"
+                          data-content="{{ _('На данний момент игрок вибув з рейтингу') }}">
+                        0.0</span>
+                {% endif %}
+            </h2>
+            <table>
+                <tr>
+                    <td><strong>{{ _('Місто') }}:</strong></td>
+                    <td>{{ name(player.city) + "-" + name(player.city2)
+                if player.city2 else name(player.city) }}</td>
+                </tr>
+                <tr>
+                    <td><strong>{{ _('Рік') }}:</strong></td>
+                    <td>{{ player.year }}</td>
+                </tr>
+                <tr>
+                    <td><strong>{{ _('Вага') }}:</strong></td>
+                    <td>{{ player.weight }}</td>
+                </tr>
+                <tr>
+                    <td><strong>{{ _('Турніри') }}:</strong></td>
+                    <td>{{ player.info.tournaments_total }}</td>
+                </tr>
+                <tr>
+                    <td><strong>{{ _('Ігри') }}:</strong></td>
+                    <td>{{ player.info.game_total }}/<span style="color:
+                    green;">{{ player.info.game_won }}</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <canvas id="myChart"></canvas>
+        <h3 class="ui header">{{ _('Турніри') }}</h3>
+        <div class="row">
+            <table id="table" class="ui table">
+                <thead>
+                <tr>
+                    <th>{{ _('№') }}</th>
+                    <th>{{ _('Назва') }}</th>
+                    <th class="popup" data-content="{{ _('Початковий рейтинг') }}">
+                        P<sub>0</sub></th>
+                    <th>ΔP</th>
+                    <th class="popup" data-content="{{ _('Початкова вага') }}">
+                        B<sub>0</sub></th>
+                    <th>ΔB</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for player_tournament in player.tournaments | sort(attribute='tournament.start_date', reverse=True) %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>
+                            <a href="{{ url_for('.player_tournament',
+                    player_id=player_tournament.player_id,
+                    tournament_id=player_tournament.tournament_id) }}">
+                                {{ name(player_tournament.tournament.name) }}
+                            </a>
+                        </td>
+                        <td>{{ player_tournament.start_rating }}</td>
+                        <td>{{ player_tournament.delta_rating|color }}</td>
+                        <td>{{ player_tournament.start_weight }}</td>
+                        <td>{{ player_tournament.delta_weight }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var dates = {{ dates|tojson }};
+        var ratings = {{ ratings|tojson }};
+        var positions = {{ positions|tojson}};
+        var ctx = document.getElementById("myChart");
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: "{{ _('Рейтинг') }}",
+                    data: ratings,
+                    pointHitRadius: 13
+                }, {
+                    label: "{{ _('Позиція') }}",
+                    data: positions,
+                    pointHitRadius: 13,
+                    hidden: true,
+                    backgroundColor: "rgba(0,100,255,0.1)"
+                }]
+            }
+        });
+    </script>
+{% endblock %}

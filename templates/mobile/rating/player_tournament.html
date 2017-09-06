@@ -1,0 +1,69 @@
+{% extends "mobile/base.html" %}
+{% block title %}{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+    {{ super() }}
+    <div class="ui big breadcrumb">
+        <a class="section"
+           href="{{ url_for('.tournament', id=player_tournament.tournament_id) }}">
+            {{ name(player_tournament.tournament.name) }}
+        </a>
+        <i class="right angle icon divider"></i>
+        <a class="active section"
+           href="{{ url_for('.player', id=player_tournament.player_id ) }}">
+            {{ name(player_tournament.player.name) }}
+        </a>
+    </div>
+    <table class="ui table">
+        <thead>
+        <tr>
+            <th>{{ _('Початковий рейтинг') }}</th>
+            <th>{{ _('Початкова вага') }}</th>
+            <th>Δ {{ _('Рейтинг') }}</th>
+            <th>Δ {{ _('Вага') }}</th>
+        </tr>
+        </thead>
+        <tr>
+            <td>{{ player_tournament.start_rating }}</td>
+            <td>{{ player_tournament.start_weight }}</td>
+            <td>{{ player_tournament.delta_rating|color }}</td>
+            <td>{{ player_tournament.delta_weight }}</td>
+        </tr>
+    </table>
+    <h3>{{ _('Ігри') }}</h3>
+    {% if player_tournament.games %}
+        <table class="ui table">
+            <thead>
+            <tr>
+                <th>{{ _('Резутьтат') }}</th>
+                <th>{{ _('Суперник') }}</th>
+                <th>{{ _('Рейтинг суперника') }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for x in player_tournament.games %}
+                <tr>
+                    {% if x.result %}
+                        <td style="color: green">{{ _('Перемога') }}</td>
+                    {% else %}
+                        <td style="color: red">{{ _('Поразка') }}</td>
+                    {% endif %}
+                    {% if x.opponent_id %}
+                        <td>
+                            <a href="{{ url_for('.player_tournament',
+                                player_id=x.opponent_id,
+                                tournament_id=x.tournament_id) }}">
+                                {{ name(x.opponent_name) }}</a></td>
+                    {% else %}
+                        <td>{{ name(x.opponent_name) }}</td>
+                    {% endif %}
+                    <td>{{ x.opponent_rating }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}{{ _('Немає ігор') }}
+    {% endif %}
+{% endblock %}
