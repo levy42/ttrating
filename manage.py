@@ -4,7 +4,7 @@ import re
 from flask.ext.script import Manager
 
 import config
-from app import app, db
+from app import app, db, cache
 from services import parser
 
 manager = Manager(app)
@@ -72,6 +72,11 @@ def create_translations():
             for w in words:
                 if w not in text:
                     f.write('\nmsgid "%s"\nmsgstr ""\n' % w)
+
+
+@manager.command
+def make_translations():
+    os.system('pybabel compile -d translations')
 
 
 if __name__ == '__main__':

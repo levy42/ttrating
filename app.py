@@ -1,44 +1,62 @@
 import logging
-from logging.handlers import SMTPHandler
 from logging.handlers import RotatingFileHandler
 
 import jinja2
-from flask import (Flask, g, redirect, render_template, request, url_for)
+from flask import (Flask, g, redirect, render_template, request, url_for,
+                   Blueprint)
 from flask_babel import (Babel, _)
 from flask_cache import Cache
 from flask_mobility import Mobility
 from jinja2 import filters
-from flask_mail import Mail
+from flask_mail import Mail, Message
+from flask_apscheduler import APScheduler
 
 import config
 import models as m
 from services.translator import translate, load_transations
 
 app = Flask(config.APP_NAME)
-app.config.from_pyfile('config.py')
+app.config.from_pyfile('config-template.py')
+
+main = Blueprint('main', 'main')
 
 db = m.db
 m.db.init_app(app)
 
+cron = APScheduler()
 babel = Babel(app)
 Mobility(app)
 cache = Cache(app, config=app.config)
 mail = Mail(app)
 
+
 # logging
-handler = RotatingFileHandler(f'{config.APP_NAME}.log', maxBytes=10000,
+class FlaskMailLogHandler(logging.Handler):
+    def __init__(self, mail, recipients, *args, **kwargs):
+        super(FlaskMailLogHandler, self).__init__(*args, **kwargs)
+        self.mail = mail
+        self.recipients = recipients
+
+    def emit(self, record):
+        self.mail.send(Message(
+            recipients=self.recipients,
+            body=self.format(record),
+            subject=f'{config.APP_NAME} ERROR!'))
+
+
+formatter = logging.Formatter(
+    '[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
+handler = RotatingFileHandler(f'{config.APP_NAME}.log', maxBytes=1000000,
                               backupCount=1)
+handler.setFormatter(formatter)
+app.logger.setLevel(logging.DEBUG)
 app.logger.addHandler(handler)
-handler.setLevel(logging.DEBUG)
-mail_handler = SMTPHandler(mailhost=(config.MAIL_SERVER, config.MAIL_PORT),
-                           fromaddr=config.MAIL_DEFAULT_SENDER,
-                           secure=config.MAIL_USE_SSL,
-                           credentials=(
-                               config.MAIL_USERNAME, config.MAIL_PASSWORD),
-                           toaddrs=[config.ADMINS],
-                           subject='YourApplication Failed')
+handler.setLevel(logging.INFO)
+mail_handler = FlaskMailLogHandler(mail, config.ADMINS)
 mail_handler.setLevel(logging.ERROR)
-app.logger.addHandler(mail_handler)
+mail_handler.setFormatter(formatter)
+if config.MODE == 'PROD':
+    app.logger.addHandler(mail_handler)
 
 # localization
 month_abbr = ['', 'січ', 'лют', 'бер', 'кві', 'тра', 'чер', 'лип', 'сер',
@@ -56,12 +74,15 @@ def set_language_code(endpoint, values):
         return
     if app.url_map.is_endpoint_expecting(endpoint, 'lang'):
         values['lang'] = g.lang
+    pass
 
 
 @app.url_value_preprocessor
 def get_lang_code(endpoint, values):
     if values is not None:
-        g.lang = values.pop('lang', None)
+        lang = values.get('lang', None)
+        if lang in app.config['SUPPORTED_LANGUAGES'].keys():
+            g.lang = values.pop('lang', None)
 
 
 @app.before_request
@@ -139,23 +160,12 @@ def on_startup():
 
 
 # base routes
-@app.route('/<lang>/about/')
-def about(lang=None):
+@main.route('/about/')
+def about():
     return render_template('about.html')
 
 
-@app.route('/change-version')
-def change_version():
-    is_mobile = request.args['mobile']
-    request.MOBILE = is_mobile == 'on'
-    page = request.args['page']
-    redirect_to = redirect(page)
-    response = app.make_response(redirect_to)
-    response.set_cookie('mobile', value=is_mobile)
-    return response
-
-
-@app.route('/')
+@main.route('/')
 def home():
     return redirect(url_for(f'{config.HOME_PAGE}'))
 
@@ -167,18 +177,19 @@ def page_not_found(e):
 
 @app.errorhandler(500)
 def internal_server_error(e):
-    app.logger.error(f'500 error: {e}')
     return render_template('500.html'), 500
 
 
 if __name__ == '__main__':
     # register views
     from views import (rating, world_rating, subscribers)
-    from tasks import cron
 
+    app.register_blueprint(main, url_prefix='/<lang>')
+    app.register_blueprint(main, url_prefix='')
     app.register_blueprint(rating.bp, url_prefix='/<lang>')
     app.register_blueprint(world_rating.bp, url_prefix='/<lang>')
     app.register_blueprint(subscribers.bp, url_prefix='/<lang>')
 
-    # cron.start()
+    cron.init_app(app)
+    cron.start()
     app.run(port=10000, host='0.0.0.0')

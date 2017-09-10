@@ -117,36 +117,36 @@
                 <img class="logo" src="/static/img/logo.png">
                 {{ config.BRAND }}
             </div>
-            <a href="{{ url_for('main.statistics') }}"
+            <a href="{{ url_for('rating.statistics') }}"
                class="{% if '.statistics' in request.endpoint %}active{% endif %} item">
                 {{ _('Статистика') }}</a>
-            <a href="{{ url_for('main.rating') }}"
+            <a href="{{ url_for('rating.rating') }}"
                class="{% if '.rating' in request.endpoint %}active{% endif %} item">
                 {{ _('Рейтинг') }}</a>
-            <a href="{{ url_for('main.tournaments') }}"
+            <a href="{{ url_for('rating.tournaments') }}"
                class="{% if '.tournaments' in request.endpoint %}active{% endif %} item">
                 {{ _('Турніри') }}</a>
             <div class="ui right floated dropdown item">
                 {{ _('Меню') }} <i class="dropdown icon"></i>
                 <div class="menu">
-                    <a href="{{ url_for('main.statistics') }}"
+                    <a href="{{ url_for('rating.statistics') }}"
                        class="{% if '.statistics' in request.endpoint %}active{% endif %} item">
                         <i class="bar chart icon"></i>
                         {{ _('Статистика') }}</a>
-                    <a href="{{ url_for('main.rating') }}"
+                    <a href="{{ url_for('rating.rating') }}"
                        class="{% if 'rating' in request.endpoint %}active{% endif %} item">
                         <i class="table icon"></i>
                         {{ _('Рейтинг') }}</a>
-                    <a class="{% if 'world.rating' in request.endpoint %}
+                    <a class="{% if 'world_rating' in request.endpoint %}
                             active{% endif %} item"
-                       href="{{ url_for('world.rating') }}">
+                       href="{{ url_for('world_rating.rating') }}">
                         <i class="world icon"></i>
                         {{ _('Світовий рейтинг') }}</a>
-                    <a href="{{ url_for('main.tournaments') }}"
+                    <a href="{{ url_for('rating.tournaments') }}"
                        class="{% if '.tournaments' in request.endpoint %}active{% endif %} item">
                         <i class="trophy icon"></i>
                         {{ _('Турніри') }}</a>
-                    <a href="{{ url_for('main.game_search') }}"
+                    <a href="{{ url_for('rating.game_search') }}"
                        class="{% if   '.game_search' in request.endpoint %}active{% endif %} item">
                         <i class="search icon"></i>
                         {{ _('Пошук ігор') }}</a>
@@ -160,7 +160,7 @@
                     {#                        <i class="sitemap icon"></i>#}
                     {#                        {{ _('Турніри онлайн') }}</a>#}
                     <div class="divider"></div>
-                    <a href="{{ url_for('about') }}"
+                    <a href="{{ url_for('main.about') }}"
                        class="{% if 'about' in request.endpoint %}active{% endif %} item">
                         <i class="info circle icon"></i>
                         {{ _('Про сайт') }}</a>
@@ -177,12 +177,12 @@
                                 {{ name }}</a>
                         {% endif %}
                     {% endfor %}
-                    <div class="divider"></div>
-                    <a class="item"
-                       href="{{ url_for('change_version',mobile='on',page=request.url) }}">
-                        <i class="mobile icon"></i>
-                        {{ _('Мобільна версія') }}
-                    </a>
+{#                    <div class="divider"></div>#}
+{#                    <a class="item"#}
+{#                       href="{{ url_for('.change_version',mobile='on',page=request.url) }}">#}
+{#                        <i class="mobile icon"></i>#}
+{#                        {{ _('Мобільна версія') }}#}
+{#                    </a>#}
                 </div>
             </div>
         </div>

@@ -1,6 +1,6 @@
 {% extends "email/base.html" %}
 {% block content %}
-    <h3>{{ _("Вийшов новий рейтинг з настільного тенісу") }}!</h3>
+    <h3>{{ _("Вийшов новий рейтинг з настільного тенісу України") }}!</h3>
     <p>{{ _("Рейтинг на") }} <b>{{ config.BRAND }}</b>: <a
             href="{{ 'http://' + config.SERVER_NAME+ '/%s/rating' % request.lang }}">{{ _("відкрити") }}</a>
     </p>

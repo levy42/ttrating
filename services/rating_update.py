@@ -19,6 +19,8 @@ LOG = app.logger
 
 def update_ua():
     updated_data = parser.parse_ua()
+    if not updated_data:
+        return
     translate_new_strings(updated_data)
     statistics.calculate(statistics)
     send_ua_monthly_report()
@@ -26,8 +28,8 @@ def update_ua():
 
 
 def update_world():
-    parser.parse_world_rating()
-    send_world_monthly_report()
+    if parser.parse_world_rating():
+        send_world_monthly_report()
 
 
 def atomic_subtask(name):
@@ -86,12 +88,29 @@ def send_ua_monthly_report():
 
 @atomic_subtask('Send world rating reports')
 def send_world_monthly_report():
-    pass
+    report = email_reports.generate_ua_monthly_report()
+    users = models.User.query.all()
+    users_divided_by_lang = {lang: [u for u in users if u.language == lang] for
+                             lang in config.SUPPORTED_LANGUAGES}
+
+    for lang, users in users_divided_by_lang.items():
+        with app.test_request_context(f'/{lang}/'):
+            request.lang = lang
+            with mail.connect() as conn:
+                for user in users:
+                    token = generate_confirmation_token(user.email)
+                    msg = Message(subject=_("Hoвий світовий рейтинг"),
+                                  html=render_template('email/new_rating.html',
+                                                       user=user,
+                                                       token=token,
+                                                       report=report),
+                                  recipients=[user.email])
+                    conn.send(msg)
 
 
 def update_player_info():
-    LOG.debug('Updating players info')
-    LOG.debug('progress: ')
+    LOG.info('Updating players info')
+    LOG.info('progress: ')
     n = 10000
     player_infos = models.PlayerInfo.query.all()
 
@@ -108,8 +127,8 @@ def update_player_info():
         page += 1
         _games = models.Game.query.paginate(page=page, per_page=n)
         if page == 1:
-            LOG.debug('Count: %s' % _games.total)
-            LOG.debug('Pages %s' % _games.pages)
+            LOG.info('Count: %s' % _games.total)
+            LOG.info('Pages %s' % _games.pages)
             pages = _games.pages
         games = _games.items
         player_games = {}
@@ -127,4 +146,4 @@ def update_player_info():
             p.tournaments_total += len(tourns)
             db.session.add(p)
         db.session.commit()
-        LOG.debug(f'{page}/{pages}')
+        LOG.info(f'{page}/{pages}')

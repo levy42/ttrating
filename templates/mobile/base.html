@@ -75,11 +75,11 @@
 </div>
 <br>
 <div class="ui inverted labeled icon left inline vertical sidebar menu">
-    <a href="{{ url_for('main.statistics') }}"
+    <a href="{{ url_for('rating.statistics') }}"
        class="{% if '.statistics' in request.endpoint %}active{% endif %} item">
         <i class="bar chart icon"></i>
         {{ _('Статистика') }}</a>
-    <a href="{{ url_for('main.rating') }}"
+    <a href="{{ url_for('rating.rating') }}"
        class="{% if '.rating' in request.endpoint %}active{% endif %} item">
         <i class="table icon"></i>
         {{ _('Рейтинг') }}</a>
@@ -88,16 +88,16 @@
        href="{{ url_for('world.world_rating') }}">
         <i class="world icon"></i>
         {{ _('Світовий рейтинг') }}</a>
-    <a href="{{ url_for('main.tournaments') }}"
+    <a href="{{ url_for('rating.tournaments') }}"
        class="{% if '.tournaments' in request.endpoint %}active{% endif %} item">
         <i class="trophy icon"></i>
         {{ _('Турніри') }}</a>
-    <a href="{{ url_for('main.game_search') }}"
+    <a href="{{ url_for('rating.game_search') }}"
        class="{% if   '.game_search' in request.endpoint %}active{% endif %} item">
         <i class="search icon"></i>
         {{ _('Пошук ігор') }}</a>
     <div class="divider"></div>
-    <a href="{{ url_for('about') }}"
+    <a href="{{ url_for('mobile.about') }}"
        class="{% if 'about' in request.endpoint %}active{% endif %} item">
         <i class="info circle icon"></i>
         {{ _('Про сайт') }}</a>

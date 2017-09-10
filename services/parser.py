@@ -85,8 +85,16 @@ def get_all_rating_lists():
 
 def parse_ua_all():
     rating_lists = get_all_rating_lists()
+    all_data = {'players': set(), 'cities': set(), 'tournaments': set(),
+                'was_updated': False}
     for rating_id, year, month in rating_lists:
-        parse_ua(month=month, year=year, rating_id=rating_id)
+        updated_data = parse_ua(month=month, year=year, rating_id=rating_id)
+        if updated_data:
+            all_data['was_updated'] = True
+            all_data['players'].update(updated_data['players'])
+            all_data['cities'].update(updated_data['cities'])
+            all_data['tournaments'].update(updated_data['tournament'])
+    return all_data
 
 
 def parse_ua_by_category(month, year, category=m.Category.MEN,
@@ -282,8 +290,11 @@ def parse_world_rating_all():
 
 
 def parse_world_rating():
+    was_updated = False
     for category in CATEGORY_MAPPINGS:
-        parse_world_by_category(category)
+        if parse_world_by_category(category):
+            was_updated = True
+    return was_updated
 
 
 def parse_world_by_category(category='100_M', year=None, month=None):
@@ -371,6 +382,8 @@ def parse_world_by_category(category='100_M', year=None, month=None):
     m.db.session.add(rating_list)
     m.db.session.commit()
     os.remove(document_name)
+
+    return True
 
 
 def parse_tournament(href, tournament):

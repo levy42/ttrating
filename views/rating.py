@@ -6,9 +6,9 @@ import models as m
 from app import cache, render_template, month_abbr
 from services.translator import search_translations
 from views.common import cities, get_rating_lists, get_years, translate_name
-from flask.ext.mobility.decorators import mobile_template
+from flask_mobility.decorators import mobile_template
 
-bp = Blueprint('main', __name__)
+bp = Blueprint('rating', __name__)
 
 
 @bp.route('/rating/<category>/')
@@ -32,7 +32,7 @@ def rating(template, category='MEN'):
         m.Rating.year == year,
         m.Rating.month == month,
         m.Player.category == category,
-        m.Rating.rating >= 10).order_by('main.' + sort_by)
+        m.Rating.rating >= 10).order_by(sort_by)
     if city != 'all cities':
         rating = rating.filter(m.Player.city == city)
     rating = rating.paginate(per_page=limit, page=page)

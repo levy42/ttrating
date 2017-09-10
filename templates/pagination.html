@@ -1,0 +1,23 @@
+{% if pagination.pages > 1 %}
+    <div class="ui pagination menu">
+        {% for page in iter_pages(pagination) %}
+            {% if page %}
+                {% if page != pagination.page %}
+                    <a class="item"
+                       href="{{ url_for_other_page(page) }}">{{ page }}</a>
+                {% else %}
+                    <strong class="active item">{{ page }}</strong>
+                {% endif %}
+            {% else %}
+                <div class="disabled item">
+                    ...
+                </div>
+            {% endif %}
+        {% endfor %}
+        {% if pagination.has_next %}
+            <a class="icon item"
+               href="{{ url_for_other_page(pagination.page + 1) }}"><i
+                    class="right chevron icon"></i></a>
+        {% endif %}
+    </div>
+{% endif %}

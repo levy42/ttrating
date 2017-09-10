@@ -1,6 +1,8 @@
+from os import environ
+
 APP_NAME = 'ttennis'
 SERVER_NAME = 'localhost:10000'
-PREFERRED_URL_SCHEME = 'http'
+# PREFERRED_URL_SCHEME = 'http'
 APP_DESCRIPTION = 'Table tennis Ukraine'
 PAGE_META_DESCRIPTION = 'Рейтинг по настольному теннису, ' \
                         'Рейтинг настільного тенісу'
@@ -23,7 +25,7 @@ SUPPORTED_LANGUAGES = {'ru': 'Русский', 'uk': 'Українська'}
 BABEL_DEFAULT_LOCALE = 'uk'
 
 MODE = 'DEV'  # DEV | PROD
-HOME_PAGE = 'main.rating'
+HOME_PAGE = 'rating.rating'
 
 # API
 YANDEX_API_KEY = 'trnsl.1.1.20170317T133701Z.9ef6d1256a8576ac.573492aef' \
@@ -35,8 +37,8 @@ MAIL_PORT = 465
 MAIL_USE_SSL = True
 MAIL_USERNAME = 'ttennis.life.ua'
 MAIL_PASSWORD = 'ttennispassword'
-MAIL_DEFAULT_SENDER = 'ttennis.life.ua@gmail.com'
-ADMINS = ['vitaliylevitskiabd@gmail.com']
+MAIL_DEFAULT_SENDER = EMAIL
+ADMINS = ['vitaliylevitskiand@gmail.com']
 
 # JOBS
 JOBS = [
@@ -58,12 +60,13 @@ JOBS = [
         'trigger': 'interval',
         'seconds': 3660 * 24
     },
-    {
-        'id': 'test',
-        'func': 'tasks:test',
-        'trigger': 'interval',
-        'seconds': 2
-    }
+    # {
+    #     'id': 'test',
+    #     'func': 'tasks:test',
+    #     'trigger': 'interval',
+    #     'seconds': 2
+    # }
 ]
 SCHEDULER_API_ENABLED = True
 FLASK_DEBUG = True
+TEMPLATE_AUTO_RELOAD = True

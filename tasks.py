@@ -1,5 +1,4 @@
 import datetime
-from flask_apscheduler import APScheduler
 from services import rating_update
 import models as m
 from app import app
@@ -16,6 +15,7 @@ def task(f):
 @task
 def update_ua_rating():
     rating_update.update_ua()
+    rating_update.send_ua_monthly_report()
 
 
 @task
@@ -25,16 +25,13 @@ def update_world_rating():
 
 @task
 def delete_expired_users():
+    app.logger.info('Running task "delete_expired_users"')
     expired_time = datetime.datetime.now() - datetime.timedelta(days=1)
-    m.User.query.filter_by(m.User.registered_on <= expired_time).delete()
+    m.User.query.filter_by(m.User.registered_on <= expired_time,
+                           m.User.confirmed is not True).delete()
 
 
 @task
 def test():
-    rating_update.send_ua_monthly_report()
-
-
-cron = APScheduler(app=app)
-
-if __name__ == '__main__':
-    cron.start()
+    # rating_update.send_ua_monthly_report()
+    app.logger.info('Test')

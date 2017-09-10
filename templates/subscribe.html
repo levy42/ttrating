@@ -18,14 +18,21 @@
         {% else %}
             {{ _('Підпишіться на ttennis.life і отримуйте сповіщення про оновлення
              рейтингу щомісяця з цікавою статистикою та аналітикою!') }}
+            <br>
             <form class="ui form" method="post">
                 <div class="field">
                     <input type="email" name="email" required
                            placeholder="{{ _('Введіть email') }}">
+                    {% if errors['email'] %}
+                        <p>{{ _(errors['email']) }}</p>
+                    {% endif %}
                 </div>
                 <div class="field">
                     <input type="password" name="password" required
                            placeholder="{{ _('Введіть пароль') }}">
+                    {% if errors['password'] %}
+                        <p>{{ _(errors['password']) }}</p>
+                    {% endif %}
                 </div>
                 <h4>{{ _('Якщо ви гравець, будь-ласка знайдіть себе:') }}</h4>
                 <div id="player_search" class="five wide field ui search">

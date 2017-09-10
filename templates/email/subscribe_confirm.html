@@ -1,10 +1,10 @@
 {% extends "email/base.html" %}
 {% block content %}
     <p>{{ _('Будь ласка, підтвердіть підписку на') }} <a
-            href="{{ url_for('.rating',_external=True) }}">{{ config.BRAND }}</a>
+            href="{{ url_for('rating.rating',_external=True) }}">{{ config.BRAND }}</a>
     </p>
 
-    <a href="{{ url_for('.subscribe_confirm',_external=True, token=token) }}">
+    <a href="{{ url_for('subscribe.confirm',_external=True, token=token) }}">
         {{ _('Підтвердити') }}</a>
     <hr>
     {{ _('Всього найкращого') }}!

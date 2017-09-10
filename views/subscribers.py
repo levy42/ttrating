@@ -1,6 +1,6 @@
 from flask import current_app as app
 import datetime
-from flask import request, render_template, abort, Blueprint
+from flask import request, render_template, abort, Blueprint, redirect, url_for
 from app import mail, db
 import models as m
 from flask_mail import Message
@@ -18,27 +18,41 @@ def generate_confirmation_token(email):
 @bp.route('/subscribe/', methods=['GET', 'POST'])
 def subscribe():
     if request.method == 'GET':
-        return render_template('subscribe.html')
+        accepted = request.args.get('accepted')
+        return render_template('subscribe.html', accepted=accepted == 'True',
+                               errors={})
     else:
         password = request.form.get('password')
         player_id = request.form.get('player_id')
         email = request.form.get('email')
         language = request.form.get('lang')
+        errors = {}
+        # validate
+        if m.User.query.filter_by(email=email).first():
+            errors['email'] = 'Такий email вже зареєстровано!'
+        if len(password) < 6:
+            errors['password'] = 'Пароль занадто короткий, мінімум 6 символів'
+
+        if errors:
+            return render_template('subscribe.html', errors=errors)
+
         user = m.User(email, password, confirmed=False, player_id=player_id,
                       confirmed_on=datetime.datetime.now(), language=language)
         token = generate_confirmation_token(email)
+        db.session.add(user)
+        db.session.commit()
         msg = Message(subject=f'Subscribe {config.APP_NAME}',
                       html=render_template('email/subscribe_confirm.html',
                                            token=token, user=user),
                       recipients=[email])
         mail.send(msg)
-        db.session.add(user)
-        db.session.commit()
-        return render_template('subscribe.html', accepted=True)
+        return redirect(url_for('.subscribe', accepted=True))
 
 
 @bp.route('/subscribe/confirm/<token>')
 def confirm(token):
+    if request.args.get('confirmed'):
+        render_template('subscribe.html', confirmed=True)
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     try:
         email = serializer.loads(
@@ -51,7 +65,7 @@ def confirm(token):
         user.confirmed_on = datetime.datetime.now()
         db.session.add(user)
         db.session.commit()
-        return render_template('subscribe.html', confirmed=True)
+        return redirect(url_for('.subscribe', confirmed=True))
 
     except Exception as e:
         app.logger.error(f'Failed to confirm email. Reason: {e}')
