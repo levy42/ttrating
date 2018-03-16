@@ -49,7 +49,7 @@ def top_rating_list(topic):
         models.Player.year >= (year - props['max_age'])).limit(
         props['count'])
     data = [{'Гравець': {'text': x.name,
-                         'href': 'main.player',
+                         'href': 'rating.player',
                          'name': True,
                          'id': x.id},
              'Рейтинг': x.rating,
@@ -69,12 +69,12 @@ def top_win(topic):
         models.Game.opponent_rating > props['rating_limit']).order_by(
         models.Game.contribution.desc()).limit(props['count']).all()
     data = [{'Гравець': {'text': g.player_name,
-                         'href': 'main.player',
+                         'href': 'rating.player',
                          'id': g.player_id,
                          'name': True},
              'Рейтинг': g.player_rating,
              'Суперник': {'text': g.opponent_name,
-                          'href': 'main.player' if g.opponent_id else None,
+                          'href': 'rating.player' if g.opponent_id else None,
                           'id': g.opponent_id,
                           'name': True},
              'Рейтинг суперника': g.opponent_rating,
@@ -93,7 +93,7 @@ def top_total(topic):
         props['count'])
     headers = ['Гравець', header, 'Рік', 'Місто']
     data = [{'Гравець': {'text': x.player.name,
-                         'href': 'main.player',
+                         'href': 'rating.player',
                          'name': True,
                          'id': x.id},
              header: getattr(x, props['field']),
@@ -112,7 +112,7 @@ def top_player_age(topic):
         models.Player.year).limit(props['count'])
     headers = ['Гравець', 'Рік', 'Місто']
     data = [{'Гравець': {'text': x.name,
-                         'href': 'main.player',
+                         'href': 'rating.player',
                          'name': True,
                          'id': x.id},
              'Рік': x.year,
@@ -133,7 +133,7 @@ def top_winner(topic):
 
     headers = ['Гравець', 'Перемога', 'Поразка', 'Рік', 'Місто']
     data = [{'Гравець': {'text': x.player.name,
-                         'href': 'main.player',
+                         'href': 'rating.player',
                          'name': True,
                          'id': x.id},
              'Перемога': x.game_won,
