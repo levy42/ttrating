@@ -4,8 +4,9 @@ import re
 from flask.ext.script import Manager
 
 import config
-from app import app, db, cache
+from app import app, db
 from services import parser
+
 
 manager = Manager(app)
 
@@ -53,6 +54,12 @@ def translate():
 def calculate_statistics():
     from services import statistics
     statistics.calculate()
+
+
+@manager.command
+def update_user_info():
+    from services import rating_update
+    rating_update.update_player_info()
 
 
 @manager.command

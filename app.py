@@ -16,7 +16,7 @@ import models as m
 from services.translator import translate, load_transations
 
 app = Flask(config.APP_NAME)
-app.config.from_pyfile('config-template.py')
+app.config.from_pyfile('config.py')
 
 main = Blueprint('main', 'main')
 

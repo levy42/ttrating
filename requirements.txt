@@ -5,8 +5,12 @@ Flask-Script
 Flask-Babel
 Flask-Mobility
 Flask-Bcrypt
+Flask-Migrate
+Flask-APScheduler
+Flask-Mail
 bs4
 requests
 xlrd
 networkx
 fabric
+
