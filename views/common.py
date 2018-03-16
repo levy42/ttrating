@@ -24,3 +24,8 @@ def get_rating_lists():
 @cache.cached(key_prefix='get_years')
 def get_years():
     return sorted(list(set([x.year for x in get_rating_lists()])))
+
+
+def get_current_rating_list():
+    return m.RatingList.query.order_by(m.RatingList.year.desc(),
+                                       m.RatingList.month.desc()).first()

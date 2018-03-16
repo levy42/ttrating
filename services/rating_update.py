@@ -13,6 +13,7 @@ from app import app
 from app import cache
 from itsdangerous import URLSafeSerializer
 import config
+from views import common
 
 LOG = app.logger
 
@@ -113,6 +114,18 @@ def update_player_info():
     LOG.info('progress: ')
     n = 10000
     player_infos = models.PlayerInfo.query.all()
+    last_rating_list = common.get_current_rating_list()
+    month = last_rating_list.month
+    year = last_rating_list.year
+    ratings = models.Rating.query.filter(year=year, month=month).all
+    players = models.PlayerInfo.query.all()
+    players_by_id = {p.id: p for p in players}
+
+    for r in ratings:
+        player = players_by_id[r.player_id]
+        player.rating = r.rating
+        db.session.add(player)
+    db.session.commit()
 
     for p in player_infos:
         p.game_total = 0
