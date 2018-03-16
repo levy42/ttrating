@@ -5,6 +5,7 @@ from flask.ext.script import Manager
 
 import config
 from app import app, db
+import models
 from services import parser
 
 
@@ -53,6 +54,13 @@ def translate():
 @manager.command
 def calculate_statistics():
     from services import statistics
+    statistics.calculate()
+
+
+@manager.command
+def update_statistics():
+    from services import statistics
+    models.TopicIssue.query.delete()
     statistics.calculate()
 
 
