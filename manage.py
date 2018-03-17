@@ -90,15 +90,17 @@ def initdb():
 
 
 @manager.command
-def deploy(branch='master'):
+def deploy(migrate='', branch='master'):
+    # TODO do it better
     host = config.HOST
+    migrate_script = "python3.6 manage.py db upgrade &&"
     os.system(
         f"ssh {host} 'cd ttrating && "
         f"git fetch && "
         f"git checkout {branch} && "
         f"git pull origin {branch} && "
         f"pip3.6 install -r requirements.txt && "
-        f"python3.6 manage.py db upgrade && "
+        f"{migrate_script if migrate else ''} "
         f"(kill -9 `cat app.pid` ; "
         f"nohup python3.6 app.py & "
         f"echo $! > app.pid)'")
