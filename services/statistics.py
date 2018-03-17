@@ -48,15 +48,18 @@ def top_rating_list(topic):
         models.Player.category == props['category'],
         models.Player.year >= (year - props['max_age'])).limit(
         props['count'])
-    data = [{'Гравець': {'text': x.name,
-                         'href': 'rating.player',
-                         'name': True,
-                         'id': x.id},
-             'Рейтинг': x.rating,
-             'Вага': x.weight,
-             'Рік': x.year,
-             'Місто': {'text': x.city, 'name': True}}
-            for x in top10]
+    data = [{
+        'Гравець': {
+            'text': x.name,
+            'href': 'rating.player',
+            'name': True,
+            'id': x.id
+        },
+        'Рейтинг': x.rating,
+        'Вага': x.weight,
+        'Рік': x.year,
+        'Місто': {'text': x.city, 'name': True}}
+        for x in top10]
     return dict(headers=headers, data=data)
 
 
@@ -68,18 +71,23 @@ def top_win(topic):
     games = models.Game.query.join(models.Tournament).filter(
         models.Game.opponent_rating > props['rating_limit']).order_by(
         models.Game.contribution.desc()).limit(props['count']).all()
-    data = [{'Гравець': {'text': g.player_name,
-                         'href': 'rating.player',
-                         'id': g.player_id,
-                         'name': True},
-             'Рейтинг': g.player_rating,
-             'Суперник': {'text': g.opponent_name,
-                          'href': 'rating.player' if g.opponent_id else None,
-                          'id': g.opponent_id,
-                          'name': True},
-             'Рейтинг суперника': g.opponent_rating,
-             'Вклад': g.contribution}
-            for g in games]
+    data = [{
+        'Гравець': {
+            'text': g.player_name,
+            'href': 'rating.player',
+            'id': g.player_id,
+            'name': True
+        },
+        'Рейтинг': g.player_rating,
+        'Суперник': {
+            'text': g.opponent_name,
+            'href': 'rating.player' if g.opponent_id else None,
+            'id': g.opponent_id,
+            'name': True
+        },
+        'Рейтинг суперника': g.opponent_rating,
+        'Вклад': g.contribution}
+        for g in games]
     return dict(data=data, headers=headers)
 
 
@@ -92,14 +100,17 @@ def top_total(topic):
     player_infos = models.PlayerInfo.query.order_by(criteria).limit(
         props['count'])
     headers = ['Гравець', header, 'Рік', 'Місто']
-    data = [{'Гравець': {'text': x.player.name,
-                         'href': 'rating.player',
-                         'name': True,
-                         'id': x.id},
-             header: getattr(x, props['field']),
-             'Рік': x.player.year,
-             'Місто': {'text': x.player.city, 'name': True}}
-            for x in player_infos]
+    data = [{
+        'Гравець': {
+            'text': x.player.name,
+            'href': 'rating.player',
+            'name': True,
+            'id': x.id
+        },
+        header: getattr(x, props['field']),
+        'Рік': x.player.year,
+        'Місто': {'text': x.player.city, 'name': True}}
+        for x in player_infos]
     return dict(headers=headers, data=data)
 
 
@@ -111,13 +122,16 @@ def top_player_age(topic):
         getattr(models.Player.year, order)()).filter(
         models.Player.year).limit(props['count'])
     headers = ['Гравець', 'Рік', 'Місто']
-    data = [{'Гравець': {'text': x.name,
-                         'href': 'rating.player',
-                         'name': True,
-                         'id': x.id},
-             'Рік': x.year,
-             'Місто': {'text': x.city, 'name': True}}
-            for x in player_infos]
+    data = [{
+        'Гравець': {
+            'text': x.name,
+            'href': 'rating.player',
+            'name': True,
+            'id': x.id
+        },
+        'Рік': x.year,
+        'Місто': {'text': x.city, 'name': True}}
+        for x in player_infos]
     return dict(headers=headers, data=data)
 
 
@@ -132,15 +146,17 @@ def top_winner(topic):
         x.game_won) / x.game_total, reverse=True)[:count]
 
     headers = ['Гравець', 'Перемога', 'Поразка', 'Рік', 'Місто']
-    data = [{'Гравець': {'text': x.player.name,
-                         'href': 'rating.player',
-                         'name': True,
-                         'id': x.id},
-             'Перемога': x.game_won,
-             'Поразка': x.game_total - x.game_won,
-             'Рік': x.player.year,
-             'Місто': {'text': x.player.city, 'name': True}}
-            for x in top_list]
+    data = [{
+        'Гравець': {
+            'text': x.player.name,
+            'href': 'rating.player',
+            'name': True,
+            'id': x.id},
+        'Перемога': x.game_won,
+        'Поразка': x.game_total - x.game_won,
+        'Рік': x.player.year,
+        'Місто': {'text': x.player.city, 'name': True}}
+        for x in top_list]
     return dict(headers=headers, data=data)
 
 

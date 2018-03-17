@@ -4,7 +4,6 @@ import pytest
 
 client = app.test_client()
 
-
 def test_sample():
     with pytest.raises(Exception):
         res = client.get('/')

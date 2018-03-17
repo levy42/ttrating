@@ -68,3 +68,6 @@ JOBS = [
 SCHEDULER_API_ENABLED = True
 FLASK_DEBUG = True
 TEMPLATE_AUTO_RELOAD = True
+
+# DEPLOYMENT
+HOST = 'root@ttennis.life'

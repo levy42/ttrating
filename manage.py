@@ -3,30 +3,20 @@ import re
 
 from flask.ext.script import Manager
 
-import config
 from app import app, db
 import models
+import config
 from services import parser
+from flask_migrate import Migrate, MigrateCommand
 
-
+migrate = Migrate(app, db)
 manager = Manager(app)
-
-
-@manager.command
-def initdb():
-    """Creates all database tables."""
-    db.create_all()
-
-
-@manager.command
-def dropdb():
-    """Drops all database tables."""
-    db.drop_all()
-
+manager.add_command('db', MigrateCommand)
 
 @manager.command
 def parse_world():
     parser.parse_world_rating()
+    db.create_all()
 
 
 @manager.command
@@ -92,6 +82,25 @@ def create_translations():
 @manager.command
 def make_translations():
     os.system('pybabel compile -d translations')
+
+
+@manager.command
+def initdb():
+    db.create_all()
+
+
+@manager.command
+def deploy(branch='master'):
+    host = config.HOST
+    os.system(
+        f"ssh {host} 'cd ttrating && "
+        f"git fetch && "
+        f"git checkout {branch} && "
+        f"git pull origin {branch} && "
+        f"python3.6 manage.py db upgrade && "
+        f"(kill -9 `cat app.pid` ; "
+        f"nohup python3.6 app.py & "
+        f"echo $! > app.pid)'")
 
 
 if __name__ == '__main__':

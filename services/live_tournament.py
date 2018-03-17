@@ -51,10 +51,12 @@ class GroupScheme():
         tournament.games.append
 
     def create_groups(self, tournament):
-        group_nuber = math.ceil(len(tournament.players) / self.player_per_group)
-        _players = [number for number, p in sorted(tournament.players.items(),
-                                                   key=lambda x: x[1]['rating'],
-                                                   reverse=True)]
+        group_nuber = math.ceil(len(tournament.players) /
+                                self.player_per_group)
+        _players = [number for number, p in
+                    sorted(tournament.players.items(),
+                           key=lambda x: x[1]['rating'],
+                           reverse=True)]
         self.groups = [[] for i in range(1, group_nuber + 1)]
         i = 0
         for step in range(0, self.player_per_group):
@@ -76,6 +78,6 @@ class GroupScheme():
 
 
 class A(object):
-    players = {i: {'number': i, 'rating': random.randint(0, 115)} for i in
-               range(1, 123)}
+    players = {i: {'number': i, 'rating': random.randint(0, 115)}
+               for i in range(1, 123)}
     pass
