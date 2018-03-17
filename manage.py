@@ -97,6 +97,7 @@ def deploy(branch='master'):
         f"git fetch && "
         f"git checkout {branch} && "
         f"git pull origin {branch} && "
+        f"pip3.6 install -r requirements.txt && "
         f"python3.6 manage.py db upgrade && "
         f"(kill -9 `cat app.pid` ; "
         f"nohup python3.6 app.py & "
