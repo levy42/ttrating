@@ -297,3 +297,39 @@ msgstr "Рейтинг на официальном сайте"
 
 msgid "Підтердити"
 msgstr "Подтвердить"
+
+msgid "ciч"
+msgstr "янв"
+
+msgid "лют"
+msgstr "фев"
+
+msgid "бер"
+msgstr "мар"
+
+msgid "кві"
+msgstr "апр"
+
+msgid "тра"
+msgstr "май"
+
+msgid "чер"
+msgstr "июн"
+
+msgid "лип"
+msgstr "июл"
+
+msgid "сер"
+msgstr "авг"
+
+msgid "вер"
+msgstr "сен"
+
+msgid "жов"
+msgstr "окт"
+
+msgid "лис"
+msgstr "нов"
+
+msgid "гру"
+msgstr "дек"
