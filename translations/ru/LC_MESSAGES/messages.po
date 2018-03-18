@@ -298,7 +298,7 @@ msgstr "Рейтинг на официальном сайте"
 msgid "Підтердити"
 msgstr "Подтвердить"
 
-msgid "ciч"
+msgid "січ"
 msgstr "янв"
 
 msgid "лют"
