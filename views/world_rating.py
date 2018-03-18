@@ -12,7 +12,7 @@ bp = Blueprint('world_rating', __name__)
 @bp.route('/world-rating/<category>/')
 @bp.route('/world-rating/')
 @mobile_template('{mobile/}world_rating/world-rating.html')
-@cache.cached(key_prefix=lambda: request.url)
+@cache.cached(key_prefix=lambda: request.url + str(request.MOBILE))
 def rating(template, category='MEN'):
     rating_lists = m.WorldRatingList.query.order_by(
         m.WorldRatingList.year.desc(),
@@ -47,7 +47,7 @@ def rating(template, category='MEN'):
 
 @bp.route("/world-player/<id>/")
 @mobile_template('{mobile/}world_rating/world-player.html')
-@cache.cached()
+@cache.cached(key_prefix=lambda: request.url + str(request.MOBILE))
 def player(template, id):
     player = m.WorldPlayer.query.get(id)
     if not player:
@@ -63,6 +63,7 @@ def player(template, id):
 
 
 @bp.route("/world-player-search/<name>")
+@cache.memoize()
 def player_search(name):
     matches = m.WorldPlayer.query.filter(m.WorldPlayer.name.like(
         '%' + name.title() + '%')).limit(10).all()

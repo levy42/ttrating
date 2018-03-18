@@ -27,6 +27,7 @@ cron = APScheduler()
 babel = Babel(app)
 Mobility(app)
 cache = Cache(app, config=app.config)
+setattr(app, 'cache', cache)
 mail = Mail(app)
 
 
@@ -65,7 +66,7 @@ month_abbr = ['', 'січ', 'лют', 'бер', 'кві', 'тра', 'чер', '�
 
 @babel.localeselector
 def get_locale():
-    return g.get('lang')
+    return g.get('lang', app.config['BABEL_DEFAULT_LOCALE'])
 
 
 @app.url_defaults
@@ -80,8 +81,8 @@ def set_language_code(endpoint, values):
 @app.url_value_preprocessor
 def get_lang_code(endpoint, values):
     if values is not None:
-        lang = values.get('lang', None)
-        if lang in app.config['SUPPORTED_LANGUAGES'].keys():
+        # lang = values.get('lang', None)
+        # if lang in app.config['SUPPORTED_LANGUAGES'].keys():
             g.lang = values.pop('lang', None)
 
 
@@ -186,11 +187,11 @@ if __name__ == '__main__':
     # register views
     from views import (rating, world_rating, subscribers)
 
-    app.register_blueprint(main, url_prefix='/<lang>')
-    app.register_blueprint(main, url_prefix='')
-    app.register_blueprint(rating.bp, url_prefix='/<lang>')
-    app.register_blueprint(world_rating.bp, url_prefix='/<lang>')
-    app.register_blueprint(subscribers.bp, url_prefix='/<lang>')
+    blueprints = [main, rating.bp, world_rating.bp, subscribers.bp]
+
+    for bp in blueprints:
+        app.register_blueprint(bp, url_prefix='/<lang>')
+        app.register_blueprint(bp, url_prefix='')
 
     cron.init_app(app)
     cron.start()

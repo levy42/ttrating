@@ -1,6 +1,6 @@
 APP_NAME = 'ttennis'
 SERVER_NAME = 'localhost:10000'
-# PREFERRED_URL_SCHEME = 'http'
+PREFERRED_URL_SCHEME = 'http'
 APP_DESCRIPTION = 'Table tennis Ukraine'
 PAGE_META_DESCRIPTION = 'Рейтинг по настольному теннису, ' \
                         'Рейтинг настільного тенісу'
@@ -15,6 +15,7 @@ SECRET_KEY = 'secret'
 
 SQLALCHEMY_DATABASE_URI = 'sqlite:///app.db'
 SQLALCHEMY_ECHO = False
+SQLALCHEMY_TRACK_MODIFICATIONS=False
 
 CACHE_TYPE = 'simple'
 CACHE_DEFAULT_TIMEOUT = 0  # never expires

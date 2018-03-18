@@ -1,17 +1,17 @@
 import json
 import traceback
-
 import requests
 
-import models
-import config
+from flask import current_app
 
-API_KEY = config.YANDEX_API_KEY
+import models
+
 TRANSLATIONS = {}
 RETRANSLATION = {}
 
 
 def _translate_yandex(text, language):
+    API_KEY = current_app.config['YANDEX_API_KEY']
     if isinstance(text, str):
         url = f'https://translate.yandex.net/api/v1.5/tr.json/translate?key=' \
               f'{API_KEY}&text={text}&lang={language}'
@@ -86,35 +86,35 @@ def add_translations(arr, lang):
     models.db.session.commit()
 
 
-def translate_all():
-    print('Players')
+def translate_all(lang='uk'):
+    current_app.log.info('Players')
     players = models.Player.query.all()
     for player in players:
-        if not models.Translation.query.get(player.name + '_uk'):
-            ua_name = models.Translation(player.name, 'uk')
-            ua_name.translated = _translate(player.name, 'uk')
+        if not models.Translation.query.get(player.name + f'_{lang}'):
+            ua_name = models.Translation(player.name, lang)
+            ua_name.translated = _translate(player.name, lang)
             models.db.session.add(ua_name)
             print(ua_name.translated)
 
     models.db.session.commit()
 
-    print('Cities')
+    current_app.log.info('Cities')
     cities = models.City.query.all()
     for c in cities:
-        if not models.Translation.query.get(c.name + '_uk'):
-            ua_name = models.Translation(c.name, 'uk')
-            ua_name.translated = _translate(c.name, 'uk')
+        if not models.Translation.query.get(c.name + f'_{lang}'):
+            ua_name = models.Translation(c.name, lang)
+            ua_name.translated = _translate(c.name, lang)
             models.db.session.add(ua_name)
             print(ua_name.translated)
 
     models.db.session.commit()
 
-    print('Tournaments')
+    current_app.logger.info('Tournaments')
     tourns = models.Tournament.query.all()
     for t in tourns:
-        if not models.Translation.query.get(t.name + '_uk'):
-            ua_name = models.Translation(t.name, 'uk')
-            ua_name.translated = _translate(t.name, 'uk')
+        if not models.Translation.query.get(t.name + f'_{lang}'):
+            ua_name = models.Translation(t.name, lang)
+            ua_name.translated = _translate(t.name, lang)
             models.db.session.add(ua_name)
             print(ua_name.translated)
 

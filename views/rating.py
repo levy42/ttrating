@@ -46,7 +46,7 @@ def rating(template, category='MEN'):
 
 @bp.route('/player/<id>/')
 @mobile_template('{mobile/}rating/player.html')
-@cache.memoize()
+@cache.cached(key_prefix=lambda: request.url + str(request.MOBILE))
 def player(template, id):
     player = m.Player.query.get(id)
     if not player:
@@ -65,7 +65,7 @@ def player(template, id):
 
 @bp.route('/player-tournament/<int:player_id>/<int:tournament_id>/')
 @mobile_template('{mobile/}rating/player_tournament.html')
-@cache.memoize()
+@cache.cached(key_prefix=lambda: request.url + str(request.MOBILE))
 def player_tournament(template, player_id, tournament_id):
     player_tournament = m.PlayerTournament.query.filter_by(
         player_id=player_id, tournament_id=tournament_id).first()
@@ -74,7 +74,7 @@ def player_tournament(template, player_id, tournament_id):
 
 @bp.route('/tournament/<int:id>/')
 @mobile_template('{mobile/}rating/tournament.html')
-@cache.memoize()
+@cache.cached(key_prefix=lambda: request.url + str(request.MOBILE))
 def tournament(template, id):
     tournament = m.Tournament.query.get(id)
     return render_template(template, tournament=tournament)
@@ -83,7 +83,7 @@ def tournament(template, id):
 @bp.route('/tournaments/<int:year>/<int:month>')
 @bp.route('/tournaments/')
 @mobile_template('{mobile/}rating/tournaments.html')
-@cache.memoize()
+@cache.cached(key_prefix=lambda: request.url + str(request.MOBILE))
 def tournaments(template, year=None, month=None):
     years = get_years()
     if not year:

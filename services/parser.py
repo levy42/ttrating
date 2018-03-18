@@ -146,7 +146,7 @@ def parse_ua_by_category(month, year, category=m.Category.MEN,
             updated_data['players'].append(name)
 
         player.prev_rating = player.rating
-        if player.max < rating:
+        if not player.max or player.max < rating:
             player.max = rating
         player.rating = rating
         player.year = p_year

@@ -13,6 +13,7 @@ migrate = Migrate(app, db)
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
+
 @manager.command
 def parse_world():
     parser.parse_world_rating()
@@ -90,7 +91,7 @@ def initdb():
 
 
 @manager.command
-def deploy(migrate='', branch='master'):
+def deploy(migrate=False, branch='master'):
     # TODO do it better
     host = config.HOST
     migrate_script = "python3.6 manage.py db upgrade &&"
