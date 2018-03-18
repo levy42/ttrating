@@ -13,7 +13,7 @@ from flask_apscheduler import APScheduler
 
 import config
 import models as m
-from services.translator import translate, load_transations
+from services.translator import get_translated
 
 app = Flask(config.APP_NAME)
 app.config.from_pyfile('config.py')
@@ -115,8 +115,9 @@ def number_color(context, value):
 
 # custom context
 
+@cache.memoize(timeout=3600)
 def translate_name(text):
-    return translate(text, g.get('lang', app.config['BABEL_DEFAULT_LOCALE']))
+    return get_translated(text, g.get('lang', app.config['BABEL_DEFAULT_LOCALE']))
 
 
 def translate_array(arr):
@@ -155,11 +156,6 @@ def dynamic_translate_processor():
 @app.context_processor
 def form_parameters():
     return {k: request.args.get(k) for k in request.args}
-
-
-@app.before_first_request
-def on_startup():
-    load_transations()
 
 
 # base routes

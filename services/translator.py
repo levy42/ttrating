@@ -6,9 +6,6 @@ from flask import current_app
 
 import models
 
-TRANSLATIONS = {}
-RETRANSLATION = {}
-
 
 def _translate_yandex(text, language):
     API_KEY = current_app.config['YANDEX_API_KEY']
@@ -42,37 +39,22 @@ def _translate(text, language, engine='yandex'):
         raise NotImplementedError
 
 
-def load_transations():
-    global TRANSLATIONS, RETRANSLATION
-
-    def retrieve_origin(id):
-        return id.rsplit('_', 1)[0]
-
-    TRANSLATIONS = {t.id: t for t in models.Translation.query.all()}
-    for t in TRANSLATIONS.values():
-        if not t.origin:
-            t.origin = retrieve_origin(t.id)
-
-    RETRANSLATION = {v: retrieve_origin(k) for k, v in TRANSLATIONS.items()}
-
-
-def translate(text, lang):
+def get_translated(text, lang):
     if not isinstance(text, str):
         return text
-    t = TRANSLATIONS.get(text + '_' + lang)
+    t = models.Translation.query.get(f'{text}_{lang}')
     if t:
         return t.translated
     else:
         return text
 
 
-def retranslate(text):
-    return RETRANSLATION.get(text, text)
-
-
 def search_translations(text, lang=None):
-    return [t.origin for t in TRANSLATIONS.values() if
-            t.locale == lang and (text in t.translated or text in t.origin)]
+    matches = models.Translation.query.filter(
+        models.Translation.id.like(text + '%'),
+        models.Translation.locale == lang).all()
+    # trim last 3 chars to cut off language prefix (e.g. '_uk')
+    return [t.id[:-3] for t in matches]
 
 
 def add_translations(arr, lang):
