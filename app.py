@@ -115,7 +115,6 @@ def number_color(context, value):
 
 # custom context
 
-@cache.memoize(timeout=3600)
 def translate_name(text):
     return get_translated(text, g.get('lang', app.config['BABEL_DEFAULT_LOCALE']))
 
