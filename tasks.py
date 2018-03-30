@@ -1,7 +1,7 @@
 import datetime
 from services import rating_update
 import models as m
-from app import app
+from app import app, cron
 
 
 def task(f):
@@ -35,3 +35,4 @@ def delete_expired_users():
 def test():
     # rating_update.send_ua_monthly_report()
     app.logger.info('Test')
+

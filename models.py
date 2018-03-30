@@ -17,7 +17,12 @@ class Category:
     VALUES = [MEN, WOMEN]
 
 
-class WorldPlayer(db.Model):
+class NameReprMixin:
+    def __str__(self):
+        return self.name
+
+
+class WorldPlayer(NameReprMixin, db.Model):
     column_searchable_list = ('id', 'name')
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String)
@@ -37,6 +42,9 @@ class WorldRating(db.Model):
     year = db.Column(db.Integer)
     month = db.Column(db.Integer)
 
+    def __str__(self):
+        return f'{self.player.name} {self.year}.{self.month}'
+
 
 class WorldRatingList(db.Model):
     id = db.Column(db.String, primary_key=True)
@@ -44,15 +52,18 @@ class WorldRatingList(db.Model):
     month = db.Column(db.Integer)
     category = db.Column(db.String)
 
+    def __str__(self):
+        return f'{self.category} {self.year}.{self.month}'
 
-class Country(db.Model):
+
+class Country(NameReprMixin, db.Model):
     code = db.Column(db.String, primary_key=True)
     name = db.Column(db.String)
     code_2 = db.Column(db.String)
     weight = db.Column(db.Integer)
 
 
-class Player(db.Model):
+class Player(NameReprMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String)
     external_id = db.Column(db.Integer, unique=True)
@@ -66,9 +77,15 @@ class Player(db.Model):
     city = db.Column(db.String)
     city2 = db.Column(db.String)
     category = db.Column(db.String)
-    info = relationship('PlayerInfo', backref="player_info", uselist=False)
     tournaments = relationship('PlayerTournament',
                                order_by="desc(PlayerTournament.index)")
+
+    tournaments_total = db.Column(db.Integer)
+    game_total = db.Column(db.Integer)
+    game_won = db.Column(db.Integer)
+    stability = db.Column(db.Integer)
+    about = db.Column(db.Integer)
+    photo_url = db.Column(db.String)
 
 
 class RatingList(db.Model):
@@ -77,16 +94,8 @@ class RatingList(db.Model):
     month = db.Column(db.Integer)
     category = db.Column(db.String)
 
-
-class PlayerInfo(db.Model):
-    id = db.Column(db.Integer, ForeignKey('player.id'), primary_key=True)
-    player = relationship('Player', backref="player.info")
-    tournaments_total = db.Column(db.Integer)
-    game_total = db.Column(db.Integer)
-    game_won = db.Column(db.Integer)
-    stability = db.Column(db.Integer)
-    about = db.Column(db.Integer)
-    photo_url = db.Column(db.String)
+    def __str__(self):
+        return f'{self.category} {self.year}.{self.month}'
 
 
 class Rating(db.Model):
@@ -101,8 +110,11 @@ class Rating(db.Model):
     year = db.Column(db.Integer)
     month = db.Column(db.Integer)
 
+    def __str__(self):
+        return f'{self.player.name} {self.year}.{self.month}'
 
-class Tournament(db.Model):
+
+class Tournament(NameReprMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String)
     external_id = db.Column(db.Integer, unique=True)
@@ -143,8 +155,9 @@ class PlayerTournament(db.Model):
     delta_weight = db.Column(db.Integer)
 
 
-class City(db.Model):
+class City(NameReprMixin, db.Model):
     name = db.Column(db.String, primary_key=True)
+    external_id = db.Column(db.String, nullable=True)  # external name actually
     weight = db.Column(db.Integer)
 
 
@@ -161,6 +174,9 @@ class Game(db.Model):
     tournament_id = db.Column(db.Integer, ForeignKey('tournament.id'))
     tournament = relationship('Tournament')
     date = db.Column(db.Date)
+
+    def __str__(self):
+        return f'{self.player_name} vs {self.opponent_name}'
 
 
 class Topic(db.Model):
@@ -186,6 +202,9 @@ class Topic(db.Model):
     def properties(self):
         return json.loads(self._properties)
 
+    def __str__(self):
+        return f'{self.name}'
+
 
 class TopicIssue(db.Model):
     def __init__(self, topic_id, data):
@@ -204,6 +223,9 @@ class TopicIssue(db.Model):
     @property
     def data(self):
         return json.loads(self._data)
+
+    def __str__(self):
+        return f'{self.topic.name} {self.date}'
 
 
 class LiveTournament(db.Model):

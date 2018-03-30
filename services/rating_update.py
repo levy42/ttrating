@@ -113,12 +113,11 @@ def update_player_info():
     LOG.info('Updating players info')
     LOG.info('progress: ')
     n = 10000
-    player_infos = models.PlayerInfo.query.all()
+    players = models.Player.query.all()
     last_rating_list = common.get_current_rating_list()
     month = last_rating_list.month
     year = last_rating_list.year
     ratings = models.Rating.query.filter(year=year, month=month).all
-    players = models.PlayerInfo.query.all()
     players_by_id = {p.id: p for p in players}
 
     for r in ratings:
@@ -127,7 +126,7 @@ def update_player_info():
         db.session.add(player)
     db.session.commit()
 
-    for p in player_infos:
+    for p in players:
         p.game_total = 0
         p.game_won = 0
         p.tournaments_total = 0
@@ -149,7 +148,7 @@ def update_player_info():
             if not player_games.get(g.player_id):
                 player_games[g.player_id] = list()
             player_games[g.player_id].append(g)
-        for i, p in enumerate(player_infos):
+        for i, p in enumerate(players):
             if not player_games.get(p.id):
                 continue
             won = [g for g in player_games[p.id] if g.result]

@@ -95,22 +95,22 @@ def top_win(topic):
 def top_total(topic):
     props = topic.properties
     order = props.get('order', 'desc')
-    criteria = getattr(getattr(models.PlayerInfo, props['field']), order)()
+    criteria = getattr(getattr(models.Player, props['field']), order)()
     header = props['header']
-    player_infos = models.PlayerInfo.query.order_by(criteria).limit(
+    player_infos = models.Player.query.order_by(criteria).limit(
         props['count'])
     headers = ['Гравець', header, 'Рік', 'Місто']
     data = [{
         'Гравець': {
-            'text': x.player.name,
+            'text': player.name,
             'href': 'rating.player',
             'name': True,
-            'id': x.id
+            'id': id
         },
-        header: getattr(x, props['field']),
-        'Рік': x.player.year,
-        'Місто': {'text': x.player.city, 'name': True}}
-        for x in player_infos]
+        header: getattr(player, props['field']),
+        'Рік': player.year,
+        'Місто': {'text': player.city, 'name': True}}
+        for player in player_infos]
     return dict(headers=headers, data=data)
 
 
@@ -139,8 +139,8 @@ def top_player_age(topic):
 def top_winner(topic):
     min_game_total = topic.properties['min_game_total']
     count = topic.properties['count']
-    player_infos = models.PlayerInfo.query.filter(
-        models.PlayerInfo.game_total > min_game_total).all()
+    player_infos = models.Player.query.filter(
+        models.Player.game_total > min_game_total).all()
 
     top_list = sorted(player_infos, key=lambda x: float(
         x.game_won) / x.game_total, reverse=True)[:count]
@@ -148,15 +148,15 @@ def top_winner(topic):
     headers = ['Гравець', 'Перемога', 'Поразка', 'Рік', 'Місто']
     data = [{
         'Гравець': {
-            'text': x.player.name,
+            'text': player.name,
             'href': 'rating.player',
             'name': True,
-            'id': x.id},
-        'Перемога': x.game_won,
-        'Поразка': x.game_total - x.game_won,
-        'Рік': x.player.year,
-        'Місто': {'text': x.player.city, 'name': True}}
-        for x in top_list]
+            'id': player.id},
+        'Перемога': player.game_won,
+        'Поразка': player.game_total - player.game_won,
+        'Рік': player.year,
+        'Місто': {'text': player.city, 'name': True}}
+        for player in top_list]
     return dict(headers=headers, data=data)
 
 

@@ -42,3 +42,5 @@ crashlytics-build.properties
 fabric.properties
 
 config.py
+*.db
+*.cfg

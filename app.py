@@ -1,5 +1,6 @@
 import logging
 from logging.handlers import RotatingFileHandler
+from importlib import import_module
 
 import jinja2
 from flask import (Flask, g, redirect, render_template, request, url_for,
@@ -10,6 +11,8 @@ from flask_mobility import Mobility
 from jinja2 import filters
 from flask_mail import Mail, Message
 from flask_apscheduler import APScheduler
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
 
 import config
 import models as m
@@ -17,6 +20,7 @@ from services.translator import get_translated
 
 app = Flask(config.APP_NAME)
 app.config.from_pyfile('config.py')
+app.config.from_envvar('APP_CONFIG', silent=True)
 
 main = Blueprint('main', 'main')
 
@@ -29,6 +33,23 @@ Mobility(app)
 cache = Cache(app, config=app.config)
 setattr(app, 'cache', cache)
 mail = Mail(app)
+
+
+# ** ADMIN ** #
+class CityView(ModelView):
+    column_display_pk = True
+    form_columns = ('name', 'weight')
+
+
+class PlayerView(ModelView):
+    column_exclude_list = ('tournamens', 'external_id')
+
+
+admin = Admin(app, name='admin', template_mode='bootstrap3')
+admin.add_view(PlayerView(m.Player, db.session))
+admin.add_view(ModelView(m.Tournament, db.session))
+admin.add_view(ModelView(m.RatingList, db.session))
+admin.add_view(CityView(m.City, db.session))
 
 
 # logging
@@ -45,18 +66,19 @@ class FlaskMailLogHandler(logging.Handler):
             subject=f'{config.APP_NAME} ERROR!'))
 
 
-formatter = logging.Formatter(
-    '[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
-handler = RotatingFileHandler(f'{config.APP_NAME}.log', maxBytes=1000000,
-                              backupCount=1)
-handler.setFormatter(formatter)
-app.logger.setLevel(logging.DEBUG)
-app.logger.addHandler(handler)
-handler.setLevel(logging.INFO)
-mail_handler = FlaskMailLogHandler(mail, config.ADMINS)
-mail_handler.setLevel(logging.ERROR)
-mail_handler.setFormatter(formatter)
-if config.MODE == 'PROD':
+if not app.debug:
+    formatter = logging.Formatter(
+        app.config.get('LOG_FORMAT') or
+        '[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
+    handler = RotatingFileHandler(f'{config.APP_NAME}.log', maxBytes=1000000,
+                                  backupCount=1)
+    handler.setFormatter(formatter)
+    app.logger.setLevel(logging.DEBUG)
+    app.logger.addHandler(handler)
+    handler.setLevel(logging.INFO)
+    mail_handler = FlaskMailLogHandler(mail, config.ADMINS)
+    mail_handler.setLevel(logging.ERROR)
+    mail_handler.setFormatter(formatter)
     app.logger.addHandler(mail_handler)
 
 # localization
@@ -81,8 +103,8 @@ def set_language_code(endpoint, values):
 @app.url_value_preprocessor
 def get_lang_code(endpoint, values):
     if values is not None:
-        # lang = values.get('lang', None)
-        # if lang in app.config['SUPPORTED_LANGUAGES'].keys():
+        lang = values.get('lang', None)
+        if lang in app.config['SUPPORTED_LANGUAGES'].keys():
             g.lang = values.pop('lang', None)
 
 
@@ -115,8 +137,10 @@ def number_color(context, value):
 
 # custom context
 
+@cache.memoize(timeout=24 * 60 * 60)
 def translate_name(text):
-    return get_translated(text, g.get('lang', app.config['BABEL_DEFAULT_LOCALE']))
+    return get_translated(text,
+                          g.get('lang', app.config['BABEL_DEFAULT_LOCALE']))
 
 
 def translate_array(arr):
@@ -178,16 +202,20 @@ def internal_server_error(e):
     return render_template('500.html'), 500
 
 
-if __name__ == '__main__':
-    # register views
-    from views import (rating, world_rating, subscribers)
-
-    blueprints = [main, rating.bp, world_rating.bp, subscribers.bp]
-
-    for bp in blueprints:
-        app.register_blueprint(bp, url_prefix='/<lang>')
-        app.register_blueprint(bp, url_prefix='')
-
-    cron.init_app(app)
+@app.before_first_request
+def start_cron():
+    cron.init_app(app)  # init scheduler
     cron.start()
-    app.run(port=10000, host='0.0.0.0')
+
+import_module('cli')  # init commands
+
+app.register_blueprint(main, url_prefix='/<lang>')
+app.register_blueprint(main, url_prefix='')
+
+for _module in app.config.get('BLUEPRINTS', []):
+    bp = import_module(_module).bp
+    app.register_blueprint(bp, url_prefix='/<lang>')
+    app.register_blueprint(bp, url_prefix='')
+
+if __name__ == '__main__':
+    app.run(port=10000, host='0.0.0.0', debug=True)
