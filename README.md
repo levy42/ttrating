@@ -1,5 +1,5 @@
 # [ttennis.life ](ttennis.life)
-![GitHub Logo](https://github.com/vitaliylevitskiand/ttrating/blob/master/static/img/logo.png?raw=true){:height="50%" width="50%"}
+<img src=https://github.com/vitaliylevitskiand/ttrating/blob/master/static/img/logo.png" width="100" height="100">
 
 ### Альтернатива ресурсу <http://reiting.com.ua>
 
