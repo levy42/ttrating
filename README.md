@@ -1,18 +1,39 @@
 # [ttennis.life ](ttennis.life)
-![GitHub Logo](https://github.com/vitaliylevitskiand/ttrating/blob/master/static/img/logo.png?raw=true | width=100)
+![GitHub Logo](https://github.com/vitaliylevitskiand/ttrating/blob/master/static/img/logo.png?raw=true){:height="50%" width="50%"}
 
-### Альтернатива існуючому ресурсу <http://reiting.com.ua>
+### Альтернатива ресурсу <http://reiting.com.ua>
 
- - install python >= 3.6
- - $ virtualenv --python={python_path} {venv_path}/ttrating
- - $ source {venv_path}/ttrating/big/activate
- - $ pip install -r requirements.txt
- - configure config.py
- - $ export FLASK_APP=app.py
- - $ flask db upgrade
- - $ flask run
----
-### To deploy:
->$ flask deploy --migrate/--no-migrate --branch={branch}
+1) Install python >= 3.6
+2) Setup virtualenv
+    ```console
+    foo@bar:~$ virtualenv --python={python_path} {venv_path}/ttrating
+    foo@bar:~$ source {venv_path}/ttrating/big/activate
+    ```
+3) install dependencies
+    ```console
+    foo@bar:~$ pip install -r requirements.txt
+    ```
+
+#### Configuration
+4) Create `config.cfg` file
+5) Override needed configs from config.py (or add new)
+    ```console
+    foo@bar:~$ export FLASK_APP=app.py
+    ```
+
+##### Run
+6) Migrate DB
+    ```
+    foo@bar:~$ flask db upgrade
+    ```
+7) Run
+	```
+    foo@bar:~$ FLASK_APP=app.py APP_CONFIG=config.cfg flask run
+    ```
+
+##### Deployment:
+```console
+foo@bar:~$ flask deploy --migrate/--no-migrate --branch={branch}
+```
 
 Рейтинги беруться з reiting.com.ua
