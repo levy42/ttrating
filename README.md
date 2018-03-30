@@ -23,11 +23,11 @@
 
 ##### Run
 6) Migrate DB
-    ```
+    ```console
     foo@bar:~$ flask db upgrade
     ```
 7) Run
-	```
+	```console
     foo@bar:~$ FLASK_APP=app.py APP_CONFIG=config.cfg flask run
     ```
 
