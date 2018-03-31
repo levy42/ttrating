@@ -72,7 +72,7 @@ def create_translations():
         with open(os.path.join('templates', file)) as f:
             words.update(re.findall("_\(\'([^']+)\'\)", f.read()))
 
-    for lang in config.SUPPORTED_LANGUAGES:
+    for lang in app.config['SUPPORTED_LANGUAGES']:
         with open(os.path.join('translations', lang,
                                'LC_MESSAGES/messages.po'), 'r+') as f:
             text = f.read()
@@ -98,7 +98,7 @@ def initdb():
 @click.argument('branch', default='master')
 def deploy(migrate, branch):
     # TODO do it better
-    host = config.HOST
+    host = app.config['DEPLOY_HOST']
     migrate_script = "python3.6 cli.py db upgrade &&"
     os.system(
         f"ssh {host} 'cd ttrating && "

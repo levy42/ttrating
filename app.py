@@ -4,18 +4,17 @@ from importlib import import_module
 
 import jinja2
 from flask import (Flask, g, redirect, render_template, request, url_for,
-                   Blueprint)
+                   Blueprint, abort, Response)
 from flask_babel import (Babel, _)
 from flask_cache import Cache
 from flask_mobility import Mobility
 from jinja2 import filters
 from flask_mail import Mail, Message
 from flask_apscheduler import APScheduler
-from flask_admin import Admin
-from flask_admin.contrib.sqla import ModelView
 
 import config
 import models as m
+from views.admin import admin
 from services.translator import get_translated
 
 app = Flask(config.APP_NAME)
@@ -27,29 +26,13 @@ main = Blueprint('main', 'main')
 db = m.db
 m.db.init_app(app)
 
+admin.init_app(app)
 cron = APScheduler()
 babel = Babel(app)
 Mobility(app)
 cache = Cache(app, config=app.config)
 setattr(app, 'cache', cache)
 mail = Mail(app)
-
-
-# ** ADMIN ** #
-class CityView(ModelView):
-    column_display_pk = True
-    form_columns = ('name', 'weight')
-
-
-class PlayerView(ModelView):
-    column_exclude_list = ('tournamens', 'external_id')
-
-
-admin = Admin(app, name='admin', template_mode='bootstrap3')
-admin.add_view(PlayerView(m.Player, db.session))
-admin.add_view(ModelView(m.Tournament, db.session))
-admin.add_view(ModelView(m.RatingList, db.session))
-admin.add_view(CityView(m.City, db.session))
 
 
 # logging
@@ -66,7 +49,7 @@ class FlaskMailLogHandler(logging.Handler):
             subject=f'{config.APP_NAME} ERROR!'))
 
 
-if not app.debug:
+if not (app.debug or app.testing):
     formatter = logging.Formatter(
         app.config.get('LOG_FORMAT') or
         '[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
@@ -76,7 +59,7 @@ if not app.debug:
     app.logger.setLevel(logging.DEBUG)
     app.logger.addHandler(handler)
     handler.setLevel(logging.INFO)
-    mail_handler = FlaskMailLogHandler(mail, config.ADMINS)
+    mail_handler = FlaskMailLogHandler(mail, app.config['ADMINS'])
     mail_handler.setLevel(logging.ERROR)
     mail_handler.setFormatter(formatter)
     app.logger.addHandler(mail_handler)
@@ -187,9 +170,9 @@ def about():
     return render_template('about.html')
 
 
-@main.route('/')
+@app.route('/')
 def home():
-    return redirect(url_for(f'{config.HOME_PAGE}'))
+    return redirect(url_for(f'{app.config["HOME_PAGE"]}'))
 
 
 @app.errorhandler(404)
@@ -206,6 +189,19 @@ def internal_server_error(e):
 def start_cron():
     cron.init_app(app)  # init scheduler
     cron.start()
+
+
+@app.before_request
+def basic_auth():
+    if request.path.startswith('/admin') or \
+            request.path.startswith('/scheduler'):
+        auth = request.authorization
+        if not auth or not (auth.username == app.config['ADMIN_USERNAME']
+                            and auth.password == app.config['ADMIN_PASS']):
+            return Response(
+                '<Why access is denied string goes here...>', 401,
+                {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
 
 import_module('cli')  # init commands
 

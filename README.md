@@ -13,14 +13,12 @@
     ```console
     foo@bar:~$ pip install -r requirements.txt
     ```
-
 #### Configuration
 4) Create `config.cfg` file
 5) Override needed configs from config.py (or add new)
-    ```console
-    foo@bar:~$ export FLASK_APP=app.py
-    ```
-
+Example:
+```
+```
 ##### Run
 6) Migrate DB
     ```console
@@ -30,7 +28,6 @@
 	```console
     foo@bar:~$ FLASK_APP=app.py APP_CONFIG=config.cfg flask run
     ```
-
 ##### Deployment:
 ```console
 foo@bar:~$ flask deploy --migrate/--no-migrate --branch={branch}

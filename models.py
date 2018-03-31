@@ -53,7 +53,7 @@ class WorldRatingList(db.Model):
     category = db.Column(db.String)
 
     def __str__(self):
-        return f'{self.category} {self.year}.{self.month}'
+        return f'World Rating {self.category} {self.year}.{self.month}'
 
 
 class Country(NameReprMixin, db.Model):
@@ -95,7 +95,7 @@ class RatingList(db.Model):
     category = db.Column(db.String)
 
     def __str__(self):
-        return f'{self.category} {self.year}.{self.month}'
+        return f'UA Rating {self.year}.{self.month:0>2}'
 
 
 class Rating(db.Model):
