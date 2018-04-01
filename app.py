@@ -50,10 +50,8 @@ class FlaskMailLogHandler(logging.Handler):
 
 
 if not (app.debug or app.testing):
-    formatter = logging.Formatter(
-        app.config.get('LOG_FORMAT') or
-        '[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
-    handler = RotatingFileHandler(f'{config.APP_NAME}.log', maxBytes=1000000,
+    formatter = logging.Formatter(app.config['LOG_FORMAT'])
+    handler = RotatingFileHandler(app.config['LOG_PATH'], maxBytes=1000000,
                                   backupCount=1)
     handler.setFormatter(formatter)
     app.logger.setLevel(logging.DEBUG)

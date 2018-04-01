@@ -107,7 +107,8 @@ def deploy(migrate, branch):
         f"git pull origin {branch} && "
         f"pip3.6 install -r requirements.txt && "
         f"{migrate_script if migrate else ''} "
-        f"(kill -9 `cat app.pid` ; "
-        f"nohup python3.6 app.py & "
-        f"echo $! > app.pid)'")
+        f"(screen -S {config.APP_NAME} -X quit; "
+        f"export FLASK_APP=app.py APP_CONFIG=config.cfg"
+        f"screen -S {config.APP_NAME} -dm -bash 'flask run &' "
+    )
 
