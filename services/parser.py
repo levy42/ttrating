@@ -285,7 +285,7 @@ def parse_ua_by_category(month, year, category=Category.MEN,
             db.session.commit()
 
             for tournament, href in tournaments:
-                parse_tournament(href, tournament.id)
+                parse_tournament(href, tournament)
             db.session.commit()
 
     return updated_data
