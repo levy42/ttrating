@@ -1,4 +1,5 @@
 import logging
+import os
 from logging.handlers import RotatingFileHandler
 from importlib import import_module
 
@@ -19,7 +20,7 @@ from services.translator import get_translated
 
 app = Flask(config.APP_NAME)
 app.config.from_object(config)
-app.config.from_envvar('APP_CONFIG', silent=True)
+app.config.from_pyfile(os.environ.get('APP_CONFIG', 'config.cfg'), silent=True)
 
 main = Blueprint('main', 'main')
 
