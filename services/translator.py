@@ -69,7 +69,7 @@ def add_translations(arr, lang):
 
 
 def translate_all(lang='uk'):
-    current_app.log.info('Players')
+    current_app.logger.info('Players')
     players = models.Player.query.all()
     for player in players:
         if not models.Translation.query.get(player.name + f'_{lang}'):
@@ -80,7 +80,7 @@ def translate_all(lang='uk'):
 
     models.db.session.commit()
 
-    current_app.log.info('Cities')
+    current_app.logger.info('Cities')
     cities = models.City.query.all()
     for c in cities:
         if not models.Translation.query.get(c.name + f'_{lang}'):
@@ -91,7 +91,7 @@ def translate_all(lang='uk'):
 
     models.db.session.commit()
 
-    current_app.logger.info('Tournaments')
+    current_app.loggerger.info('Tournaments')
     tourns = models.Tournament.query.all()
     for t in tourns:
         if not models.Translation.query.get(t.name + f'_{lang}'):

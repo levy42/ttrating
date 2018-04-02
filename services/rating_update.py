@@ -7,7 +7,7 @@ Module contains tasks for ranking data update:
     - Send email reports.
 """
 from services import parser, translator, statistics, email_reports
-from models import db, User, Game, Player, Rating
+from models import db, User, Game, Player, Rating, Tournament
 from flask_mail import Message
 from app import mail
 from flask import request
@@ -23,7 +23,7 @@ def update_ua():
     if not updated_data:
         return
     translate_new_strings(updated_data)
-    statistics.calculate(statistics)
+    update_statistics()
     send_ua_monthly_report()
     cache.clear()
 
@@ -56,7 +56,7 @@ def translate_new_strings(updated_data):
 
 @atomic_subtask('Update statistics')
 def update_statistics():
-    update_player_info()
+    update_player_stats()
     statistics.calculate(statistics)
 
 
@@ -109,7 +109,8 @@ def send_world_monthly_report():
                     conn.send(msg)
 
 
-def update_player_info():
+@atomic_subtask('Recalculate player stats')
+def calculate_player_stats():
     app.logger.info('Updating players info')
     app.logger.info('progress: ')
     n = 10000
@@ -159,3 +160,43 @@ def update_player_info():
             db.session.add(p)
         db.session.commit()
         app.logger.info(f'{page}/{pages}')
+
+
+@atomic_subtask('Update player stats for last month')
+def update_player_stats():
+    app.logger.info('Updating players info...')
+    n = 10000
+    players = Player.query.all()
+    last_rating_list = common.get_current_rating_list()
+    month = last_rating_list.month
+    year = last_rating_list.year
+    ratings = Rating.query.filter_by(year=year, month=month).all()
+    players_by_id = {p.id: p for p in players}
+
+    for r in ratings:
+        player = players_by_id[r.player_id]
+        player.rating = r.rating
+        db.session.add(player)
+    db.session.commit()
+
+    current_rating = common.get_current_rating_list()
+    tournamets = Tournament.query.filter_by(
+        rating_list_id=current_rating.id).all
+
+    for tournamet in tournamets:
+        games = Game.query.filter_by(tournamet_id=tournamet.id).all()
+        player_games = {}
+        for g in games:
+            if not player_games.get(g.player_id):
+                player_games[g.player_id] = list()
+            player_games[g.player_id].append(g)
+        for i, p in enumerate(players):
+            if not player_games.get(p.id):
+                continue
+            won = [g for g in player_games[p.id] if g.result]
+            tourns = set([g.tournament_id for g in player_games[p.id]])
+            p.game_total += len(player_games[p.id])
+            p.game_won += len(won)
+            p.tournaments_total += len(tourns)
+            db.session.add(p)
+        db.session.commit()

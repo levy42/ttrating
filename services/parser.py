@@ -43,7 +43,8 @@ def parse_ua(month=None, year=None, rating_id=None):
         if remote_rating_lists[0][2] != month:  # no new rating available
             LOG.debug('No new rating available')
             return
-    updated_data = {'players': set(), 'cities': set(), 'tournaments': set()}
+    updated_data = {'players': set(), 'cities': set(), 'tournaments': set(),
+                    'changed_rating_players': set()}
     res = parse_ua_by_category(month, year, category=Category.MEN,
                                rating_id=rating_id,
                                parse_tourn=False)
@@ -111,7 +112,8 @@ def parse_ua_by_category(month, year, rating_id, category=Category.MEN,
                          parse_tourn=True, previous_id=None):
     LOG.debug(
         f'Parsing rating: month = {month}, year = {year}, id = {rating_id}.')
-    updated_data = {'players': [], 'cities': [], 'tournaments': []}
+    updated_data = {'players': [], 'cities': [], 'tournaments': [],
+                    'changed_rating_players': []}
 
     cities = {c.name: c.name for c in City.query.all()}
     new_cities = []
@@ -125,6 +127,7 @@ def parse_ua_by_category(month, year, rating_id, category=Category.MEN,
     soup = BeautifulSoup(page.text)
     table = soup.find("table", {"id": "sortTable"})
     prev_position = 1
+    Player.query.update({'prev_rating': Player.rating})
     Player.query.update({'rating': 0})
     db.session.commit()
     db.session.expire_all()
@@ -156,9 +159,11 @@ def parse_ua_by_category(month, year, rating_id, category=Category.MEN,
             player = Player()
             updated_data['players'].append(name)
 
-        player.prev_rating = player.rating
         if not player.max or player.max < rating:
             player.max = rating
+        if rating != prev_rating:
+            updated_data['changed_rating_players'].append(name)
+
         player.rating = rating
         player.year = p_year
         player.name = name
