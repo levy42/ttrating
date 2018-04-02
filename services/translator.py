@@ -91,7 +91,7 @@ def translate_all(lang='uk'):
 
     models.db.session.commit()
 
-    current_app.loggerger.info('Tournaments')
+    current_app.logger.info('Tournaments')
     tourns = models.Tournament.query.all()
     for t in tourns:
         if not models.Translation.query.get(t.name + f'_{lang}'):
