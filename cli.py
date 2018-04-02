@@ -1,6 +1,7 @@
 import click
 import os
 import re
+import logging
 
 from app import app, db
 import models
@@ -8,6 +9,10 @@ import config
 from services import parser, rating_update
 from flask.cli import with_appcontext
 from flask_migrate import Migrate
+
+app.logger.handlers[1].setLevel(logging.INFO)
+app.logger.setLevel(logging.INFO)
+app.logger.handlers[1].setFormatter(logging.Formatter('%(message)s'))
 
 migrate = Migrate(app, db)
 

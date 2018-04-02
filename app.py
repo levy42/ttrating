@@ -53,7 +53,6 @@ formatter = logging.Formatter(app.config['LOG_FORMAT'])
 handler = RotatingFileHandler(app.config['LOG_PATH'], maxBytes=1000000,
                               backupCount=1)
 handler.setFormatter(formatter)
-app.logger.setLevel(logging.DEBUG)
 app.logger.addHandler(handler)
 handler.setLevel(logging.INFO)
 mail_handler = FlaskMailLogHandler(mail, app.config['ADMINS'])
