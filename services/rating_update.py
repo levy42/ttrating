@@ -117,7 +117,7 @@ def update_player_info():
     last_rating_list = common.get_current_rating_list()
     month = last_rating_list.month
     year = last_rating_list.year
-    ratings = Rating.query.filter(year=year, month=month).all
+    ratings = Rating.query.filter_by(year=year, month=month).all()
     players_by_id = {p.id: p for p in players}
 
     for r in ratings:

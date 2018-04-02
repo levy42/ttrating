@@ -107,8 +107,8 @@ def _trim_city(city: str):
         return city[2:].strip()
 
 
-def parse_ua_by_category(month, year, category=Category.MEN,
-                         rating_id=None, parse_tourn=True, previous_id=None):
+def parse_ua_by_category(month, year, rating_id, category=Category.MEN,
+                         parse_tourn=True, previous_id=None):
     LOG.debug(
         f'Parsing rating: month = {month}, year = {year}, id = {rating_id}.')
     updated_data = {'players': [], 'cities': [], 'tournaments': []}
