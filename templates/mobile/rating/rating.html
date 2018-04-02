@@ -30,9 +30,6 @@
                     {% endfor %}
                 </div>
             </div>
-            <button style="border: none;background: none" type="submit">
-                <i class="search icon"></i>
-            </button>
             <br>
             <div class="ui two column grid">
                 <div class="column">
@@ -88,8 +85,15 @@
                  {% set pagination = rating %}
                  {% include 'mobile/pagination.html' %}
             </div>
+        </div>
     </form>
     <script>
+        $('[name=month]').change(function (e) {
+            this.form.submit()
+        });
+        $('[name=year]').change(function (e) {
+            this.form.submit()
+        });
         $('.ui.search').search({
             apiSettings: {
                 action: 'search',

@@ -1,4 +1,3 @@
-import calendar
 import datetime
 
 from sqlalchemy import extract

@@ -134,10 +134,10 @@
                         <i class="bar chart icon"></i>
                         {{ _('Статистика') }}</a>
                     <a href="{{ url_for('rating.rating') }}"
-                       class="{% if 'rating' in request.endpoint %}active{% endif %} item">
+                       class="{% if '.rating' in request.endpoint %}active{% endif %} item">
                         <i class="table icon"></i>
                         {{ _('Рейтинг') }}</a>
-                    <a class="{% if 'world_rating' in request.endpoint %}
+                    <a class="{% if '.world_rating' in request.endpoint %}
                             active{% endif %} item"
                        href="{{ url_for('world_rating.rating') }}">
                         <i class="world icon"></i>

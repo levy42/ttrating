@@ -5,7 +5,7 @@ import re
 from app import app, db
 import models
 import config
-from services import parser
+from services import parser, rating_update
 from flask.cli import with_appcontext
 from flask_migrate import Migrate
 
@@ -29,6 +29,12 @@ def parse_world_all():
 def parse_ua():
     parser.parse_ua()
     update_statistics()
+
+
+@app.cli.command(help='Runs tasks for updating ratings.')
+@with_appcontext
+def update_ua_rating():
+    rating_update.update_ua()
 
 
 @app.cli.command(help='Runs parsing UA rating for all months.')
@@ -97,18 +103,18 @@ def initdb():
 @click.option('--migrate/--no-migrate', default=False)
 @click.argument('branch', default='master')
 def deploy(migrate, branch):
-    # TODO do it better
+    # TODO do it more readable, this is shit man
     host = app.config['DEPLOY_HOST']
-    migrate_script = "python3.6 cli.py db upgrade &&"
     os.system(
-        f"ssh {host} 'cd ttrating && "
-        f"git fetch && "
-        f"git checkout {branch} && "
-        f"git pull origin {branch} && "
-        f"pip3.6 install -r requirements.txt && "
-        f"{migrate_script if migrate else ''} "
-        f"(screen -S {config.APP_NAME} -X quit; "
-        f"export FLASK_APP=app.py APP_CONFIG=config.cfg"
-        f"screen -S {config.APP_NAME} -dm -bash 'flask run &' "
+        f'''
+        ssh {host} "cd ttrating &&
+        git fetch &&
+        git checkout {branch} &&
+        git pull origin {branch} &&
+        pip3.6 install -r requirements.txt &&
+        export FLASK_APP=app.py APP_CONFIG=config.cfg &&
+        {'flask db upgrade &&' if migrate else ''}
+        (screen -S {config.APP_NAME} -X quit;
+         screen -S {config.APP_NAME} -dm bash -c 'flask run --port 10000')"
+        '''
     )
-

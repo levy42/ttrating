@@ -1,6 +1,6 @@
 {% if pagination.pages > 1 %}
     <div class="ui pagination menu">
-        {% for page in iter_pages(pagination) %}
+        {% for page in pagination.iter_pages() %}
             {% if page %}
                 {% if page != pagination.page %}
                     <a class="item"

@@ -4,6 +4,7 @@ from flask import request, render_template, abort, Blueprint, redirect, url_for
 from app import mail, db
 import models as m
 from flask_mail import Message
+from flask_babel import _
 from itsdangerous import URLSafeTimedSerializer, URLSafeSerializer
 import config
 

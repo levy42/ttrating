@@ -31,10 +31,6 @@
                         {% endfor %}
                     </div>
                 </div>
-                <button class="ui field" style="border: none;background: none"
-                        type="submit">
-                    <i class="search icon"></i>
-                </button>
                 {#                <div class="ui accordion field" align="right">#}
                 {#                    <div class="title">#}
                 {#                        <i class="icon dropdown"></i>#}
@@ -131,17 +127,13 @@
         </form>
     </div>
     <script>
-        $('#city_search').search({
-            source: {{ cities|tojson }},
-            searchFields: [
-                'title'
-            ],
-            onSelect: function (item) {
-                $('#city_search').val(item.title);
-                $('#city').val(item.id)
-            },
-            minCharacters: 3
+        $('[name=month]').change(function (e) {
+            this.form.submit()
         });
+        $('[name=year]').change(function (e) {
+            this.form.submit()
+        });
+
         $('#player_search').search({
             apiSettings: {
                 action: 'search',

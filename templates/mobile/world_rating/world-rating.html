@@ -30,19 +30,16 @@
                     {% endfor %}
                 </div>
             </div>
-            <button style="border: none;background: none" type="submit">
-                <i class="search icon"></i>
-            </button>
         </div>
         <br>
         <div class="ui two column grid">
             <div class="column">
                 <div class="ui basic buttons">
                     <a class="ui button {% if category=='MEN' %}active{% endif %}"
-                       href="{{ url_for('.world_rating', year=year, month=month, category='MEN') }}">
+                       href="{{ url_for('.rating', year=year, month=month, category='MEN') }}">
                         {{ _('Чоловіки') }}</a>
                     <a class="ui button {% if category=='WOMEN' %}active{% endif %}"
-                       href="{{ url_for('.world_rating', year=year, month=month, category='WOMEN') }}">
+                       href="{{ url_for('.rating', year=year, month=month, category='WOMEN') }}">
                         {{ _('Жінки') }}</a>
                 </div>
             </div>
@@ -71,7 +68,7 @@
                 <tr>
                     <td>{{ p.position }}</td>
                     <td>
-                        <a href="{{ url_for('.world_player', id=p.player.id) }}">{{ name(p.player.name) }}</a>
+                        <a href="{{ url_for('.player', id=p.player.id) }}">{{ name(p.player.name) }}</a>
                     </td>
                     <td>{{ p.rating }}</td>
                     <td>{{ name(p.player.country.name) }}</td>
@@ -84,6 +81,12 @@
             {% include 'mobile/pagination.html' %}</div>
     </form>
     <script>
+        $('[name=month]').change(function (e) {
+            this.form.submit()
+        });
+        $('[name=year]').change(function (e) {
+            this.form.submit()
+        });
         $('.ui.search').search({
             apiSettings: {
                 action: 'search',

@@ -31,9 +31,6 @@
                         {% endfor %}
                     </div>
                 </div>
-                <button style="border: none;background: none" type="submit">
-                    <i class="search icon"></i>
-                </button>
             </div>
             <br>
             <div class="ui two column grid">
@@ -90,6 +87,12 @@
         </form>
     </div>
     <script>
+        $('[name=month]').change(function (e) {
+            this.form.submit()
+        });
+        $('[name=year]').change(function (e) {
+            this.form.submit()
+        });
         $('.ui.search').search({
             apiSettings: {
                 action: 'search',

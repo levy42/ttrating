@@ -6,7 +6,7 @@ EMAIL = 'ttennis.life.ua@gmail.com'
 SECURITY_PASSWORD_SALT = '12345'
 SECRET_KEY = 'secret'
 SQLALCHEMY_DATABASE_URI = 'sqlite:///app.db'
-SQLALCHEMY_TRACK_MODIFICATIONS=False
+SQLALCHEMY_TRACK_MODIFICATIONS = False
 CACHE_TYPE = 'simple'
 CACHE_DEFAULT_TIMEOUT = 0  # never expires
 SUPPORTED_LANGUAGES = {'ru': 'Русский', 'uk': 'Українська'}
@@ -24,6 +24,7 @@ MAIL_DEFAULT_SENDER = EMAIL
 ADMINS = ['vitaliylevitskiand@gmail.com']
 BLUEPRINTS = ['views.rating', 'views.world_rating', 'views.subscribers']
 LOG_PATH = f'{APP_NAME}.log'  # store in working dir
+LOG_ERROR_ON_EMAIL = True
 LOG_FORMAT = '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
 
 # JOBS

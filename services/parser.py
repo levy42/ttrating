@@ -1,3 +1,6 @@
+"""
+Utils service for parsing rankings data from reiting.com.ua
+"""
 import datetime
 import os
 import re
@@ -8,7 +11,9 @@ from bs4 import BeautifulSoup
 from flask import current_app
 from werkzeug.local import LocalProxy
 
-import models as m
+from models import (
+    db, Player, Tournament, WorldRating, Game, WorldPlayer,
+    WorldRatingList, RatingList, Rating, Country, PlayerTournament, City)
 from models import Category
 
 WORLD_RATING = "http://www.old.ittf.com/ittf_ranking/PDF/%s_%s_%s.xls"
@@ -28,7 +33,7 @@ def parse_ua(month=None, year=None, rating_id=None):
     LOG.debug(f'Called rating parse: month: {month}, year: {year}.')
     year = year or datetime.datetime.now().year
     month = month or datetime.datetime.now().month
-    rating_list = m.RatingList.query.filter_by(month=month, year=year).first()
+    rating_list = RatingList.query.filter_by(month=month, year=year).first()
     if rating_list:  # rating was already parsed
         LOG.debug('Rating already parsed')
         return
@@ -51,13 +56,13 @@ def parse_ua(month=None, year=None, rating_id=None):
                                rating_id=rating_id)
     for k, v in res.items():
         updated_data[k].update(v)
-    rating_list = m.RatingList()
+    rating_list = RatingList()
     rating_list.year = year
     rating_list.month = month
     rating_list.id = str(rating_id)
 
-    m.db.session.add(rating_list)
-    m.db.session.commit()
+    db.session.add(rating_list)
+    db.session.commit()
 
     return updated_data
 
@@ -97,13 +102,18 @@ def parse_ua_all():
     return all_data
 
 
-def parse_ua_by_category(month, year, category=m.Category.MEN,
+def _trim_city(city: str):
+    if city.startswith('г.'):
+        return city[2:].strip()
+
+
+def parse_ua_by_category(month, year, category=Category.MEN,
                          rating_id=None, parse_tourn=True, previous_id=None):
     LOG.debug(
         f'Parsing rating: month = {month}, year = {year}, id = {rating_id}.')
     updated_data = {'players': [], 'cities': [], 'tournaments': []}
 
-    cities = {c.name: c.name for c in m.City.query.all()}
+    cities = {c.name: c.name for c in City.query.all()}
     new_cities = []
     male = 1 if category == Category.MEN else 2
     link = UA_RATING_T % (rating_id, male) if id else UA_RATING
@@ -115,8 +125,9 @@ def parse_ua_by_category(month, year, category=m.Category.MEN,
     soup = BeautifulSoup(page.text)
     table = soup.find("table", {"id": "sortTable"})
     prev_position = 1
-    m.Player.query.update({'rating': 0})
-    m.db.session.commit()
+    Player.query.update({'rating': 0})
+    db.session.commit()
+    db.session.expire_all()
     players = []
     for row in table.findAll("tr"):
         cells = row.findAll("td")
@@ -139,10 +150,10 @@ def parse_ua_by_category(month, year, category=m.Category.MEN,
         city = cells[6].find(text=True)
         prev_rating = float(cells[7].find(text=True).replace(',', '.'))
 
-        player = m.Player.query.filter_by(
+        player = Player.query.filter_by(
             external_id=external_id).first()
         if not player:
-            player = m.Player()
+            player = Player()
             updated_data['players'].append(name)
 
         player.prev_rating = player.rating
@@ -154,6 +165,9 @@ def parse_ua_by_category(month, year, category=m.Category.MEN,
         player.fine_rating = rating_fine
         player.category = category
         player.external_id = external_id
+        player.position = position
+        player.prev_rating = prev_rating
+        player.weight = weight
 
         locations = city.split('-')
         player.city = locations[0]
@@ -171,15 +185,13 @@ def parse_ua_by_category(month, year, category=m.Category.MEN,
             new_cities.append(player.city2)
             updated_data['cities'].append(player.city2)
 
-        player.position = position
-        player.prev_rating = prev_rating
-        player.weight = weight
-        m.db.session.add(player)
         players.append(player)
+        db.session.add(player)
 
-    m.db.session.commit()
+    db.session.commit()
     for p in players:
-        p_rating = m.Rating()
+        p_rating = Rating.query.filter_by(
+            player_id=p.id, year=year, month=month).first() or Rating()
         p_rating.player_id = p.id
         p_rating.rating = p.rating
         p_rating.weight = p.weight
@@ -187,16 +199,16 @@ def parse_ua_by_category(month, year, category=m.Category.MEN,
         p_rating.month = month
         p_rating.year = year
         p_rating.rating_fine = p.fine_rating
-        m.db.session.add(p_rating)
+        db.session.add(p_rating)
 
     for c in new_cities:
         if not c:
             continue
-        new_city = m.City()
+        new_city = City()
         new_city.name = c
-        m.db.session.add(new_city)
+        db.session.add(new_city)
 
-    m.db.session.commit()
+    db.session.commit()
 
     if parse_tourn:
         LOG.debug('Parsing tournaments...')
@@ -227,13 +239,13 @@ def parse_ua_by_category(month, year, category=m.Category.MEN,
                                     continue
                                 sub_name = cells[0].find(text=True)
                                 sub_href = cells[0].find('a').get('href')
-                                tournament = m.Tournament()
-                                tournament.city = city
+                                tournament = Tournament()
+                                tournament.city = _trim_city(city)
                                 tournament.judge = judge
                                 tournament.name = name + " " + sub_name
-                                tourn_external_id = int(
-                                    sub_href.rsplit('/', 2)[1])
-                                if m.Tournament.query.filter_by(
+                                tourn_external_id = \
+                                    int(sub_href.rsplit('/', 2)[1])
+                                if Tournament.query.filter_by(
                                         external_id=tourn_external_id).first():
                                     LOG.debug('Tournament already exist')
                                     continue
@@ -248,12 +260,12 @@ def parse_ua_by_category(month, year, category=m.Category.MEN,
                                 LOG.debug(f'Failed to pasre tournaments. '
                                           f'Rating id {rating_id}')
                     else:
-                        tournament = m.Tournament()
+                        tournament = Tournament()
                         tournament.city = city
                         tournament.judge = judge
                         tournament.name = name
                         tourn_external_id = int(tourn_href.rsplit('/', 2)[1])
-                        if m.Tournament.query.filter_by(
+                        if Tournament.query.filter_by(
                                 external_id=tourn_external_id).first():
                             LOG.debug('Tournament already exist')
                             continue
@@ -264,17 +276,17 @@ def parse_ua_by_category(month, year, category=m.Category.MEN,
                         parce_tournament_date(tournament)
                         tournaments.append((tournament, tourn_href))
                         LOG.debug(f'--Parsed tournaments {tourn_href}')
-                except Exception:
-                    LOG.debug(
-                        f'Failed to pasre tournaments. Rating id {rating_id}')
+                except Exception as e:
+                    LOG.debug(f'Failed to pasre tournaments. '
+                              f'Rating id {rating_id}. Reason {e}')
 
             for tournament, _ in tournaments:
-                m.db.session.add(tournament)
-            m.db.session.commit()
+                db.session.add(tournament)
+            db.session.commit()
 
             for tournament, href in tournaments:
-                parse_tournament(href, tournament.id, tournament)
-            m.db.session.commit()
+                parse_tournament(href, tournament.id)
+            db.session.commit()
 
     return updated_data
 
@@ -298,7 +310,7 @@ def parse_world_rating():
 
 
 def parse_world_by_category(category='100_M', year=None, month=None):
-    countries = {c.code: c.code for c in m.Country.query.all()}
+    countries = {c.code: c.code for c in Country.query.all()}
     countries_codes = []
     mapped_category = CATEGORY_MAPPINGS[category]
     now = datetime.datetime.now()
@@ -307,7 +319,7 @@ def parse_world_by_category(category='100_M', year=None, month=None):
     if not month:
         month = now.month
     rating_id = category + str(month) + str(year)
-    previous_rating = m.WorldRatingList.query.get(rating_id)
+    previous_rating = WorldRatingList.query.get(rating_id)
     if previous_rating:
         return
     man_rating_link = WORLD_RATING % (category, month, year)
@@ -323,7 +335,7 @@ def parse_world_by_category(category='100_M', year=None, month=None):
     xls_book = xlrd.open_workbook(document_name)
     sheet = xls_book.sheet_by_index(0)
     players = {p.name: p for p in
-               m.WorldPlayer.query.filter_by(
+               WorldPlayer.query.filter_by(
                    category=mapped_category).all()}
     for p in players.values():
         p.rating = 0
@@ -339,7 +351,7 @@ def parse_world_by_category(category='100_M', year=None, month=None):
         player = players.get(name)
 
         if not player:
-            player = m.WorldPlayer()
+            player = WorldPlayer()
             player.category = mapped_category
             player.country_code = country_code
             player.name = name
@@ -351,36 +363,36 @@ def parse_world_by_category(category='100_M', year=None, month=None):
         player.rating = rating
         player.position = position
         players[name] = player
-        m.db.session.add(player)
+        db.session.add(player)
 
-    m.db.session.commit()
+    db.session.commit()
     previous_world_ratings = {r.player_id: 1 for r in
-                              m.WorldRating.query.filter_by(
+                              WorldRating.query.filter_by(
                                   year=year, month=month).all()}
     for p in players.values():
         if not p.id or previous_world_ratings.get(p.id):
             continue
-        world_rating = m.WorldRating()
+        world_rating = WorldRating()
         world_rating.month = month
         world_rating.year = year
         world_rating.player_id = p.id
         world_rating.rating = p.rating
         world_rating.position = p.position
-        m.db.session.add(world_rating)
+        db.session.add(world_rating)
 
     for c in countries_codes:
-        country = m.Country()
+        country = Country()
         country.code = str(c)
         country.name = str(c)
-        m.db.session.add(country)
+        db.session.add(country)
 
-    rating_list = m.WorldRatingList()
+    rating_list = WorldRatingList()
     rating_list.year = year
     rating_list.month = month
     rating_list.category = category
     rating_list.id = rating_id
-    m.db.session.add(rating_list)
-    m.db.session.commit()
+    db.session.add(rating_list)
+    db.session.commit()
     os.remove(document_name)
 
     return True
@@ -400,9 +412,9 @@ def parse_tournament(href, tournament):
             continue
         href = cells[0].find('a').get('href')
         external_id = int(href.rsplit('/', 2)[1])
-        player = m.Player.query.filter_by(external_id=external_id).first()
+        player = Player.query.filter_by(external_id=external_id).first()
         if not player:
-            player = m.Player()
+            player = Player()
             player.name = cells[0].find(text=True)
             parsed_player_info = parse_player(external_id)
             if not parsed_player_info:
@@ -411,9 +423,9 @@ def parse_tournament(href, tournament):
             player.city = city
             player.year = year
             player.external_id = external_id
-            m.db.session.add(player)
-            m.db.session.commit()
-        player_tourn = m.PlayerTournament()
+            db.session.add(player)
+            db.session.commit()
+        player_tourn = PlayerTournament()
         player_tourn.player_id = player.id
         player_tourn.tournament_id = tournament.id
         player_tourn.start_rating = float(
@@ -433,9 +445,9 @@ def parse_tournament(href, tournament):
         player_tourns.append(player_tourn)
     for g in games:
         g.tournament_id = tournament.id
-        m.db.session.add(g)
+        db.session.add(g)
     for p_t in player_tourns:
-        m.db.session.add(p_t)
+        db.session.add(p_t)
 
 
 def parse_player(player_id):
@@ -482,10 +494,10 @@ def parse_games(player, player_href, start_rating):
             oponent_external_id = -1
         result = cells[1].find(text=True)
         result = False if result == u'проиграл' else True
-        game = m.Game()
+        game = Game()
         game.player_id = player.id
         game.player_name = player.name
-        oponent = m.Player.query.filter_by(
+        oponent = Player.query.filter_by(
             external_id=oponent_external_id).first()
         game.opponent_name = oponent_name
         if oponent:

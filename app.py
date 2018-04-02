@@ -4,7 +4,7 @@ from importlib import import_module
 
 import jinja2
 from flask import (Flask, g, redirect, render_template, request, url_for,
-                   Blueprint, abort, Response)
+                   Blueprint, Response)
 from flask_babel import (Babel, _)
 from flask_cache import Cache
 from flask_mobility import Mobility
@@ -18,7 +18,7 @@ from views.admin import admin
 from services.translator import get_translated
 
 app = Flask(config.APP_NAME)
-app.config.from_pyfile('config.py')
+app.config.from_object(config)
 app.config.from_envvar('APP_CONFIG', silent=True)
 
 main = Blueprint('main', 'main')
@@ -49,18 +49,17 @@ class FlaskMailLogHandler(logging.Handler):
             subject=f'{config.APP_NAME} ERROR!'))
 
 
-if not (app.debug or app.testing):
-    formatter = logging.Formatter(app.config['LOG_FORMAT'])
-    handler = RotatingFileHandler(app.config['LOG_PATH'], maxBytes=1000000,
-                                  backupCount=1)
-    handler.setFormatter(formatter)
-    app.logger.setLevel(logging.DEBUG)
-    app.logger.addHandler(handler)
-    handler.setLevel(logging.INFO)
-    mail_handler = FlaskMailLogHandler(mail, app.config['ADMINS'])
-    mail_handler.setLevel(logging.ERROR)
-    mail_handler.setFormatter(formatter)
-    app.logger.addHandler(mail_handler)
+formatter = logging.Formatter(app.config['LOG_FORMAT'])
+handler = RotatingFileHandler(app.config['LOG_PATH'], maxBytes=1000000,
+                              backupCount=1)
+handler.setFormatter(formatter)
+app.logger.setLevel(logging.DEBUG)
+app.logger.addHandler(handler)
+handler.setLevel(logging.INFO)
+mail_handler = FlaskMailLogHandler(mail, app.config['ADMINS'])
+mail_handler.setLevel(logging.ERROR)
+mail_handler.setFormatter(formatter)
+app.logger.addHandler(mail_handler)
 
 # localization
 month_abbr = ['', 'січ', 'лют', 'бер', 'кві', 'тра', 'чер', 'лип', 'сер',
@@ -117,11 +116,12 @@ def number_color(context, value):
 
 
 # custom context
-
-@cache.memoize(timeout=24 * 60 * 60)
 def translate_name(text):
-    return get_translated(text,
-                          g.get('lang', app.config['BABEL_DEFAULT_LOCALE']))
+    @cache.memoize(timeout=24 * 60 * 60)
+    def _translate(_text, lang):
+        return get_translated(_text, lang)
+
+    return _translate(text, g.get('lang', app.config['BABEL_DEFAULT_LOCALE']))
 
 
 def translate_array(arr):
@@ -135,26 +135,11 @@ def url_for_other_page(page):
     return url_for(request.endpoint, **args)
 
 
-def iter_pages(pagination, left_edge=2, left_current=2,
-               right_current=5, right_edge=2):
-    last = 0
-    for num in range(1, pagination.pages + 1):
-        if (num <= left_edge or
-            pagination.page - left_current - 1 <
-                num < pagination.page + right_current or
-                num > pagination.pages - right_edge):
-            if last + 1 != num:
-                yield None
-            yield num
-            last = num
-
-
 @app.context_processor
 def dynamic_translate_processor():
     return dict(name=translate_name,
                 translate_arr=translate_array,
-                url_for_other_page=url_for_other_page,
-                iter_pages=iter_pages)
+                url_for_other_page=url_for_other_page)
 
 
 @app.context_processor
@@ -197,7 +182,7 @@ def basic_auth():
         if not auth or not (auth.username == app.config['ADMIN_USERNAME']
                             and auth.password == app.config['ADMIN_PASS']):
             return Response(
-                '<Why access is denied string goes here...>', 401,
+                '<Not public access...>', 401,
                 {'WWW-Authenticate': 'Basic realm="Login Required"'})
 
 

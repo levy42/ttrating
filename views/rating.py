@@ -174,5 +174,5 @@ def player_search(name):
                         'city': translate_name(p.city),
                         'year': p.year,
                         'id': p.id,
-                        'image': p.info.photo_url}
+                        'image': p.photo_url}
                        for p in matches])

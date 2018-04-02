@@ -141,7 +141,7 @@
             onSelect: function (item) {
                 $('#city_search').val(item.city);
                 $('#city').val(item.city);
-                $('#year').val(item.year);
+                $('[name=year]').val(item.year);
                 $('#rating').val(item.rating);
                 $('#player_id').val(item.id)
             },

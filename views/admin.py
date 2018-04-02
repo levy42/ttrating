@@ -1,7 +1,8 @@
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 
-from models import *
+from models import (db, Player, City, Tournament, Translation, Topic,
+                    TopicIssue, RatingList)
 
 
 class IndexModelView(ModelView):

@@ -43,3 +43,6 @@ fabric.properties
 
 *.db
 *.cfg
+static/img/player/*
+# for development
+tmp.py

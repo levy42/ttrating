@@ -1,13 +1,17 @@
 <!doctype html>
 <head>
-    <style></style>
+    <style>
+    </style>
+    {% block style %}{% endblock %}
 </head>
 <body>
+<img src="http://ttennis.life/static/img/logo.png" height="50" width="50">
+<hr>
 <h3>{{ _("Шановний") }} {{ user.email if not user.player_id else name(user.player.name) }},</h3>
 <div>{% block content %}{% endblock %}</div>
 {% if user.confirmed %}
-    <hr style="width: 10px;color: lightgrey">
-    <a href="{{ url_for('.unsubscribe', token=token, _external=True) }}">
+    <hr>
+    <a href="{{ url_for('subscribe.unsubscribe', token=token, _external=True) }}">
         {{ _("відписатись") }}
     </a>
 {% endif %}

@@ -1,3 +1,15 @@
+"""
+Module provide searching for "chain of wins" between two player.
+Example: player1 - 'Bob', player2 - 'John'
+Bob never won John, but Bob won Bill and Bill won John,
+so the result would be Bob -> Bill -> John.
+Potentially even very weak player would have such "chain of wins" for best
+players:
+    <some_player> -> <player1> -> <player2> ... <playerN>.
+Module uses `networkx` with Dijkstra search. It is a real memory devourer...
+In order not to compile json data each time you restart the app, it uses
+compiled json file witch is initialized if it`s doesn`t exist.
+"""
 import networkx as nx
 import json
 import os

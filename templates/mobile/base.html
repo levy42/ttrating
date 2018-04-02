@@ -85,7 +85,7 @@
         {{ _('Рейтинг') }}</a>
     <a class="{% if 'world_rating' in request.endpoint %}
                             active{% endif %} item"
-       href="{{ url_for('world.world_rating') }}">
+       href="{{ url_for('world_rating.rating') }}">
         <i class="world icon"></i>
         {{ _('Світовий рейтинг') }}</a>
     <a href="{{ url_for('rating.tournaments') }}"
@@ -97,7 +97,7 @@
         <i class="search icon"></i>
         {{ _('Пошук ігор') }}</a>
     <div class="divider"></div>
-    <a href="{{ url_for('mobile.about') }}"
+    <a href="{{ url_for('main.about') }}"
        class="{% if 'about' in request.endpoint %}active{% endif %} item">
         <i class="info circle icon"></i>
         {{ _('Про сайт') }}</a>
@@ -149,9 +149,6 @@
         </div>
         </div>
         <br>
-        <div align="center">
-            <a href="{{ url_for('change_version',mobile='off',page=request.url) }}">{{ _('Повна версія') }}</a>
-        </div>
     {% endblock %}
 </div>
 </body>

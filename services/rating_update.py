@@ -1,21 +1,21 @@
-from services import parser
-from services import translator
-from services import statistics
-from services import email_reports
-import models
-from models import db
+"""
+Module contains tasks for ranking data update:
+    - Update rankings.
+    - Translate new strings.
+    - Update rankings statistics.
+    - Update player statistics.
+    - Send email reports.
+"""
+from services import parser, translator, statistics, email_reports
+from models import db, User, Game, Player, Rating
 from flask_mail import Message
 from app import mail
 from flask import request
 from flask_babel import _
 from flask import render_template
-from app import app
-from app import cache
+from app import app, cache
 from itsdangerous import URLSafeSerializer
-import config
 from views import common
-
-LOG = app.logger
 
 
 def update_ua():
@@ -37,10 +37,10 @@ def atomic_subtask(name):
     def wrapper(f):
         def wrapped(*args, **kwargs):
             try:
-                LOG.info(f'{name} started')
+                app.logger.info(f'{name} started')
                 return f(*args, **kwargs)
             except Exception as e:
-                LOG.error(f'{name} failed! {e}')
+                app.logger.error(f'{name} failed! {e}')
 
         return wrapped
 
@@ -68,9 +68,9 @@ def generate_confirmation_token(email):
 @atomic_subtask('Send ua rating reports')
 def send_ua_monthly_report():
     report = email_reports.generate_ua_monthly_report()
-    users = models.User.query.all()
+    users = User.query.filter_by(confirmed=True).all()
     users_divided_by_lang = {lang: [u for u in users if u.language == lang] for
-                             lang in config.SUPPORTED_LANGUAGES}
+                             lang in app.config['SUPPORTED_LANGUAGES']}
 
     for lang, users in users_divided_by_lang.items():
         with app.test_request_context(f'/{lang}/'):
@@ -90,9 +90,9 @@ def send_ua_monthly_report():
 @atomic_subtask('Send world rating reports')
 def send_world_monthly_report():
     report = email_reports.generate_ua_monthly_report()
-    users = models.User.query.all()
+    users = User.query.filter_by(confirmed=True).all()
     users_divided_by_lang = {lang: [u for u in users if u.language == lang] for
-                             lang in config.SUPPORTED_LANGUAGES}
+                             lang in app.config['SUPPORTED_LANGUAGES']}
 
     for lang, users in users_divided_by_lang.items():
         with app.test_request_context(f'/{lang}/'):
@@ -110,14 +110,14 @@ def send_world_monthly_report():
 
 
 def update_player_info():
-    LOG.info('Updating players info')
-    LOG.info('progress: ')
+    app.logger.info('Updating players info')
+    app.logger.info('progress: ')
     n = 10000
-    players = models.Player.query.all()
+    players = Player.query.all()
     last_rating_list = common.get_current_rating_list()
     month = last_rating_list.month
     year = last_rating_list.year
-    ratings = models.Rating.query.filter(year=year, month=month).all
+    ratings = Rating.query.filter(year=year, month=month).all
     players_by_id = {p.id: p for p in players}
 
     for r in ratings:
@@ -130,17 +130,17 @@ def update_player_info():
         p.game_total = 0
         p.game_won = 0
         p.tournaments_total = 0
-        models.db.session.add(p)
-    models.db.session.commit()
+        db.session.add(p)
+    db.session.commit()
 
     page = 0
     pages = 1
     while page < pages:
         page += 1
-        _games = models.Game.query.paginate(page=page, per_page=n)
+        _games = Game.query.paginate(page=page, per_page=n)
         if page == 1:
-            LOG.info('Count: %s' % _games.total)
-            LOG.info('Pages %s' % _games.pages)
+            app.logger.info('Count: %s' % _games.total)
+            app.logger.info('Pages %s' % _games.pages)
             pages = _games.pages
         games = _games.items
         player_games = {}
@@ -158,4 +158,4 @@ def update_player_info():
             p.tournaments_total += len(tourns)
             db.session.add(p)
         db.session.commit()
-        LOG.info(f'{page}/{pages}')
+        app.logger.info(f'{page}/{pages}')
