@@ -44,4 +44,3 @@ def test_new_rating_report():
             db.session.commit()
 
         rating_update.send_ua_monthly_report()
-

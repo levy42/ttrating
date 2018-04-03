@@ -147,12 +147,6 @@ def parse_ua_by_category(month, year, rating_id, category=Category.MEN,
         name = cells[1].find(text=True)
         href = cells[1].find('a').get('href')
         external_id = int(href.rsplit('/', 2)[1])
-        rating = float(cells[3].find(text=True).replace(',', '.'))
-        rating_fine = float(cells[2].find(text=True).replace(',', '.'))
-        weight = int(cells[4].find(text=True))
-        p_year = int(cells[5].find(text=True) or 0)
-        city = cells[6].find(text=True)
-        prev_rating = float(cells[7].find(text=True).replace(',', '.'))
 
         player = Player.query.filter_by(
             external_id=external_id).first()
@@ -160,20 +154,25 @@ def parse_ua_by_category(month, year, rating_id, category=Category.MEN,
             player = Player()
             updated_data['players'].append(name)
 
-        if not player.max or player.max < rating:
-            player.max = rating
-        if rating != prev_rating:
-            updated_data['changed_rating_players'].append(name)
+        player.rating = float(cells[3].find(text=True).replace(',', '.'))
+        player.rating_fine = float(cells[2].find(text=True).replace(',', '.'))
+        player.weight = int(cells[4].find(text=True))
+        player.year = int(cells[5].find(text=True) or 0)
+        city = cells[6].find(text=True)
+        locations = city.split('-')
+        player.city = locations[0]
 
-        player.rating = rating
-        player.year = p_year
+        if len(locations) > 1:
+            player.city2 = locations[1]
+        player.prev_rating = float(cells[7].find(text=True).replace(',', '.'))
+
+        if not player.max or player.max < player.rating:
+            player.max = player.rating
+
         player.name = name
-        player.fine_rating = rating_fine
         player.category = category
         player.external_id = external_id
         player.position = position
-        player.prev_rating = prev_rating
-        player.weight = weight
 
         locations = city.split('-')
         player.city = locations[0]

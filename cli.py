@@ -118,7 +118,7 @@ def deploy(migrate, branch):
         git pull origin {branch} &&
         pip3.6 install -r requirements.txt &&
         export FLASK_APP=app.py APP_CONFIG=config.cfg &&
-        {'flask db upgrade &&' if migrate else ''}
+        {'FLASK_APP=cli.py flask db upgrade &&' if migrate else ''}
         (screen -S {config.APP_NAME} -X quit;
          screen -S {config.APP_NAME} -dm bash -c 'flask run --port 10000')"
         '''

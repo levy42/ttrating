@@ -33,7 +33,8 @@ def update_world():
         send_world_monthly_report()
 
 
-def atomic_subtask(name):
+def subtask(name):
+    """Wraps a func in try catch block and log result."""
     def wrapper(f):
         def wrapped(*args, **kwargs):
             try:
@@ -47,14 +48,14 @@ def atomic_subtask(name):
     return wrapper
 
 
-@atomic_subtask('Translate new strings')
+@subtask('Translate new strings')
 def translate_new_strings(updated_data):
     translator.add_translations(updated_data['players'], 'ua')
     translator.add_translations(updated_data['cities'], 'ua')
     translator.add_translations(updated_data['tournaments'], 'ua')
 
 
-@atomic_subtask('Update statistics')
+@subtask('Update statistics')
 def update_statistics():
     update_player_stats()
     statistics.calculate(statistics)
@@ -65,7 +66,7 @@ def generate_confirmation_token(email):
     return serializer.dumps(email, salt=app.config['SECURITY_PASSWORD_SALT'])
 
 
-@atomic_subtask('Send ua rating reports')
+@subtask('Send ua rating reports')
 def send_ua_monthly_report():
     report = email_reports.generate_ua_monthly_report()
     users = User.query.filter_by(confirmed=True).all()
@@ -87,7 +88,7 @@ def send_ua_monthly_report():
                     conn.send(msg)
 
 
-@atomic_subtask('Send world rating reports')
+@subtask('Send world rating reports')
 def send_world_monthly_report():
     report = email_reports.generate_ua_monthly_report()
     users = User.query.filter_by(confirmed=True).all()
@@ -109,7 +110,7 @@ def send_world_monthly_report():
                     conn.send(msg)
 
 
-@atomic_subtask('Recalculate player stats')
+@subtask('Recalculate player stats')
 def calculate_player_stats():
     app.logger.info('Updating players info')
     app.logger.info('progress: ')
@@ -162,29 +163,16 @@ def calculate_player_stats():
         app.logger.info(f'{page}/{pages}')
 
 
-@atomic_subtask('Update player stats for last month')
+@subtask('Update player stats for last month')
 def update_player_stats():
     app.logger.info('Updating players info...')
-    n = 10000
-    players = Player.query.all()
-    last_rating_list = common.get_current_rating_list()
-    month = last_rating_list.month
-    year = last_rating_list.year
-    ratings = Rating.query.filter_by(year=year, month=month).all()
-    players_by_id = {p.id: p for p in players}
-
-    for r in ratings:
-        player = players_by_id[r.player_id]
-        player.rating = r.rating
-        db.session.add(player)
-    db.session.commit()
-
+    players = Player.query.filter(Player.rating != 0).all()
     current_rating = common.get_current_rating_list()
-    tournamets = Tournament.query.filter_by(
+    tournaments = Tournament.query.filter_by(
         rating_list_id=current_rating.id).all
 
-    for tournamet in tournamets:
-        games = Game.query.filter_by(tournamet_id=tournamet.id).all()
+    for tournament in tournaments:
+        games = Game.query.filter_by(tournamet_id=tournament.id).all()
         player_games = {}
         for g in games:
             if not player_games.get(g.player_id):

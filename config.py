@@ -33,19 +33,19 @@ JOBS = [
         'id': 'update_ua_rating',
         'func': 'tasks:update_ua_rating',
         'trigger': 'interval',
-        'seconds': 3660
+        'seconds': 3600*24
     },
     {
         'id': 'update_world_rating',
         'func': 'tasks:update_world_rating',
         'trigger': 'interval',
-        'seconds': 3600
+        'seconds': 3600*24
     },
     {
         'id': 'delete_expired_users',
         'func': 'tasks:delete_expired_users',
         'trigger': 'interval',
-        'seconds': 3660 * 24
+        'seconds': 3600 * 24
     },
     # {
     #     'id': 'test',
