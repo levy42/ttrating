@@ -1,7 +1,7 @@
 from flask import current_app as app
 import datetime
 from flask import request, render_template, abort, Blueprint, redirect, url_for
-from app import mail, db
+from app import mail, db, mail_alert
 import models as m
 from flask_mail import Message
 from flask_babel import _
@@ -66,6 +66,7 @@ def confirm(token):
         user.confirmed_on = datetime.datetime.now()
         db.session.add(user)
         db.session.commit()
+        mail_alert(f'New subscribe - {email}!')
         return redirect(url_for('.subscribe', confirmed=True))
 
     except Exception as e:

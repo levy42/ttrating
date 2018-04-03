@@ -72,7 +72,7 @@ def get_all_rating_lists():
     page = requests.get(UA_RATING_DOMEN + '/rating/all/?limit=1000')
     if page.status_code != 200:
         return []
-    soup = BeautifulSoup(page.text)
+    soup = BeautifulSoup(page.text, 'html.parser')
     table = soup.find("table")
     ratings = []
     for row in table.findAll("tr"):
@@ -124,11 +124,12 @@ def parse_ua_by_category(month, year, rating_id, category=Category.MEN,
         return -1
     if int(page.url.rsplit('/', 3)[1]) == previous_id:
         return -1
-    soup = BeautifulSoup(page.text)
+    soup = BeautifulSoup(page.text, 'html.parser')
     table = soup.find("table", {"id": "sortTable"})
     prev_position = 1
-    Player.query.update({'prev_rating': Player.rating})
-    Player.query.update({'rating': 0})
+    Player.query.filter_by(category=category).update(
+        {'prev_rating': Player.rating})
+    Player.query.filter_by(category=category).update({'rating': 0})
     db.session.commit()
     db.session.expire_all()
     players = []
@@ -234,7 +235,8 @@ def parse_ua_by_category(month, year, rating_id, category=Category.MEN,
                         tourn_page = requests.get(UA_RATING_DOMEN + tourn_href)
                         if tourn_page.status_code != 200:
                             continue
-                        tourn_soup = BeautifulSoup(tourn_page.text)
+                        tourn_soup = BeautifulSoup(tourn_page.text,
+                                                   'html.parser')
                         subtourn_table = tourn_soup.find("table",
                                                          {"id": "sortTable"})
                         for row in subtourn_table.findAll("tr"):
@@ -407,7 +409,7 @@ def parse_tournament(href, tournament):
     page = requests.get(UA_RATING_DOMEN + href + '?limit=1000')
     if page.status_code != 200:
         return []
-    soup = BeautifulSoup(page.text)
+    soup = BeautifulSoup(page.text, 'html.parser')
     table = soup.find("table")
     games = []
     player_tourns = []
@@ -460,7 +462,7 @@ def parse_player(player_id):
     page = requests.get(UA_RATING_DOMEN + f'/rating/p/1/{player_id}/')
     if page.status_code != 200:
         return []
-    soup = BeautifulSoup(page.text)
+    soup = BeautifulSoup(page.text, 'html.parser')
     table = soup.find("table")
     if not table:
         return None
@@ -478,7 +480,7 @@ def parse_games(player, player_href, start_rating):
     page = requests.get(UA_RATING_DOMEN + player_href)
     if page.status_code != 200:
         return []
-    soup = BeautifulSoup(page.text)
+    soup = BeautifulSoup(page.text, 'html.parser')
     if not player:
         return []
     table = soup.find("table", {'class': 'striped'})
@@ -576,7 +578,7 @@ def parse_tt_cup_photos():
         page = requests.get(f'http://tt-cup.com/player/{i}')
         if page.status_code != 200:
             continue
-        soup = BeautifulSoup(page.text)
+        soup = BeautifulSoup(page.text, 'html.parser')
         players = soup.findAll("div", {'class': 'player left'})
         if not players:
             continue

@@ -21,10 +21,10 @@ def test_parse_rating():
     """This should not fail, but data should be also checked manually"""
     with app.app_context():
         now = datetime.datetime.now()
-        year, month = now.year, now.month - 1
-        parser.parse_ua(year, month)
-        some_player = models.User.query.order_by('rating').first()
-        rating = models.Rating.query.filter(
+        year, month = now.year, now.month
+        parser.parse_ua(month, year)
+        some_player = models.Player.query.order_by('position').first()
+        rating = models.Rating.query.filter_by(
             player_id=some_player.id, month=month, year=year)
 
         assert rating is not None

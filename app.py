@@ -61,6 +61,14 @@ mail_handler.setLevel(logging.ERROR)
 mail_handler.setFormatter(formatter)
 app.logger.addHandler(mail_handler)
 
+
+def mail_alert(text):
+    mail.send(Message(
+        recipients=app.config['ADMINS'],
+        body=text,
+        subject=f'{config.APP_NAME} ALERT!'))
+
+
 # localization
 month_abbr = ['', 'січ', 'лют', 'бер', 'кві', 'тра', 'чер', 'лип', 'сер',
               'вер', 'жов', 'лис', 'гру']
