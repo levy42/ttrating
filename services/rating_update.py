@@ -6,6 +6,7 @@ Module contains tasks for ranking data update:
     - Update player statistics.
     - Send email reports.
 """
+from time import time
 from services import parser, translator, statistics, email_reports
 from models import db, User, Game, Player, Rating, Tournament
 from flask_mail import Message
@@ -18,14 +19,16 @@ from itsdangerous import URLSafeSerializer
 from views import common
 
 
-def update_ua():
+def update_ua(raises=False):
+    success = True
     updated_data = parser.parse_ua()
     if not updated_data:
         return
-    translate_new_strings(updated_data)
-    update_statistics()
-    send_ua_monthly_report()
+    translate_new_strings(updated_data, raises=raises)
+    update_statistics(raises=raises)
+    send_ua_monthly_report(raises=raises)
     cache.clear()
+    return success
 
 
 def update_world():
@@ -34,14 +37,22 @@ def update_world():
 
 
 def subtask(name):
-    """Wraps a func in try catch block and log result."""
+    """Wraps a func in 'try except' block and log result."""
+
     def wrapper(f):
         def wrapped(*args, **kwargs):
+            raises = kwargs.pop('raises', None)
             try:
+                start = time()
                 app.logger.info(f'{name} started')
-                return f(*args, **kwargs)
+                result = f(*args, **kwargs)
+                end = time()
+                app.logger.info(f'{name} finished. Time: {end-start}')
+                return result
             except Exception as e:
                 app.logger.error(f'{name} failed! {e}')
+                if raises:
+                    raise
 
         return wrapped
 
@@ -58,7 +69,7 @@ def translate_new_strings(updated_data):
 @subtask('Update statistics')
 def update_statistics():
     update_player_stats()
-    statistics.calculate(statistics)
+    statistics.calculate()
 
 
 def generate_confirmation_token(email):
@@ -166,19 +177,20 @@ def calculate_player_stats():
 @subtask('Update player stats for last month')
 def update_player_stats():
     app.logger.info('Updating players info...')
-    players = Player.query.filter(Player.rating != 0).all()
+    players = Player.query.filter(Player.rating!=0).all()
     current_rating = common.get_current_rating_list()
     tournaments = Tournament.query.filter_by(
-        rating_list_id=current_rating.id).all
+        rating_list_id=current_rating.id).all()
 
     for tournament in tournaments:
-        games = Game.query.filter_by(tournamet_id=tournament.id).all()
+        app.logger.debug(f'Processing tournament {tournament.name}')
+        games = Game.query.filter_by(tournament_id=tournament.id).all()
         player_games = {}
         for g in games:
             if not player_games.get(g.player_id):
                 player_games[g.player_id] = list()
             player_games[g.player_id].append(g)
-        for i, p in enumerate(players):
+        for p in players:
             if not player_games.get(p.id):
                 continue
             won = [g for g in player_games[p.id] if g.result]
@@ -187,4 +199,4 @@ def update_player_stats():
             p.game_won += len(won)
             p.tournaments_total += len(tourns)
             db.session.add(p)
-        db.session.commit()
+    db.session.commit()

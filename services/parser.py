@@ -43,8 +43,7 @@ def parse_ua(month=None, year=None, rating_id=None):
         if remote_rating_lists[0][2] != month:  # no new rating available
             LOG.debug('No new rating available')
             return
-    updated_data = {'players': set(), 'cities': set(), 'tournaments': set(),
-                    'changed_rating_players': set()}
+    updated_data = {'players': set(), 'cities': set(), 'tournaments': set()}
     res = parse_ua_by_category(month, year, category=Category.MEN,
                                rating_id=rating_id,
                                parse_tourn=False)
@@ -112,8 +111,7 @@ def parse_ua_by_category(month, year, rating_id, category=Category.MEN,
                          parse_tourn=True, previous_id=None):
     LOG.debug(
         f'Parsing rating: month = {month}, year = {year}, id = {rating_id}.')
-    updated_data = {'players': [], 'cities': [], 'tournaments': [],
-                    'changed_rating_players': []}
+    updated_data = {'players': [], 'cities': [], 'tournaments': []}
 
     cities = {c.name: c.name for c in City.query.all()}
     new_cities = []
@@ -185,7 +183,7 @@ def parse_ua_by_category(month, year, rating_id, category=Category.MEN,
             new_cities.append(player.city)
             updated_data['cities'].append(player.city)
 
-        if not cities.get(player.city2):
+        if player.city2 and not cities.get(player.city2):
             cities[player.city2] = player.city2
             new_cities.append(player.city2)
             updated_data['cities'].append(player.city2)

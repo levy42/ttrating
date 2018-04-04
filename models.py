@@ -65,7 +65,7 @@ class Country(NameReprMixin, db.Model):
 
 class Player(NameReprMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String)
+    name = db.Column(db.String, nullable=False)
     external_id = db.Column(db.Integer, unique=True)
     position = db.Column(db.Integer)
     year = db.Column(db.Integer)
@@ -74,15 +74,15 @@ class Player(NameReprMixin, db.Model):
     prev_rating = db.Column(db.Float)
     weight = db.Column(db.Float)
     max = db.Column(db.Float)
-    city = db.Column(db.String)
+    city = db.Column(db.String, nullable=False)
     city2 = db.Column(db.String)
     category = db.Column(db.String)
     tournaments = relationship('PlayerTournament',
                                order_by="desc(PlayerTournament.index)")
 
-    tournaments_total = db.Column(db.Integer)
-    game_total = db.Column(db.Integer)
-    game_won = db.Column(db.Integer)
+    tournaments_total = db.Column(db.Integer, default=0, nullable=False)
+    game_total = db.Column(db.Integer, default=0, nullable=False)
+    game_won = db.Column(db.Integer, default=0, nullable=False)
     stability = db.Column(db.Integer)
     about = db.Column(db.Integer)
     photo_url = db.Column(db.String)
@@ -90,9 +90,9 @@ class Player(NameReprMixin, db.Model):
 
 class RatingList(db.Model):
     id = db.Column(db.String, primary_key=True)
-    year = db.Column(db.Integer)
-    month = db.Column(db.Integer)
-    category = db.Column(db.String)
+    year = db.Column(db.Integer, nullable=False)
+    month = db.Column(db.Integer, nullable=False)
+    category = db.Column(db.String, nullable=False)
 
     def __str__(self):
         return f'UA Rating {self.year}.{self.month:0>2}'

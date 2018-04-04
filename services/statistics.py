@@ -104,7 +104,7 @@ def top_total(topic):
             'text': player.name,
             'href': 'rating.player',
             'name': True,
-            'id': id
+            'id': player.id
         },
         header: getattr(player, props['field']),
         'Рік': player.year,

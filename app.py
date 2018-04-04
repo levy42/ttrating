@@ -14,7 +14,7 @@ from flask_mail import Mail, Message
 from flask_apscheduler import APScheduler
 
 import config
-import models as m
+from models import db
 from views.admin import admin
 from services.translator import get_translated
 
@@ -23,10 +23,7 @@ app.config.from_object(config)
 app.config.from_pyfile(os.environ.get('APP_CONFIG', 'config.cfg'), silent=True)
 
 main = Blueprint('main', 'main')
-
-db = m.db
-m.db.init_app(app)
-
+db.init_app(app)
 admin.init_app(app)
 cron = APScheduler()
 babel = Babel(app)
@@ -123,7 +120,7 @@ def number_color(context, value):
     return filters.do_mark_safe(value)
 
 
-# custom context
+# custom template context
 def translate_name(text):
     @cache.memoize(timeout=24 * 60 * 60)
     def _translate(_text, lang):
