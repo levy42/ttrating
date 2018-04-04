@@ -68,7 +68,7 @@ def update_statistics():
 @with_appcontext
 def update_players_stat():
     from services import rating_update
-    rating_update.update_player_info()
+    rating_update.update_player_stats()
 
 
 @app.cli.command(help='Looks for new string and automatically '
