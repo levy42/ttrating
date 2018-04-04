@@ -6,7 +6,7 @@ import logging
 from app import app, db
 import models
 import config
-from services import parser, rating_update
+from services import parser, rating_update, statistics, translator, games_chain
 from flask.cli import with_appcontext
 from flask_migrate import Migrate
 
@@ -52,14 +52,12 @@ def parse_ua_all():
                       'translations for them.')
 @with_appcontext
 def translate_names():
-    from services import translator
     translator.translate_all()
 
 
 @app.cli.command(help='Updates rating statistics.')
 @with_appcontext
 def update_statistics():
-    from services import statistics
     models.TopicIssue.query.delete()
     statistics.calculate()
 
@@ -67,8 +65,13 @@ def update_statistics():
 @app.cli.command(help='Updates players statistics.')
 @with_appcontext
 def update_players_stat():
-    from services import rating_update
     rating_update.update_player_stats()
+
+
+@app.cli.command(help='Updates (or create) player games graph.')
+@with_appcontext
+def update_games_graph():
+    games_chain.create_graphs()
 
 
 @app.cli.command(help='Looks for new string and automatically '

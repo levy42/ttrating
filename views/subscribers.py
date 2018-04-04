@@ -16,7 +16,7 @@ def generate_confirmation_token(email):
     return serializer.dumps(email, salt=app.config['SECURITY_PASSWORD_SALT'])
 
 
-@bp.route('/subscribe/', methods=['GET', 'POST'])
+@bp.route('/subscribe', methods=['GET', 'POST'])
 def subscribe():
     if request.method == 'GET':
         accepted = request.args.get('accepted')

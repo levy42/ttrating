@@ -1,5 +1,4 @@
 APP_NAME = 'ttennis'
-SERVER_NAME = 'ttennis.life'
 PREFERRED_URL_SCHEME = 'http'
 BRAND = 'ttennis.life'
 EMAIL = 'ttennis.life.ua@gmail.com'

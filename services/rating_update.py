@@ -7,7 +7,7 @@ Module contains tasks for ranking data update:
     - Send email reports.
 """
 from time import time
-from services import parser, translator, statistics, email_reports
+from services import parser, translator, statistics, email_reports, games_chain
 from models import db, User, Game, Player, Rating, Tournament
 from flask_mail import Message
 from app import mail
@@ -27,6 +27,7 @@ def update_ua(raises=False):
     translate_new_strings(updated_data, raises=raises)
     update_statistics(raises=raises)
     send_ua_monthly_report(raises=raises)
+    update_graph_for_games_chain(raises=raises)
     cache.clear()
     return success
 
@@ -57,6 +58,11 @@ def subtask(name):
         return wrapped
 
     return wrapper
+
+
+@subtask('Update graph for games chain')
+def update_graph_for_games_chain():
+    games_chain.create_graphs()
 
 
 @subtask('Translate new strings')

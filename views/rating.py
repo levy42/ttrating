@@ -11,8 +11,8 @@ from flask_mobility.decorators import mobile_template
 bp = Blueprint('rating', __name__)
 
 
-@bp.route('/rating/<category>/')
-@bp.route('/rating/')
+@bp.route('/rating/<category>')
+@bp.route('/rating')
 @mobile_template('{mobile/}rating/rating.html')
 @cache.cached(key_prefix=lambda: request.url + str(request.MOBILE))
 def rating(template, category='MEN'):
@@ -44,7 +44,7 @@ def rating(template, category='MEN'):
                            city=city, cities=cities())
 
 
-@bp.route('/player/<id>/')
+@bp.route('/player/<id>')
 @mobile_template('{mobile/}rating/player.html')
 @cache.cached(key_prefix=lambda: request.url + str(request.MOBILE))
 def player(template, id):
@@ -72,7 +72,7 @@ def player_tournament(template, player_id, tournament_id):
     return render_template(template, player_tournament=player_tournament)
 
 
-@bp.route('/tournament/<int:id>/')
+@bp.route('/tournament/<int:id>')
 @mobile_template('{mobile/}rating/tournament.html')
 @cache.cached(key_prefix=lambda: request.url + str(request.MOBILE))
 def tournament(template, id):
@@ -81,7 +81,7 @@ def tournament(template, id):
 
 
 @bp.route('/tournaments/<int:year>/<int:month>')
-@bp.route('/tournaments/')
+@bp.route('/tournaments')
 @mobile_template('{mobile/}rating/tournaments.html')
 @cache.cached(key_prefix=lambda: request.url + str(request.MOBILE))
 def tournaments(template, year=None, month=None):
@@ -101,7 +101,7 @@ def tournaments(template, year=None, month=None):
                            year=year, month=month, years=years)
 
 
-@bp.route('/win-chain/')
+@bp.route('/win-chain')
 @mobile_template('{mobile/}rating/win_chain.html')
 @cache.cached(key_prefix=lambda: request.url + str(request.MOBILE))
 def win_chain(template):
@@ -120,7 +120,7 @@ def win_chain(template):
                            chain=chain, count_all=count_all)
 
 
-@bp.route('/games/')
+@bp.route('/games')
 @mobile_template('{mobile/}rating/games_search.html')
 @cache.cached(key_prefix=lambda: request.url + str(request.MOBILE))
 def game_search(template):
@@ -147,7 +147,7 @@ def game_search(template):
                            player2_id=player2_id)
 
 
-@bp.route('/statistics/')
+@bp.route('/statistics')
 @mobile_template('{mobile/}rating/statistics.html')
 @cache.cached(key_prefix=lambda: request.url + str(request.MOBILE))
 def statistics(template):
@@ -159,7 +159,7 @@ def statistics(template):
 
 
 @bp.route('/player-search/<name>')
-@cache.memoize()
+@cache.cached()
 def player_search(name):
     if g.lang == 'ru':  # default player name language
         matches = m.Player.query.filter(

@@ -51,7 +51,7 @@ def get_translated(text, lang):
 
 def search_translations(text, lang=None):
     matches = models.Translation.query.filter(
-        models.Translation.id.like(text + '%'),
+        models.Translation.translated.like(text + '%'),
         models.Translation.locale == lang).all()
     # trim last 3 chars to cut off language prefix (e.g. '_uk')
     return [t.id[:-3] for t in matches]
