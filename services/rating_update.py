@@ -62,7 +62,7 @@ def subtask(name):
 
 @subtask('Update graph for games chain')
 def update_graph_for_games_chain():
-    games_chain.create_graphs()
+    games_chain.update_graphs()
 
 
 @subtask('Translate new strings')
@@ -127,66 +127,18 @@ def send_world_monthly_report():
                     conn.send(msg)
 
 
-@subtask('Recalculate player stats')
-def calculate_player_stats():
-    app.logger.info('Updating players info')
-    app.logger.info('progress: ')
-    n = 10000
-    players = Player.query.all()
-    last_rating_list = common.get_current_rating_list()
-    month = last_rating_list.month
-    year = last_rating_list.year
-    ratings = Rating.query.filter_by(year=year, month=month).all()
-    players_by_id = {p.id: p for p in players}
-
-    for r in ratings:
-        player = players_by_id[r.player_id]
-        player.rating = r.rating
-        db.session.add(player)
-    db.session.commit()
-
-    for p in players:
-        p.game_total = 0
-        p.game_won = 0
-        p.tournaments_total = 0
-        db.session.add(p)
-    db.session.commit()
-
-    page = 0
-    pages = 1
-    while page < pages:
-        page += 1
-        _games = Game.query.paginate(page=page, per_page=n)
-        if page == 1:
-            app.logger.info('Count: %s' % _games.total)
-            app.logger.info('Pages %s' % _games.pages)
-            pages = _games.pages
-        games = _games.items
-        player_games = {}
-        for g in games:
-            if not player_games.get(g.player_id):
-                player_games[g.player_id] = list()
-            player_games[g.player_id].append(g)
-        for i, p in enumerate(players):
-            if not player_games.get(p.id):
-                continue
-            won = [g for g in player_games[p.id] if g.result]
-            tourns = set([g.tournament_id for g in player_games[p.id]])
-            p.game_total += len(player_games[p.id])
-            p.game_won += len(won)
-            p.tournaments_total += len(tourns)
-            db.session.add(p)
-        db.session.commit()
-        app.logger.info(f'{page}/{pages}')
-
-
 @subtask('Update player stats for last month')
-def update_player_stats():
+def update_player_stats(update_all=False):
     app.logger.info('Updating players info...')
-    players = Player.query.filter(Player.rating!=0).all()
+    players = Player.query.filter(Player.rating != 0).all()
     current_rating = common.get_current_rating_list()
-    tournaments = Tournament.query.filter_by(
-        rating_list_id=current_rating.id).all()
+
+    if update_all:
+        Player.query.update(tournaments_total=0, game_total=0, game_won=0)
+        tournaments = Tournament.query.all()
+    else:
+        tournaments = Tournament.query.filter_by(
+            rating_list_id=current_rating.id).all()
 
     for tournament in tournaments:
         app.logger.debug(f'Processing tournament {tournament.name}')

@@ -71,7 +71,7 @@ def update_players_stat():
 @app.cli.command(help='Updates (or create) player games graph.')
 @with_appcontext
 def update_games_graph():
-    games_chain.create_graphs()
+    games_chain.update_graphs()
 
 
 @app.cli.command(help='Looks for new string and automatically '

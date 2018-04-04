@@ -14,6 +14,7 @@ import networkx as nx
 import json
 import os
 import models as m
+from flask import current_app
 
 GRAPH = {}
 GRAPH_ALL = {}
@@ -21,23 +22,7 @@ graph_path = 'static/graph.json'
 graph_all_path = 'static/graph_all.json'
 
 
-def create_graphs():
-    global GRAPH
-    global GRAPH_ALL
-
-    def format_graph(graph):
-        return nx.DiGraph(
-                [(int(k), v) for k, nodes in graph.items() for v in nodes])
-
-    if os.path.exists(graph_path):
-        with open(graph_path) as f, open(graph_all_path) as f2:
-            g = json.load(f)
-            g_all = json.load(f2)
-            GRAPH = format_graph(g)
-            GRAPH_ALL = format_graph(g_all)
-            print("Graph initialized from file")
-            return
-    # else
+def update_graphs():
     graph = {}
     graph_all = {}
     all_games = m.Game.query.all()
@@ -59,21 +44,37 @@ def create_graphs():
     for g in graph_all:
         graph[g] = list(graph_all[g])
 
-    GRAPH = format_graph(graph)
-    GRAPH_ALL = format_graph(graph_all)
-
     with open(graph_path, 'w') as f:
-        f.write(json.dumps(GRAPH))
+        f.write(json.dumps(graph))
 
     with open(graph_all_path, 'w') as f:
-        f.write(json.dumps(GRAPH_ALL))
+        f.write(json.dumps(graph_all))
 
     print("Graph initialized")
 
 
+def format_graph(graph):
+    return nx.DiGraph(
+        [(int(k), v) for k, nodes in graph.items() for v in nodes])
+
+
+def init_nx():
+    global GRAPH
+    global GRAPH_ALL
+
+    if os.path.exists(graph_path):
+        with open(graph_path) as f, open(graph_all_path) as f2:
+            g = json.load(f)
+            g_all = json.load(f2)
+            GRAPH = format_graph(g)
+            GRAPH_ALL = format_graph(g_all)
+            current_app.logger.info('Graph initialized from file')
+            raise Exception('Failed to load games chain graph. No such file')
+
+
 def find_chain(player1_id, player2_id, all=False):
     if not GRAPH:
-        create_graphs()
+        init_nx()
     try:
         g = GRAPH_ALL if all else GRAPH
         path = nx.dijkstra_path(g, player1_id, player2_id)

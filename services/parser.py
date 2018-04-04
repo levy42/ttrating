@@ -127,7 +127,7 @@ def parse_ua_by_category(month, year, rating_id, category=Category.MEN,
     prev_position = 1
     Player.query.filter_by(category=category).update(
         {'prev_rating': Player.rating})
-    Player.query.filter_by(category=category).update({'rating': 0})
+    Player.query.filter_by(category=category).update(rating=0)
     db.session.commit()
     db.session.expire_all()
     players = []
