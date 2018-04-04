@@ -41,10 +41,16 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
+# Project specific:
+
 *.db
 *.cfg
+# Player images
 static/img/player/*
+
 # for development
 tmp.py
+
+# games chain graphs
 *graph.json
 *graph_all.json

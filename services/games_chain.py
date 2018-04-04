@@ -69,7 +69,8 @@ def init_nx():
             GRAPH = format_graph(g)
             GRAPH_ALL = format_graph(g_all)
             current_app.logger.info('Graph initialized from file')
-            raise Exception('Failed to load games chain graph. No such file')
+    else:
+        raise Exception('Failed to load games chain graph. No such file')
 
 
 def find_chain(player1_id, player2_id, all=False):
