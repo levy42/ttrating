@@ -10,6 +10,7 @@ Module uses `networkx` with Dijkstra search. It is a real memory devourer...
 In order not to compile json data each time you restart the app, it uses
 compiled json file witch is initialized if it`s doesn`t exist.
 """
+import sys
 import networkx as nx
 import json
 import os
@@ -28,7 +29,7 @@ def update_graphs():
     games_iter = m.Game.query.paginate(per_page=10000, page=1)
     pages = games_iter.pages
     all_games = games_iter.items
-    current_app.logger.debug('0 %')
+    sys.stdout.write('Progress: 0 %')
     for page in range(2, pages + 1):
         for g in all_games:
             if g.opponent_id:
@@ -46,7 +47,7 @@ def update_graphs():
                     graph_all[g.player_id][
                         g.opponent_id] += 1 if g.result else -1
         all_games = m.Game.query.paginate(per_page=10000, page=page).items
-        current_app.logger.debug(f'{(page-1)/pages*100:.3} %')
+        sys.stdout.write(f'\rProgress: {(page-1)/pages*100:.3} %')
     for g in graph:
         graph[g] = list(graph[g])
     for g in graph_all:
@@ -58,7 +59,7 @@ def update_graphs():
     with open(graph_all_path, 'w') as f:
         f.write(json.dumps(graph_all))
 
-    current_app.logger.debug('100 %')
+    sys.stdout.write('\rProgress: 100 %\n')
     current_app.logger.info("Graph initialized.")
 
 
