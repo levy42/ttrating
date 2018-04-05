@@ -28,14 +28,13 @@ def update_graphs():
     games_iter = m.Game.query.paginate(per_page=10000, page=1)
     pages = games_iter.pages
     all_games = games_iter.items
+    current_app.logger.debug('0 %')
     for page in range(2, pages + 1):
         for g in all_games:
             if g.opponent_id:
                 if g.result:
                     if not graph.get(g.player_id):
                         graph[g.player_id] = set()
-                    if g.player_id == 1201:
-                        print(g)
                     graph[g.player_id].add(g.opponent_id)
 
                 if not graph_all.get(g.player_id):
@@ -47,6 +46,7 @@ def update_graphs():
                     graph_all[g.player_id][
                         g.opponent_id] += 1 if g.result else -1
         all_games = m.Game.query.paginate(per_page=10000, page=page).items
+        current_app.logger.debug(f'{(page-1)/pages*100:.3} %')
     for g in graph:
         graph[g] = list(graph[g])
     for g in graph_all:
