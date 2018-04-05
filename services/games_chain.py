@@ -50,7 +50,7 @@ def update_graphs():
     for g in graph:
         graph[g] = list(graph[g])
     for g in graph_all:
-        graph_all[g] = list(graph_all[g])
+        graph_all[g] = [p for p, s in graph_all[g].items() if s > 0]
 
     with open(graph_path, 'w') as f:
         f.write(json.dumps(graph))
@@ -58,7 +58,8 @@ def update_graphs():
     with open(graph_all_path, 'w') as f:
         f.write(json.dumps(graph_all))
 
-    print("Graph initialized")
+    current_app.logger.debug('100 %')
+    current_app.logger.info("Graph initialized.")
 
 
 def format_graph(graph):
