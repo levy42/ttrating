@@ -25,24 +25,32 @@ graph_all_path = 'static/graph_all.json'
 def update_graphs():
     graph = {}
     graph_all = {}
-    all_games = m.Game.query.all()
-    for g in all_games:
-        if g.opponent_id:
-            if g.result:
-                if not graph.get(g.player_id):
-                    graph[g.player_id] = set()
-                graph[g.player_id].add(g.opponent_id)
+    games_iter = m.Game.query.paginate(per_page=10000, page=1)
+    pages = games_iter.pages
+    all_games = games_iter.items
+    for page in range(2, pages + 1):
+        for g in all_games:
+            if g.opponent_id:
+                if g.result:
+                    if not graph.get(g.player_id):
+                        graph[g.player_id] = set()
+                    if g.player_id == 1201:
+                        print(g)
+                    graph[g.player_id].add(g.opponent_id)
 
-            if not graph_all.get(g.player_id):
-                graph_all[g.player_id] = {}
-            if not graph_all[g.player_id].get(g.opponent_id):
-                graph_all[g.player_id][g.opponent_id] = 1 if g.result else -1
-            else:
-                graph_all[g.player_id][g.opponent_id] += 1 if g.result else -1
+                if not graph_all.get(g.player_id):
+                    graph_all[g.player_id] = {}
+                if not graph_all[g.player_id].get(g.opponent_id):
+                    graph_all[g.player_id][
+                        g.opponent_id] = 1 if g.result else -1
+                else:
+                    graph_all[g.player_id][
+                        g.opponent_id] += 1 if g.result else -1
+        all_games = m.Game.query.paginate(per_page=10000, page=page).items
     for g in graph:
         graph[g] = list(graph[g])
     for g in graph_all:
-        graph[g] = list(graph_all[g])
+        graph_all[g] = list(graph_all[g])
 
     with open(graph_path, 'w') as f:
         f.write(json.dumps(graph))
