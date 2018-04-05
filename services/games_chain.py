@@ -24,6 +24,7 @@ graph_all_path = 'static/graph_all.json'
 
 
 def update_graphs():
+    current_app.logger.log('Updating Game chain Graphs:')
     graph = {}
     graph_all = {}
     games_iter = m.Game.query.paginate(per_page=10000, page=1)

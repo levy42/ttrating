@@ -32,7 +32,7 @@ def rating(template, category='MEN'):
         m.Rating.year == year,
         m.Rating.month == month,
         m.Player.category == category,
-        m.Rating.rating >= 10).order_by(sort_by)
+        m.Rating.rating >= 10).order_by(m.Rating.position)
     if city != 'all cities':
         rating = rating.filter(m.Player.city == city)
     rating = rating.paginate(per_page=limit, page=page)

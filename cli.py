@@ -108,12 +108,15 @@ def initdb():
 
 @app.cli.command(help='Runs deployment.')
 @with_appcontext
-@click.option('--migrate/--no-migrate', default=False)
 @click.argument('branch', default='master')
-def deploy(migrate, branch):
+@click.option('--migrate/--no-migrate', default=False)
+@click.option('--run', '-run', multiple=True)
+def deploy(migrate, branch, run):
     # TODO do it more readable, this is shit man
     host = app.config['DEPLOY_HOST']
-    os.system(
+    commands = [f'flask {command}' for command in run]
+    commands_cli = ('&&' + '&&'.join(commands)) if run else ''
+    print(
         f'''
         ssh {host} "cd ttrating &&
         git fetch &&
@@ -123,6 +126,8 @@ def deploy(migrate, branch):
         export FLASK_APP=app.py APP_CONFIG=config.cfg &&
         {'FLASK_APP=cli.py flask db upgrade &&' if migrate else ''}
         (screen -S {config.APP_NAME} -X quit;
-         screen -S {config.APP_NAME} -dm bash -c 'flask run --port 10000')"
+         screen -S {config.APP_NAME} -dm bash -c 'flask run --port 10000')
+         {commands_cli}"
         '''
     )
+
