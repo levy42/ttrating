@@ -8,7 +8,7 @@ Module contains tasks for ranking data update:
 """
 from time import time
 from services import parser, translator, statistics, email_reports, games_chain
-from models import db, User, Game, Player, Rating, Tournament
+from models import db, User, Game, Player, Tournament
 from flask_mail import Message
 from app import mail
 from flask import request

@@ -154,7 +154,7 @@ def statistics(template):
     page = request.args.get('page', 1, type=int)
     issues = m.TopicIssue.query.join(m.Topic).options(
         eagerload('topic')).order_by(m.TopicIssue.new).order_by(
-        m.Topic.index).paginate(per_page=7, page=page)
+        m.Topic.index).filter(m.Topic.active).paginate(per_page=7, page=page)
     return render_template(template, issues=issues)
 
 

@@ -116,7 +116,7 @@ def deploy(migrate, branch, run):
     host = app.config['DEPLOY_HOST']
     commands = [f'flask {command}' for command in run]
     commands_cli = ('&&' + '&&'.join(commands)) if run else ''
-    print(
+    os.system(
         f'''
         ssh {host} "cd ttrating &&
         git fetch &&
