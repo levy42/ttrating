@@ -5,10 +5,11 @@ from sqlalchemy import extract
 from flask import current_app
 
 import models
+from models import db, Topic, Player, Tournament, Game,RatingList, Rating
 from views import common
 
 
-class Type():
+class Type:
     CHART = 1
     LIST = 2
 
@@ -256,12 +257,102 @@ def last_ranking_total(props=None):
 @topic_processor
 def entire_totals(props=None):
     game_total = models.Game.query.count()
-    tournament_total = models.Tournament.count()
-    player_total = models.Player.count()
+    tournament_total = models.Tournament.query.count()
+    player_total = models.Player.query.count()
     headers = ['', 'Кількість']
     data = {'Ігри': game_total, 'Турніри': tournament_total,
             'Гравці': player_total}
     return dict(headers=headers, data=data)
+
+
+def create_default_topics():
+    topics = [
+        Topic(name='Top 10 Players Ukraine Men', type=Type.LIST,
+              processor='top_rating_list',
+              props={"max_age": 100, "count": 10, "category": "MEN"}, index=1,
+              period=Period.MONTH, active=False),
+        Topic(name='Top 10 Players Ukraine Women', type=Type.LIST,
+              processor='top_rating_list',
+              props={"max_age": 100, "count": 10, "category": "WOMEN"},
+              index=2, period=Period.MONTH, active=False),
+        Topic(name='Top 10 Players Ukraine Men U21', type=Type.LIST,
+              processor='top_rating_list',
+              props={"max_age": 21, "count": 10, "category": "MEN"}, index=3,
+              period=Period.MONTH),
+        Topic(name='Top 10 Players Ukraine Women U21', type=Type.LIST,
+              processor='top_rating_list',
+              props={"max_age": 21, "count": 10, "category": "WOMEN"}, index=4,
+              period=Period.MONTH),
+        Topic(name='Top 10 Players Ukraine Men U15', type=Type.LIST,
+              processor='top_rating_list',
+              props={"max_age": 15, "count": 10, "category": "MEN"}, index=5,
+              period=Period.MONTH),
+        Topic(name='Top 10 Players Ukraine Men U15', type=Type.LIST,
+              processor='top_rating_list',
+              props={"max_age": 15, "count": 10, "category": "WOMEN"}, index=6,
+              period=Period.MONTH),
+        Topic(name='Top 20 Wins', type=Type.LIST, processor='top_win',
+              props={"count": 20, "rating_limit": 30}, index=7,
+              period=Period.ENTIRE),
+        Topic(name='Top 10 Tournament Total', type=Type.LIST,
+              processor='top_total', props={"field": "tournaments_total",
+                                            "header": "Tournament total",
+                                            "order": "desc", "count": 10},
+              index=1, period=Period.ENTIRE),
+        Topic(name='Top 10 Game Total', type=Type.LIST, processor='top_total',
+              props={"field": "game_total", "header": "Game total",
+                     "order": "desc", "count": 10}, index=1,
+              period=Period.ENTIRE),
+        Topic(name='Top 10 Player with best "Win/Lose" aspect', type=Type.LIST,
+              processor='top_winner',
+              props={"min_game_total": 30, "count": 10}, index=1,
+              period=Period.ENTIRE),
+        Topic(name='Players with rating more then 80', type=Type.CHART,
+              processor='rating_dynamics', props={"rating_limit": 80},
+              index=37, period=Period.ENTIRE),
+        Topic(name='Players with rating more then 60', type=Type.LIST,
+              processor='rating_dynamics', props={"rating_limit": 60},
+              index=38,period=Period.ENTIRE),
+        Topic(name='Players with rating more then 40', type=Type.LIST,
+              processor='rating_dynamics', props={"rating_limit": 40},
+              index=39,period=Period.ENTIRE),
+        Topic(name='Players count with rating more then 10', type=Type.LIST,
+              processor='rating_dynamics', props={"rating_limit": 10},
+              index=40,period=Period.ENTIRE),
+        Topic(name='Oldest players', type=Type.LIST,
+              processor='top_player_age',
+              props={"field": "year", "header": "Year", "order": "asc",
+                     "count": 10}, index=98, period=Period.ENTIRE),
+        Topic(name='Youngest players', type=Type.LIST,
+              processor='top_player_age',
+              props={"field": "year", "header": "Year", "order": "desc",
+                     "count": 10}, index=99, period=Period.ENTIRE),
+        Topic(name='Tournament total by years', type=Type.LIST,
+              processor='tournament_dynamics_by_year', props={}, index=11,
+              period=Period.ENTIRE),
+        Topic(name='Tournament total by years Kiev', type=Type.LIST,
+              processor='tournament_dynamics_by_year',
+              props={"city": "Киев", "chart_type": "bar"}, index=12,
+              period=Period.ENTIRE),
+        Topic(name='Tournament total by Cities', type=Type.LIST,
+              processor='tournament_dynamics_by_city',
+              props={"count": 7, "chart_type": "pie"}, index=13,
+              period=Period.ENTIRE),
+        Topic(name='Most active judges', type=Type.LIST,
+              processor='most_active_judges', props={"count": 10}, index=100,
+              period=Period.ENTIRE),
+        Topic(name='Last month totals', type=Type.LIST,
+              processor='last_ranking_total', props={}, index=9,
+              period=Period.MONTH),
+        Topic(name='Statistics totals', type=Type.LIST,
+              processor='entire_totals', props={}, index=8,
+              period=Period.ENTIRE),
+
+    ]
+    for t in topics:
+        if not Topic.query.filter_by(name=t.name).first():
+            db.session.add(t)
+    db.session.commit()
 
 
 def calculate():

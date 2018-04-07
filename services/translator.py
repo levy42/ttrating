@@ -93,7 +93,7 @@ def translate_players(lang='uk'):
             ua_name = models.Translation(player.name, lang)
             ua_name.translated = _translate(player.name, lang)
             models.db.session.add(ua_name)
-            print(ua_name.translated)
+            print(f'{player.name} -> {ua_name.translated}')
     models.db.session.commit()
 
 
@@ -104,7 +104,7 @@ def translate_cities(lang='uk'):
             ua_name = models.Translation(c.name, lang)
             ua_name.translated = _translate(c.name, lang)
             models.db.session.add(ua_name)
-            print(ua_name.translated)
+            print(f'{c.name} - > {ua_name.translated}')
     models.db.session.commit()
 
 
@@ -115,7 +115,7 @@ def translate_tournaments(lang='uk'):
             ua_name = models.Translation(t.name, lang)
             ua_name.translated = _translate(t.name, lang)
             models.db.session.add(ua_name)
-            print(ua_name.translated)
+            print(f'{t.name} -> {ua_name.translated}')
     models.db.session.commit()
 
 
@@ -126,5 +126,5 @@ def translate_statistics_topics(lang='ru'):
             ua_name = models.Translation(t.name, lang)
             ua_name.translated = _translate(t.name, lang)
             models.db.session.add(ua_name)
-            print(ua_name.translated)
+            print(f'{t.name} -> {ua_name.translated}')
     models.db.session.commit()

@@ -12,6 +12,7 @@ from flask_migrate import Migrate
 
 app.logger.handlers[1].setLevel(logging.DEBUG)
 app.logger.setLevel(logging.DEBUG)
+app.logger.handlers[0].setLevel(logging.DEBUG)
 app.logger.handlers[1].setFormatter(logging.Formatter('%(message)s'))
 
 migrate = Migrate(app, db)
@@ -72,8 +73,20 @@ def translate_names(group, lang):
 @app.cli.command(help='Updates rating statistics.')
 @with_appcontext
 def update_statistics():
+    app.logger.info('Deleting old statistics...')
     models.TopicIssue.query.delete()
+    app.logger.info('Creating topics...')
+    statistics.create_default_topics()
     statistics.calculate()
+    app.logger.info('Running translation update...')
+    translator.translate_statistics_topics('ru')
+    translator.translate_statistics_topics('uk')
+
+
+@app.cli.command(help='Creates default statistics topics if no exist.')
+@with_appcontext
+def create_default_topics():
+    statistics.create_default_topics()
 
 
 @app.cli.command(help='Updates players statistics.')

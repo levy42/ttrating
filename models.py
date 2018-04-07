@@ -181,19 +181,24 @@ class Game(db.Model):
 
 
 class Topic(db.Model):
-    def __init__(self, name, group, type, period, index):
+    def __init__(self, name, type, period, index, props, processor,
+                 group=None, display_name=None, active=True):
         self.group = group
         self.name = name
         self.type = type
         self.period = period
         self.index = index
-        self.active = True
+        self.processor = processor
+        self._properties = props
+        self.active = active
+        self.display_name = display_name or name
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     active = db.Column(db.Boolean)
     type = db.Column(db.Integer)
     period = db.Column(db.Integer)
     name = db.Column(db.String)
+    display_name = db.Column(db.String)
     group = db.Column(db.String)
     index = db.Column(db.Integer)
     processor = db.Column(db.String)
