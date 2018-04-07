@@ -30,7 +30,12 @@ Example:
     ```
 ##### Deployment:
 ```console
-foo@bar:~$ flask deploy --migrate/--no-migrate --branch={branch}
+foo@bar:~$ flask deploy --branch={branch}
+```
+
+##### Run deployment with task:
+```console
+foo@bar:~$ flask deploy --run {task}
 ```
 
 Рейтинги беруться з reiting.com.ua

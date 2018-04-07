@@ -68,8 +68,24 @@ def add_translations(arr, lang):
     models.db.session.commit()
 
 
-def translate_all(lang='uk'):
+def translate_all():
     current_app.logger.info('Start translating names.')
+    translate_players()
+
+    models.db.session.commit()
+
+    current_app.logger.info('Cities:')
+    translate_cities()
+    models.db.session.commit()
+
+    current_app.logger.info('Tournaments:')
+    translate_tournaments()
+
+    current_app.logger.info('Statistics topics:')
+    translate_statistics_topics()
+
+
+def translate_players(lang='uk'):
     current_app.logger.info('Players:')
     players = models.Player.query.all()
     for player in players:
@@ -78,10 +94,10 @@ def translate_all(lang='uk'):
             ua_name.translated = _translate(player.name, lang)
             models.db.session.add(ua_name)
             print(ua_name.translated)
-
     models.db.session.commit()
 
-    current_app.logger.info('Cities:')
+
+def translate_cities(lang='uk'):
     cities = models.City.query.all()
     for c in cities:
         if not models.Translation.query.get(c.name + f'_{lang}'):
@@ -89,10 +105,10 @@ def translate_all(lang='uk'):
             ua_name.translated = _translate(c.name, lang)
             models.db.session.add(ua_name)
             print(ua_name.translated)
-
     models.db.session.commit()
 
-    current_app.logger.info('Tournaments:')
+
+def translate_tournaments(lang='uk'):
     tourns = models.Tournament.query.all()
     for t in tourns:
         if not models.Translation.query.get(t.name + f'_{lang}'):
@@ -100,5 +116,15 @@ def translate_all(lang='uk'):
             ua_name.translated = _translate(t.name, lang)
             models.db.session.add(ua_name)
             print(ua_name.translated)
+    models.db.session.commit()
 
+
+def translate_statistics_topics(lang='ru'):
+    topics = models.Topic.query.all()
+    for t in topics:
+        if not models.Translation.query.get(t.name + f'_{lang}'):
+            ua_name = models.Translation(t.name, lang)
+            ua_name.translated = _translate(t.name, lang)
+            models.db.session.add(ua_name)
+            print(ua_name.translated)
     models.db.session.commit()

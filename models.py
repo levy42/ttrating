@@ -93,6 +93,7 @@ class RatingList(db.Model):
     year = db.Column(db.Integer, nullable=False)
     month = db.Column(db.Integer, nullable=False)
     category = db.Column(db.String, nullable=False)
+    tournaments = db.relationship('Tournament')
 
     def __str__(self):
         return f'UA Rating {self.year}.{self.month:0>2}'

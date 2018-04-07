@@ -3,6 +3,7 @@ import datetime
 from sqlalchemy import extract
 
 import models
+from views import common
 
 
 class Type():
@@ -38,9 +39,8 @@ def topic_processor(func):
 
 
 @topic_processor
-def top_rating_list(topic):
+def top_rating_list(props):
     year = datetime.date.today().year
-    props = topic.properties
     headers = ['Гравець', 'Рейтинг', 'Вага', 'Рік', 'Місто']
     top10 = models.Player.query.order_by(
         models.Player.rating.desc()).filter(
@@ -63,8 +63,7 @@ def top_rating_list(topic):
 
 
 @topic_processor
-def top_win(topic):
-    props = topic.properties
+def top_win(props):
     headers = ['Гравець', 'Рейтинг', 'Суперник', 'Рейтинг суперника',
                'Вклад']
     games = models.Game.query.join(models.Tournament).filter(
@@ -135,9 +134,9 @@ def top_player_age(topic):
 
 
 @topic_processor
-def top_winner(topic):
-    min_game_total = topic.properties['min_game_total']
-    count = topic.properties['count']
+def top_winner(props):
+    min_game_total = props['min_game_total']
+    count = props['count']
     player_infos = models.Player.query.filter(
         models.Player.game_total > min_game_total).all()
 
@@ -160,8 +159,8 @@ def top_winner(topic):
 
 
 @topic_processor
-def rating_dynamics(topic):
-    rating_limit = topic.properties['rating_limit']
+def rating_dynamics(props):
+    rating_limit = props['rating_limit']
     label = 'Кількість гравців'
     rating_lists = models.RatingList.query.order_by('year', 'month').all()
     x = []
@@ -176,8 +175,8 @@ def rating_dynamics(topic):
 
 
 @topic_processor
-def tournament_dynamics_by_year(topic):
-    city = topic.properties.get('city')
+def tournament_dynamics_by_year(props):
+    city = props.get('city')
     label = 'Кількість турнірів'
     rating_lists = models.RatingList.query.all()
     years = set()
@@ -198,8 +197,8 @@ def tournament_dynamics_by_year(topic):
 
 
 @topic_processor
-def tournament_dynamics_by_city(topic):
-    count = topic.properties.get('count')
+def tournament_dynamics_by_city(props):
+    count = props.get('count')
     tournaments = models.Tournament.query.all()
     label = 'Кількість турнірів'
     city_totals = {}
@@ -222,8 +221,8 @@ def tournament_dynamics_by_city(topic):
 
 
 @topic_processor
-def most_active_judges(topic):
-    count = topic.properties.get('count')
+def most_active_judges(props):
+    count = props.get('count')
     tournaments = models.Tournament.query.all()
     judges_totals = {}
     for t in tournaments:
@@ -237,6 +236,29 @@ def most_active_judges(topic):
              'Кількість турнірів': v}
             for k, v in top_totals]
 
+    return dict(headers=headers, data=data)
+
+
+def last_ranking_total(props=None):
+    current_rating = common.get_current_rating_list()
+    tournament_ids = [t.id for t in current_rating.tournaments]
+    game_total = models.Game.query.filter(
+        models.Game.tournament_id.in_(tournament_ids))
+    player_total = models.Rating.query.filter_by(
+        month=current_rating.month, year=current_rating.year).count()
+    headers = ['', 'Кількість']
+    data = {'Ігри': game_total, 'Турніри': len(tournament_ids),
+            'Гравці': player_total}
+    return dict(headers=headers, data=data)
+
+
+def entire_totals(props=None):
+    game_total = models.Game.query.count()
+    tournament_total = models.Tournament.count()
+    player_total = models.Player.count()
+    headers = ['', 'Кількість']
+    data = {'Ігри': game_total, 'Турніри': tournament_total,
+            'Гравці': player_total}
     return dict(headers=headers, data=data)
 
 

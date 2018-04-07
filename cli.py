@@ -50,9 +50,23 @@ def parse_ua_all():
 
 @app.cli.command(help='Looks for new names in DB and create '
                       'translations for them.')
+@click.argument('group', default=None)
+@click.argument('lang', default=None)
 @with_appcontext
-def translate_names():
-    translator.translate_all()
+def translate_names(group, lang):
+    groups = {
+        'players': translator.translate_players,
+        'cities': translator.translate_cities,
+        'tournaments': translator.translate_tournaments,
+        'topics': translator.translate_statistics_topics
+    }
+    if not group:
+        translator.translate_all()
+    else:
+        if lang:
+            groups[group](lang)
+        else:
+            groups[group]()
 
 
 @app.cli.command(help='Updates rating statistics.')
