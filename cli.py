@@ -79,6 +79,7 @@ def update_statistics():
 @app.cli.command(help='Updates players statistics.')
 @with_appcontext
 def update_players_stat():
+    app.logger.info('Updating players statistics')
     rating_update.update_player_stats()
 
 

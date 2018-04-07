@@ -45,13 +45,13 @@ def subtask(name):
             raises = kwargs.pop('raises', None)
             try:
                 start = time()
-                app.logger.info(f'{name} started')
+                app.logger.info(f'Task "{name}" started')
                 result = f(*args, **kwargs)
                 end = time()
-                app.logger.info(f'{name} finished. Time: {end-start}')
+                app.logger.info(f'Task "{name}" finished. Time: {end-start}')
                 return result
             except Exception as e:
-                app.logger.error(f'{name} failed! {e}')
+                app.logger.error(f'Task "{name}" failed! {e}')
                 if raises:
                     raise
 

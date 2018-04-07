@@ -1,6 +1,8 @@
+import sys
 import datetime
 
 from sqlalchemy import extract
+from flask import current_app
 
 import models
 from views import common
@@ -90,8 +92,7 @@ def top_win(props):
 
 
 @topic_processor
-def top_total(topic):
-    props = topic.properties
+def top_total(props):
     order = props.get('order', 'desc')
     criteria = getattr(getattr(models.Player, props['field']), order)()
     header = props['header']
@@ -113,8 +114,7 @@ def top_total(topic):
 
 
 @topic_processor
-def top_player_age(topic):
-    props = topic.properties
+def top_player_age(props):
     order = props.get('order', 'desc')
     player_infos = models.Player.query.order_by(
         getattr(models.Player.year, order)()).filter(
@@ -239,11 +239,12 @@ def most_active_judges(props):
     return dict(headers=headers, data=data)
 
 
+@topic_processor
 def last_ranking_total(props=None):
     current_rating = common.get_current_rating_list()
     tournament_ids = [t.id for t in current_rating.tournaments]
     game_total = models.Game.query.filter(
-        models.Game.tournament_id.in_(tournament_ids))
+        models.Game.tournament_id.in_(tournament_ids)).count()
     player_total = models.Rating.query.filter_by(
         month=current_rating.month, year=current_rating.year).count()
     headers = ['', 'Кількість']
@@ -252,6 +253,7 @@ def last_ranking_total(props=None):
     return dict(headers=headers, data=data)
 
 
+@topic_processor
 def entire_totals(props=None):
     game_total = models.Game.query.count()
     tournament_total = models.Tournament.count()
@@ -262,20 +264,19 @@ def entire_totals(props=None):
     return dict(headers=headers, data=data)
 
 
-def calculate(only_new=False):
-    for t in models.Topic.query.filter_by(active=True).all():
-        if only_new and models.TopicIssue.query.filter_by(
-                topic_id=t.id).first():
-            continue
-        data = PROCESSORS[t.processor](t)
+def calculate():
+    current_app.logger.info('Calculating statistics')
+    topics = models.Topic.query.filter_by(active=True).all()
+    sys.stdout.write('Progress: 0 %')
+    progress = 0
+    for t in topics:
+        data = PROCESSORS[t.processor](t.properties)
         topic_issue = models.TopicIssue(t.id, data)
         topic_issue.topic = t
         set_date(topic_issue, datetime.date.today())
-        old_issue = models.TopicIssue.query. \
-            filter_by(new=True, topic_id=t.id).first()
-        if old_issue:
-            old_issue.new = False
-            models.db.session.add(old_issue)
         models.db.session.add(topic_issue)
+        progress += 1
+        sys.stdout.write(f'\rProgress: {progress/len(topics)*100:.3} %')
 
     models.db.session.commit()
+    sys.stdout.write('\rProgress: 100 %\n')
