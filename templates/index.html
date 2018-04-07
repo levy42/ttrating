@@ -129,36 +129,44 @@
             <div class="ui right floated dropdown item">
                 {{ _('Меню') }} <i class="dropdown icon"></i>
                 <div class="menu">
-                    <a href="{{ url_for('rating.statistics') }}"
-                       class="{% if '.statistics' in request.endpoint %}active{% endif %} item">
-                        <i class="bar chart icon"></i>
-                        {{ _('Статистика') }}</a>
-                    <a href="{{ url_for('rating.rating') }}"
-                       class="{% if '.rating' in request.endpoint %}active{% endif %} item">
-                        <i class="table icon"></i>
-                        {{ _('Рейтинг') }}</a>
-                    <a class="{% if '.world_rating' in request.endpoint %}
+                    {% if 'views.rating' in config.BLUEPRINTS %}
+                        <a href="{{ url_for('rating.statistics') }}"
+                           class="{% if '.statistics' in request.endpoint %}active{% endif %} item">
+                            <i class="bar chart icon"></i>
+                            {{ _('Статистика') }}</a>
+                        <a href="{{ url_for('rating.rating') }}"
+                           class="{% if '.rating' in request.endpoint %}active{% endif %} item">
+                            <i class="table icon"></i>
+                            {{ _('Рейтинг') }}</a>
+                        <a href="{{ url_for('rating.tournaments') }}"
+                           class="{% if '.tournaments' in request.endpoint %}active{% endif %} item">
+                            <i class="trophy icon"></i>
+                            {{ _('Турніри') }}</a>
+                        <a href="{{ url_for('rating.game_search') }}"
+                           class="{% if   '.game_search' in request.endpoint %}active{% endif %} item">
+                            <i class="search icon"></i>
+                            {{ _('Пошук ігор') }}</a>
+                    {% endif %}
+                    {% if 'views.world_rating' in config.BLUEPRINTS %}
+                        <a class="{% if '.world_rating' in request.endpoint %}
                             active{% endif %} item"
-                       href="{{ url_for('world_rating.rating') }}">
-                        <i class="world icon"></i>
-                        {{ _('Світовий рейтинг') }}</a>
-                    <a href="{{ url_for('rating.tournaments') }}"
-                       class="{% if '.tournaments' in request.endpoint %}active{% endif %} item">
-                        <i class="trophy icon"></i>
-                        {{ _('Турніри') }}</a>
-                    <a href="{{ url_for('rating.game_search') }}"
-                       class="{% if   '.game_search' in request.endpoint %}active{% endif %} item">
-                        <i class="search icon"></i>
-                        {{ _('Пошук ігор') }}</a>
-                    {#                    <a href="{{ url_for('.sparring') }}"#}
-                    {#                       class="{% if   '.sparring' in request.endpoint %}active{% endif %} item">#}
-                    {#                        <i class="announcement icon"></i>#}
-                    {#                        {{ _('Спаринг оголошення') }}</a>#}
-                    {#                    <div class="divider"></div>#}
-                    {#                    <a href="{{ url_for('.live_tournament_home') }}"#}
-                    {#                       class="{% if '.live_tournament_home' in request.endpoint %}active{% endif %} item">#}
-                    {#                        <i class="sitemap icon"></i>#}
-                    {#                        {{ _('Турніри онлайн') }}</a>#}
+                           href="{{ url_for('world_rating.rating') }}">
+                            <i class="world icon"></i>
+                            {{ _('Світовий рейтинг') }}</a>
+                    {% endif %}
+                    {% if 'views.sparrings' in config.BLUEPRINTS %}
+                        <a href="{{ url_for('.sparring') }}"
+                           class="{% if   '.sparring' in request.endpoint %}active{% endif %} item">
+                            <i class="announcement icon"></i>
+                            {{ _('Спаринг оголошення') }}</a>
+                    {% endif %}
+                    {% if 'views.live_tournaments' in config.BLUEPRINTS %}
+                        <div class="divider"></div>
+                        <a href="{{ url_for('.live_tournament_home') }}"
+                           class="{% if '.live_tournament_home' in request.endpoint %}active{% endif %} item">
+                            <i class="sitemap icon"></i>
+                            {{ _('Турніри онлайн') }}</a>
+                    {% endif %}
                     <div class="divider"></div>
                     <a href="{{ url_for('main.about') }}"
                        class="{% if 'about' in request.endpoint %}active{% endif %} item">
