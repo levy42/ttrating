@@ -181,32 +181,25 @@ class Game(db.Model):
 
 
 class Topic(db.Model):
-    def __init__(self, name, type, period, index, props, processor,
-                 group=None, display_name=None, active=True):
-        self.group = group
-        self.name = name
-        self.type = type
-        self.period = period
-        self.index = index
-        self.processor = processor
-        self._properties = props
-        self.active = active
-        self.display_name = display_name or name
-
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    active = db.Column(db.Boolean)
+    active = db.Column(db.Boolean, default=True)
     type = db.Column(db.Integer)
     period = db.Column(db.Integer)
-    name = db.Column(db.String)
-    display_name = db.Column(db.String)
+    name = db.Column(db.String, nullable=False)
+    display_name = db.Column(db.String, default=lambda context: context.
+                             get_current_parameters()['name'])
     group = db.Column(db.String)
     index = db.Column(db.Integer)
     processor = db.Column(db.String)
     _properties = db.Column(db.String, name='properties')
 
-    @property
-    def properties(self):
+    def get_properties(self):
         return json.loads(self._properties)
+
+    def set_properties(self, val):
+        self._properties = json.dumps(val)
+
+    properties = property(get_properties, set_properties)
 
     def __str__(self):
         return f'{self.name}'
