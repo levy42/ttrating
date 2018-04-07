@@ -248,9 +248,10 @@ def last_ranking_total(props=None):
         models.Game.tournament_id.in_(tournament_ids)).count()
     player_total = models.Rating.query.filter_by(
         month=current_rating.month, year=current_rating.year).count()
-    headers = ['', 'Кількість']
-    data = {'Ігри': game_total, 'Турніри': len(tournament_ids),
-            'Гравці': player_total}
+    headers = ['*', 'Кількість']
+    data = [{'*': 'Ігри', 'Кількість': game_total},
+            {'*': 'Турніри', 'Кількість': len(tournament_ids)},
+            {'*': 'Гравці', 'Кількість': player_total}]
     return dict(headers=headers, data=data)
 
 
@@ -259,9 +260,10 @@ def entire_totals(props=None):
     game_total = models.Game.query.count()
     tournament_total = models.Tournament.query.count()
     player_total = models.Player.query.count()
-    headers = ['', 'Кількість']
-    data = {'Ігри': game_total, 'Турніри': tournament_total,
-            'Гравці': player_total}
+    headers = ['*', 'Кількість']
+    data = [{'*': 'Ігри', 'Кількість': game_total},
+            {'*': 'Турніри', 'Кількість': tournament_total},
+            {'*': 'Гравці', 'Кількість': player_total}]
     return dict(headers=headers, data=data)
 
 
@@ -310,13 +312,13 @@ def create_default_topics():
         Topic(name='Players with rating more then 80', type=Type.CHART,
               processor='rating_dynamics', properties={"rating_limit": 80},
               index=37, period=Period.ENTIRE),
-        Topic(name='Players with rating more then 60', type=Type.LIST,
+        Topic(name='Players with rating more then 60', type=Type.CHART,
               processor='rating_dynamics', properties={"rating_limit": 60},
               index=38, period=Period.ENTIRE),
-        Topic(name='Players with rating more then 40', type=Type.LIST,
+        Topic(name='Players with rating more then 40', type=Type.CHART,
               processor='rating_dynamics', properties={"rating_limit": 40},
               index=39, period=Period.ENTIRE),
-        Topic(name='Players count with rating more then 10', type=Type.LIST,
+        Topic(name='Players count with rating more then 10', type=Type.CHART,
               processor='rating_dynamics', properties={"rating_limit": 10},
               index=40, period=Period.ENTIRE),
         Topic(name='Oldest players', type=Type.LIST,
@@ -327,14 +329,14 @@ def create_default_topics():
               processor='top_player_age',
               properties={"field": "year", "header": "Year", "order": "desc",
                           "count": 10}, index=99, period=Period.ENTIRE),
-        Topic(name='Tournament total by years', type=Type.LIST,
+        Topic(name='Tournament total by years', type=Type.CHART,
               processor='tournament_dynamics_by_year', properties={}, index=11,
               period=Period.ENTIRE),
-        Topic(name='Tournament total by years Kiev', type=Type.LIST,
+        Topic(name='Tournament total by years Kiev', type=Type.CHART,
               processor='tournament_dynamics_by_year',
               properties={"city": "Киев", "chart_type": "bar"}, index=12,
               period=Period.ENTIRE),
-        Topic(name='Tournament total by Cities', type=Type.LIST,
+        Topic(name='Tournament total by Cities', type=Type.CHART,
               processor='tournament_dynamics_by_city',
               properties={"count": 7, "chart_type": "pie"}, index=13,
               period=Period.ENTIRE),

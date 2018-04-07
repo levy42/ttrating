@@ -7,7 +7,7 @@ import jinja2
 from flask import (Flask, g, redirect, render_template, request, url_for,
                    Blueprint, Response)
 from flask_babel import (Babel, _)
-from flask_caching import Cache
+from flask_cache import Cache
 from flask_mobility import Mobility
 from jinja2 import filters
 from flask_mail import Mail, Message

@@ -9,7 +9,7 @@
     <div class="ui text container">
         {% for i in issues.items %}
             <h3>{{ name(i.topic.name) }}</h3>
-            {% if i.topic.type == 1 %}
+            {% if i.topic.type == 2 %}
                 <table id="table" class="ui basic compact table">
                     <thead>
                     <tr>
@@ -47,7 +47,7 @@
                     </tbody>
                 </table>
             {% endif %}
-            {% if i.topic.type == 2 %}
+            {% if i.topic.type == 1 %}
                 <div>
                     <canvas id="{{ i.id }}"></canvas>
                 </div>
