@@ -299,7 +299,7 @@ msgid "Підтердити"
 msgstr "Подтвердить"
 
 msgid "січ"
-msgstr "янв"
+msgstr "явн"
 
 msgid "лют"
 msgstr "фев"
