@@ -47,16 +47,17 @@ class FlaskMailLogHandler(logging.Handler):
             subject=f'{config.APP_NAME} ERROR!'))
 
 
-formatter = logging.Formatter(app.config['LOG_FORMAT'])
-handler = RotatingFileHandler(app.config['LOG_PATH'], maxBytes=1000000,
-                              backupCount=1)
-handler.setFormatter(formatter)
-app.logger.addHandler(handler)
-handler.setLevel(logging.INFO)
-mail_handler = FlaskMailLogHandler(mail, app.config['ADMINS'])
-mail_handler.setLevel(logging.ERROR)
-mail_handler.setFormatter(formatter)
-app.logger.addHandler(mail_handler)
+if not app.debug:
+    formatter = logging.Formatter(app.config['LOG_FORMAT'])
+    handler = RotatingFileHandler(app.config['LOG_PATH'],
+                                  maxBytes=1000000, backupCount=1)
+    handler.setFormatter(formatter)
+    app.logger.addHandler(handler)
+    handler.setLevel(logging.INFO)
+    mail_handler = FlaskMailLogHandler(mail, app.config['ADMINS'])
+    mail_handler.setLevel(logging.ERROR)
+    mail_handler.setFormatter(formatter)
+    app.logger.addHandler(mail_handler)
 
 
 def mail_alert(text):
@@ -202,4 +203,4 @@ for _module in app.config.get('BLUEPRINTS', []):
     app.register_blueprint(bp, url_prefix='')
 
 if __name__ == '__main__':
-    app.run(port=10000, host='0.0.0.0', debug=True)
+    app.run(port=10000, host='0.0.0.0')

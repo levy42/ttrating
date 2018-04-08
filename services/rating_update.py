@@ -7,7 +7,6 @@ Module contains tasks for ranking data update:
     - Send email reports.
 """
 from time import time
-from services import parser, translator, statistics, email_reports, games_chain
 from models import db, User, Game, Player, Tournament
 from flask_mail import Message
 from app import mail
@@ -17,6 +16,7 @@ from flask import render_template
 from app import app, cache
 from itsdangerous import URLSafeSerializer
 from views import common
+from services import parser, translator, statistics, email_reports, games_chain
 
 
 def update_ua(raises=False):

@@ -33,5 +33,4 @@ def delete_expired_users():
 
 @task
 def test():
-    # rating_update.send_ua_monthly_report()
     app.logger.info('Test')
