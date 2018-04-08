@@ -35,8 +35,7 @@ def parse_ua(month=None, year=None, rating_id=None):
     month = month or datetime.datetime.now().month
     rating_list = RatingList.query.filter_by(month=month, year=year).first()
     if rating_list:  # rating was already parsed
-        LOG.debug('Rating already parsed')
-        return
+        LOG.debug('Rating already parsed. Parsing for updates.')
     if not rating_id:
         remote_rating_lists = get_all_rating_lists()
         rating_id = remote_rating_lists[0][0]
@@ -47,7 +46,10 @@ def parse_ua(month=None, year=None, rating_id=None):
     res = parse_ua_by_category(month, year, category=Category.MEN,
                                rating_id=rating_id,
                                parse_tourn=False)
+    updated = False
     for k, v in res.items():
+        if v:
+            updated = True
         updated_data[k].update(v)
     if res == -1:
         LOG.debug('Rating cannot be parsed')
@@ -64,7 +66,7 @@ def parse_ua(month=None, year=None, rating_id=None):
     db.session.add(rating_list)
     db.session.commit()
 
-    return updated_data
+    return updated_data if updated else None
 
 
 def get_all_rating_lists():
