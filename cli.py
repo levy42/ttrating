@@ -51,8 +51,8 @@ def parse_ua_all():
 
 @app.cli.command(help='Looks for new names in DB and create '
                       'translations for them.')
-@click.argument('group', default=None)
-@click.argument('lang', default=None)
+@click.argument('group', default='')
+@click.argument('lang', default='')
 @with_appcontext
 def translate_names(group, lang):
     groups = {
