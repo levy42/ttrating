@@ -7,7 +7,7 @@ import jinja2
 from flask import (Flask, g, redirect, render_template, request, url_for,
                    Blueprint, Response)
 from flask_babel import (Babel, _)
-from flask_cache import Cache
+from flask_caching import Cache
 from flask_mobility import Mobility
 from jinja2 import filters
 from flask_mail import Mail, Message
@@ -192,15 +192,14 @@ def basic_auth():
                 {'WWW-Authenticate': 'Basic realm="Login Required"'})
 
 
-import_module('cli')  # init commands
+def load_modules():
+    import_module('cli')  # init commands
 
-app.register_blueprint(main, url_prefix='/<lang>')
-app.register_blueprint(main, url_prefix='')
+    app.register_blueprint(main, url_prefix='/<lang>')
+    app.register_blueprint(main, url_prefix='')
 
-for _module in app.config.get('BLUEPRINTS', []):
-    bp = import_module(_module).bp
-    app.register_blueprint(bp, url_prefix='/<lang>')
-    app.register_blueprint(bp, url_prefix='')
+    for _module in app.config.get('BLUEPRINTS', []):
+        bp = import_module(_module).bp
+        app.register_blueprint(bp, url_prefix='/<lang>')
+        app.register_blueprint(bp, url_prefix='')
 
-if __name__ == '__main__':
-    app.run(port=10000, host='0.0.0.0')
