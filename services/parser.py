@@ -68,16 +68,17 @@ def parse_ua(month=None, year=None):
     updated_data = {'players': set(), 'cities': set(), 'tournaments': set()}
     if rating_list:  # rating was already parsed
         LOG.debug('Rating already parsed. Parsing for updates.')
-    remote_rating_lists = get_all_rating_lists()
-    rating_id = remote_rating_lists[0][0]
-    if remote_rating_lists[0][2] != month:  # no new rating available
-        LOG.debug('No new rating available')
-        return
     else:
-        rating_list = RatingList()
-        rating_list.year = year
-        rating_list.month = month
-        rating_list.id = str(rating_id)
+        remote_rating_lists = get_all_rating_lists()
+        rating_id = remote_rating_lists[0][0]
+        if remote_rating_lists[0][2] != month:  # no new rating available
+            LOG.debug('No new rating available')
+            return
+        else:
+            rating_list = RatingList()
+            rating_list.year = year
+            rating_list.month = month
+            rating_list.id = str(rating_id)
     res = parse_ua_by_category(month, year, category=Category.MEN,
                                rating_id=rating_id,
                                parse_tourn=False)
