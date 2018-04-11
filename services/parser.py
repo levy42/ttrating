@@ -2,18 +2,15 @@
 Utils service for parsing rankings data from reiting.com.ua
 """
 import datetime
-import os
 import re
 
 import requests
-import xlrd
 from bs4 import BeautifulSoup
 from flask import current_app
 from werkzeug.local import LocalProxy
 
-from models import (
-    db, Player, Tournament, WorldRating, Game, WorldPlayer,
-    WorldRatingList, RatingList, Rating, Country, PlayerTournament, City)
+from models import (db, Player, Tournament, Game, RatingList, Rating,
+                    PlayerTournament, City)
 from models import Category
 
 WORLD_RATING = "http://www.old.ittf.com/ittf_ranking/PDF/%s_%s_%s.xls"
@@ -29,20 +26,18 @@ CATEGORY_MAPPINGS = {
 LOG = LocalProxy(lambda: current_app.logger)
 
 
-def parse_ua(month=None, year=None, rating_id=None):
-    LOG.debug(f'Called rating parse: month: {month}, year: {year}.')
-    year = year or datetime.datetime.now().year
-    month = month or datetime.datetime.now().month
-    rating_list = RatingList.query.filter_by(month=month, year=year).first()
+def parse_ua_by_external_id(rating_id, month, year):
+    LOG.debug(f'Called rating parse: rating id: {rating_id}.')
+    rating_list = RatingList.query.filter_by(rating_id=rating_id).first()
+    updated_data = {'players': set(), 'cities': set(), 'tournaments': set()}
     if rating_list:  # rating was already parsed
         LOG.debug('Rating already parsed. Parsing for updates.')
-    if not rating_id:
-        remote_rating_lists = get_all_rating_lists()
-        rating_id = remote_rating_lists[0][0]
-        if remote_rating_lists[0][2] != month:  # no new rating available
-            LOG.debug('No new rating available')
-            return
-    updated_data = {'players': set(), 'cities': set(), 'tournaments': set()}
+    else:
+        rating_list = RatingList()
+        rating_list.year = year
+        rating_list.month = month
+        rating_list.id = str(rating_id)
+
     res = parse_ua_by_category(month, year, category=Category.MEN,
                                rating_id=rating_id,
                                parse_tourn=False)
@@ -58,10 +53,46 @@ def parse_ua(month=None, year=None, rating_id=None):
                                rating_id=rating_id)
     for k, v in res.items():
         updated_data[k].update(v)
-    rating_list = RatingList()
-    rating_list.year = year
-    rating_list.month = month
-    rating_list.id = str(rating_id)
+
+    db.session.add(rating_list)
+    db.session.commit()
+
+    return updated_data if updated else None
+
+
+def parse_ua(month=None, year=None):
+    LOG.debug(f'Called rating parse: month: {month}, year: {year}.')
+    year = year or datetime.datetime.now().year
+    month = month or datetime.datetime.now().month
+    rating_list = RatingList.query.filter_by(month=month, year=year).first()
+    updated_data = {'players': set(), 'cities': set(), 'tournaments': set()}
+    if rating_list:  # rating was already parsed
+        LOG.debug('Rating already parsed. Parsing for updates.')
+    remote_rating_lists = get_all_rating_lists()
+    rating_id = remote_rating_lists[0][0]
+    if remote_rating_lists[0][2] != month:  # no new rating available
+        LOG.debug('No new rating available')
+        return
+    else:
+        rating_list = RatingList()
+        rating_list.year = year
+        rating_list.month = month
+        rating_list.id = str(rating_id)
+    res = parse_ua_by_category(month, year, category=Category.MEN,
+                               rating_id=rating_id,
+                               parse_tourn=False)
+    updated = False
+    for k, v in res.items():
+        if v:
+            updated = True
+        updated_data[k].update(v)
+    if res == -1:
+        LOG.debug('Rating cannot be parsed')
+        return
+    res = parse_ua_by_category(month, year, category=Category.WOMEN,
+                               rating_id=rating_id)
+    for k, v in res.items():
+        updated_data[k].update(v)
 
     db.session.add(rating_list)
     db.session.commit()
@@ -95,7 +126,7 @@ def parse_ua_all():
     all_data = {'players': set(), 'cities': set(), 'tournaments': set(),
                 'was_updated': False}
     for rating_id, year, month in rating_lists:
-        updated_data = parse_ua(month=month, year=year, rating_id=rating_id)
+        updated_data = parse_ua_by_external_id(rating_id, month, year)
         if updated_data:
             all_data['was_updated'] = True
             all_data['players'].update(updated_data['players'])
@@ -297,113 +328,6 @@ def parse_ua_by_category(month, year, rating_id, category=Category.MEN,
     return updated_data
 
 
-def parse_world_rating_all():
-    i = 0
-    for year in range(2014, 2018):
-        for month in range(1, 13):
-            for category in CATEGORY_MAPPINGS:
-                i += 1
-                LOG.debug(year, month, category)
-                parse_world_by_category(category, year=year, month=month)
-
-
-def parse_world_rating():
-    was_updated = False
-    for category in CATEGORY_MAPPINGS:
-        if parse_world_by_category(category):
-            was_updated = True
-    return was_updated
-
-
-def parse_world_by_category(category='100_M', year=None, month=None):
-    countries = {c.code: c.code for c in Country.query.all()}
-    countries_codes = []
-    mapped_category = CATEGORY_MAPPINGS[category]
-    now = datetime.datetime.now()
-    if not year:
-        year = now.year
-    if not month:
-        month = now.month
-    rating_id = category + str(month) + str(year)
-    previous_rating = WorldRatingList.query.get(rating_id)
-    if previous_rating:
-        return
-    man_rating_link = WORLD_RATING % (category, month, year)
-    latest_ratings = requests.get(man_rating_link)
-    if latest_ratings.status_code != 200:
-        return
-    document_name = os.path.join(
-        f'/tmp/WorldRating_{category}_{month}_{year}.xls')
-
-    with open(document_name, 'wb') as f:
-        f.write(latest_ratings.content)
-
-    xls_book = xlrd.open_workbook(document_name)
-    sheet = xls_book.sheet_by_index(0)
-    players = {p.name: p for p in
-               WorldPlayer.query.filter_by(
-                   category=mapped_category).all()}
-    for p in players.values():
-        p.rating = 0
-    for index in range(0, sheet.nrows):
-        position = sheet.cell(index, 0).value
-        try:
-            position = int(position)
-        except Exception:
-            continue
-        name = str(sheet.cell(index, 2).value.replace('^', '').strip())
-        country_code = str(sheet.cell(index, 3).value.replace('^', '').strip())
-        rating = int(sheet.cell(index, 4).value.strip())
-        player = players.get(name)
-
-        if not player:
-            player = WorldPlayer()
-            player.category = mapped_category
-            player.country_code = country_code
-            player.name = name
-
-            if not countries.get(country_code, None):
-                countries[country_code] = country_code
-                countries_codes.append(country_code)
-
-        player.rating = rating
-        player.position = position
-        players[name] = player
-        db.session.add(player)
-
-    db.session.commit()
-    previous_world_ratings = {r.player_id: 1 for r in
-                              WorldRating.query.filter_by(
-                                  year=year, month=month).all()}
-    for p in players.values():
-        if not p.id or previous_world_ratings.get(p.id):
-            continue
-        world_rating = WorldRating()
-        world_rating.month = month
-        world_rating.year = year
-        world_rating.player_id = p.id
-        world_rating.rating = p.rating
-        world_rating.position = p.position
-        db.session.add(world_rating)
-
-    for c in countries_codes:
-        country = Country()
-        country.code = str(c)
-        country.name = str(c)
-        db.session.add(country)
-
-    rating_list = WorldRatingList()
-    rating_list.year = year
-    rating_list.month = month
-    rating_list.category = category
-    rating_list.id = rating_id
-    db.session.add(rating_list)
-    db.session.commit()
-    os.remove(document_name)
-
-    return True
-
-
 def parse_tournament(href, tournament):
     page = requests.get(UA_RATING_DOMEN + href + '?limit=1000')
     if page.status_code != 200:
@@ -593,3 +517,11 @@ def parse_tt_cup_photos():
                 LOG.debug(f'Error processing image for url {photo_url} : {e}')
     with open('photos.json', 'w') as f:
         json.dump(players_data, f)
+
+
+def parse_world_rating_all():
+    raise NotImplemented
+
+
+def parse_world_rating():
+    raise NotImplemented

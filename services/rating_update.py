@@ -13,7 +13,7 @@ from app import mail
 from flask import request
 from flask_babel import _
 from flask import render_template
-from app import app, cache
+from app import app, cache, mail_alert
 from itsdangerous import URLSafeSerializer
 from views import common
 from services import parser, translator, statistics, email_reports, games_chain
@@ -29,6 +29,7 @@ def update_ua(raises=False):
     send_ua_monthly_report(raises=raises)
     update_graph_for_games_chain(raises=raises)
     cache.clear()
+    mail_alert(f'Rating updated. Updated data: {updated_data}')
     return success
 
 
