@@ -67,6 +67,7 @@ def parse_ua(month=None, year=None):
     rating_list = RatingList.query.filter_by(month=month, year=year).first()
     updated_data = {'players': set(), 'cities': set(), 'tournaments': set()}
     if rating_list:  # rating was already parsed
+        rating_id = rating_list.id
         LOG.debug('Rating already parsed. Parsing for updates.')
     else:
         remote_rating_lists = get_all_rating_lists()
