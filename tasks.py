@@ -15,7 +15,6 @@ def task(f):
 @task
 def update_ua_rating():
     rating_update.update_ua()
-    rating_update.send_ua_monthly_report()
 
 
 @task
