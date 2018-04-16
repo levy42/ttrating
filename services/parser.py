@@ -80,6 +80,7 @@ def parse_ua(month=None, year=None):
             rating_list.year = year
             rating_list.month = month
             rating_list.id = str(rating_id)
+            updated_data['new'] = rating_list
     res = parse_ua_by_category(month, year, category=Category.MEN,
                                rating_id=rating_id,
                                parse_tourn=False)

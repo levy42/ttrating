@@ -26,10 +26,13 @@ def update_ua(raises=False):
         return
     translate_new_strings(updated_data, raises=raises)
     update_statistics(raises=raises)
-    send_ua_monthly_report(raises=raises)
+    if updated_data.get('new'):
+        send_ua_monthly_report(raises=raises)
+        mail_alert(f'New rating. Updated data: {updated_data}')
+    else:
+        mail_alert(f'Rating updated. Updated data: {updated_data}')
     update_graph_for_games_chain(raises=raises)
     cache.clear()
-    mail_alert(f'Rating updated. Updated data: {updated_data}')
     return success
 
 
