@@ -22,7 +22,13 @@ class NameReprMixin:
         return self.name
 
 
-class WorldPlayer(NameReprMixin, db.Model):
+class TimeStampMixin:
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now)
+    update_at = db.Column(db.DateTime, default=datetime.datetime.now,
+                          onupdate=datetime.datetime.now)
+
+
+class WorldPlayer(NameReprMixin, TimeStampMixin, db.Model):
     column_searchable_list = ('id', 'name')
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String)
@@ -33,7 +39,7 @@ class WorldPlayer(NameReprMixin, db.Model):
     position = db.Column(db.Integer)
 
 
-class WorldRating(db.Model):
+class WorldRating(TimeStampMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     player_id = db.Column(db.Integer, ForeignKey('world_player.id'))
     player = relationship("WorldPlayer")
@@ -46,7 +52,7 @@ class WorldRating(db.Model):
         return f'{self.player.name} {self.year}.{self.month}'
 
 
-class WorldRatingList(db.Model):
+class WorldRatingList(TimeStampMixin, db.Model):
     id = db.Column(db.String, primary_key=True)
     year = db.Column(db.Integer)
     month = db.Column(db.Integer)
@@ -63,7 +69,7 @@ class Country(NameReprMixin, db.Model):
     weight = db.Column(db.Integer)
 
 
-class Player(NameReprMixin, db.Model):
+class Player(TimeStampMixin, NameReprMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, nullable=False)
     external_id = db.Column(db.Integer, unique=True)
@@ -88,7 +94,7 @@ class Player(NameReprMixin, db.Model):
     photo_url = db.Column(db.String)
 
 
-class RatingList(db.Model):
+class RatingList(TimeStampMixin, db.Model):
     id = db.Column(db.String, primary_key=True)
     year = db.Column(db.Integer, nullable=False)
     month = db.Column(db.Integer, nullable=False)
@@ -99,7 +105,7 @@ class RatingList(db.Model):
         return f'UA Rating {self.year}.{self.month:0>2}'
 
 
-class Rating(db.Model):
+class Rating(TimeStampMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     player_id = db.Column(db.Integer, ForeignKey('player.id'))
     player = relationship("Player")
@@ -115,7 +121,7 @@ class Rating(db.Model):
         return f'{self.player.name} {self.year}.{self.month}'
 
 
-class Tournament(NameReprMixin, db.Model):
+class Tournament(TimeStampMixin, NameReprMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String)
     external_id = db.Column(db.Integer, unique=True)
@@ -162,7 +168,7 @@ class City(NameReprMixin, db.Model):
     weight = db.Column(db.Integer)
 
 
-class Game(db.Model):
+class Game(TimeStampMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     result = db.Column(db.Boolean)
     player_id = db.Column(db.Integer, ForeignKey('player.id'))
@@ -180,7 +186,7 @@ class Game(db.Model):
         return f'{self.player_name} vs {self.opponent_name}'
 
 
-class Topic(db.Model):
+class Topic(TimeStampMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     active = db.Column(db.Boolean, default=True)
     type = db.Column(db.Integer)
@@ -205,7 +211,7 @@ class Topic(db.Model):
         return f'{self.name}'
 
 
-class TopicIssue(db.Model):
+class TopicIssue(TimeStampMixin, db.Model):
     def __init__(self, topic_id, data):
         self._data = json.dumps(data)
         self.topic_id = topic_id
@@ -227,7 +233,7 @@ class TopicIssue(db.Model):
         return f'{self.topic.name} {self.date}'
 
 
-class LiveTournament(db.Model):
+class LiveTournament(TimeStampMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     key = db.Column(db.String)
     name = db.Column(db.String)
