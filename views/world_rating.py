@@ -9,8 +9,8 @@ from flask_mobility.decorators import mobile_template
 bp = Blueprint('world_rating', __name__)
 
 
-@bp.route('/world-rating/<category>')
-@bp.route('/world-rating')
+@bp.route('/world-rating/<category>/')
+@bp.route('/world-rating/')
 @mobile_template('{mobile/}world_rating/world-rating.html')
 @cache.cached(key_prefix=lambda: request.url + str(request.MOBILE))
 def rating(template, category='MEN'):
@@ -45,7 +45,7 @@ def rating(template, category='MEN'):
                            year=year, month=month, years=years)
 
 
-@bp.route("/world-player/<id>")
+@bp.route("/world-player/<id>/")
 @mobile_template('{mobile/}world_rating/world-player.html')
 @cache.cached(key_prefix=lambda: request.url + str(request.MOBILE))
 def player(template, id):
@@ -62,7 +62,7 @@ def player(template, id):
                            positions=positions, dates=dates)
 
 
-@bp.route("/world-player-search/<name>")
+@bp.route("/world-player-search/<name>/")
 @cache.cached()
 def player_search(name):
     matches = m.WorldPlayer.query.filter(m.WorldPlayer.name.like(
