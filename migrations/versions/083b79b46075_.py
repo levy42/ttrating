@@ -17,6 +17,7 @@ depends_on = None
 
 
 class PlayerInfo(db.Model):
+    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, db.ForeignKey('player.id'), primary_key=True)
     player = db.relationship('Player', backref="player.info")
     tournaments_total = db.Column(db.Integer)
