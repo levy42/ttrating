@@ -1,0 +1,15 @@
+% extends "email/base.html" %}
+{% block content %}
+    <h4>{{ _("Ваш рейтинг обновився") }}!</h4>
+    <p>{{ _("Рейтинг на") }} <b>{{ config.BRAND }}</b>: <a
+            href="{{ 'http://%s/%s/rating' % (config.SERVER_NAME , request.lang) }}">{{ _("відкрити") }}</a>
+    </p>
+    <p>{{ _("Рейтинг на офіційному сайті") }}: <a
+            href="http://reiting.com.ua">{{ _("відкрити") }}</a></p>
+
+    <p>{{ _('Ваш новий рейтинг -') }}
+    <p class="green">{{ user.player.rating }}</p>
+    </p>
+{% endblock %}
+{% block style %}
+{% endblock %}

@@ -31,6 +31,8 @@ def update_ua(raises=False):
         mail_alert(f'New rating. Updated data: {updated_data}')
     else:
         mail_alert(f'Rating updated. Updated data: {updated_data}')
+    if updated_data.get('players'):
+        send_rating_update_report(updated_data['players'])
     update_graph_for_games_chain(raises=raises)
     cache.clear()
     return success
@@ -105,6 +107,29 @@ def send_ua_monthly_report():
                                                        user=user,
                                                        token=token,
                                                        report=report),
+                                  recipients=[user.email])
+                    conn.send(msg)
+
+
+@subtask('Send ua rating updates reports')
+def send_rating_update_report(updated_players):
+    users = User.query.filter(
+        User.confirmed == True,
+        User.player_id.in_(updated_players)).all()
+    users_divided_by_lang = {lang: [u for u in users if u.language == lang] for
+                             lang in app.config['SUPPORTED_LANGUAGES']}
+
+    for lang, users in users_divided_by_lang.items():
+        with app.test_request_context(f'/{lang}/'):
+            request.lang = lang
+            with mail.connect() as conn:
+                for user in users:
+                    token = generate_confirmation_token(user.email)
+                    msg = Message(subject=_("Ваш рейтинг обновився"),
+                                  html=render_template(
+                                      'email/updated_rating.html',
+                                      user=user,
+                                      token=token),
                                   recipients=[user.email])
                     conn.send(msg)
 

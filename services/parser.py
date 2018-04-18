@@ -188,7 +188,10 @@ def parse_ua_by_category(month, year, rating_id, category=Category.MEN,
             player = Player()
             updated_data['players'].append(name)
 
-        player.rating = float(cells[3].find(text=True).replace(',', '.'))
+        new_rating = float(cells[3].find(text=True).replace(',', '.'))
+        if player.rating != new_rating:
+            updated_data['players'].append(player.id)
+        player.rating = new_rating
         player.rating_fine = float(cells[2].find(text=True).replace(',', '.'))
         player.weight = int(cells[4].find(text=True))
         player.year = int(cells[5].find(text=True) or 0)

@@ -42,12 +42,6 @@
                     <div align="left" class="results"></div>
                 </div>
                 <input id="player_id" name="player_id" hidden>
-                <label>{{ _('Мова') }}:</label>
-                <select class="ui compact dropdown field" name="lang">
-                    {% for i, name in config.SUPPORTED_LANGUAGES.items() %}
-                        <option value="{{ i }}">{{ name }}</option>
-                    {% endfor %}
-                </select>
                 <div class="field" align="center">
                     <button class="ui negative button"
                             type="submit">{{ _('Підписатись') }}</button>

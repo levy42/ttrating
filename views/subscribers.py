@@ -1,6 +1,7 @@
 from flask import current_app as app
 import datetime
-from flask import request, render_template, abort, Blueprint, redirect, url_for
+from flask import request, render_template, abort, Blueprint, redirect, \
+    url_for, g
 from app import mail, db, mail_alert
 import models as m
 from flask_mail import Message
@@ -26,7 +27,7 @@ def subscribe():
         password = request.form.get('password')
         player_id = request.form.get('player_id')
         email = request.form.get('email')
-        language = request.form.get('lang')
+        language = g.lang
         errors = {}
         # validate
         if m.User.query.filter_by(email=email).first():
