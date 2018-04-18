@@ -24,8 +24,8 @@ class NameReprMixin:
 
 class TimeStampMixin:
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
-    update_at = db.Column(db.DateTime, default=datetime.datetime.now,
-                          onupdate=datetime.datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.datetime.now,
+                          onupdate=func.now)
 
 
 class WorldPlayer(NameReprMixin, TimeStampMixin, db.Model):
@@ -56,8 +56,6 @@ class WorldRatingList(TimeStampMixin, db.Model):
     id = db.Column(db.String, primary_key=True)
     year = db.Column(db.Integer)
     month = db.Column(db.Integer)
-    category = db.Column(db.String)
-
     def __str__(self):
         return f'World Rating {self.category} {self.year}.{self.month}'
 
@@ -98,7 +96,6 @@ class RatingList(TimeStampMixin, db.Model):
     id = db.Column(db.String, primary_key=True)
     year = db.Column(db.Integer, nullable=False)
     month = db.Column(db.Integer, nullable=False)
-    category = db.Column(db.String, nullable=False)
     tournaments = db.relationship('Tournament')
 
     def __str__(self):
@@ -315,8 +312,3 @@ class User(db.Model):
         self.confirmed_on = confirmed_on
         self.player_id = player_id
         self.language = language
-
-
-class Test(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime, server_default=func.now())
