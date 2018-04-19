@@ -137,7 +137,7 @@
         $('#player_search').search({
             apiSettings: {
                 action: 'search',
-                url: '//{{ g.lang }}/player-search/{query}',
+                url: '/{{ g.lang }}/player-search/{query}',
                 onResponse: function (serverResponse) {
                     var response = {results: []};
                     $.each(serverResponse, function (index, item) {
