@@ -158,7 +158,7 @@ def statistics(template):
     return render_template(template, issues=issues)
 
 
-@bp.route('/player-search/<name>/')
+@bp.route('/player-search/<name>')
 @cache.cached()
 def player_search(name):
     if g.lang == 'ru':  # default player name language
