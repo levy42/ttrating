@@ -1,7 +1,7 @@
-# [ttennis.life ](ttennis.life)
+ZQ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Q!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!# [ttennis.life ](ttennis.life)
 <img src="https://github.com/vitaliylevitskiand/ttrating/blob/master/static/img/logo.png" width="100" height="100">
 
-### Альтернатива ресурсу <http://reiting.com.ua>
+### OLD PROJECT, NOW INECTIVE
 
 1) Install python >= 3.6
 2) Setup virtualenv
@@ -37,5 +37,3 @@ foo@bar:~$ flask deploy --branch={branch}
 ```console
 foo@bar:~$ flask deploy --run {task}
 ```
-
-Рейтинги беруться з reiting.com.ua
